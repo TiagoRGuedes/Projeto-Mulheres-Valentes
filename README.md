@@ -6,7 +6,6 @@ Projeto acadêmico da disciplina **IBM4024 — Projeto em Ciência de Dados II �
 
 - Bruno Cappellette
 - Tiago Guedes
-- Paolo Ce
 
 Este repositório contém uma aplicação web independente para apoiar o controle de presença e o livro caixa da ONG Mulheres Valentes. Ele não compartilha banco de dados, configuração, dependências, código ou documentação com o projeto da ONG Remo Meu Rumo.
 
