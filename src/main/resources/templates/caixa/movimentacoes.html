@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Movimentações do caixa')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('movimentacoes')}"></aside>
+    <main id="conteudo" class="conteudo-principal" tabindex="-1">
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa}">Livro Caixa</a><span aria-hidden="true">›</span><span aria-current="page">Movimentações</span></nav>
+        <header class="cabecalho-pagina com-acoes">
+            <div><p class="sobretitulo">Consulte e corrija registros</p><h1>Movimentações do caixa</h1><p>Veja tudo que entrou e saiu. Use os filtros para encontrar uma informação.</p></div>
+            <div class="grupo-botoes"><a class="botao botao-entrada" th:href="@{/caixa/entrada}">↑ Entrada</a><a class="botao botao-saida" th:href="@{/caixa/saida}">↓ Saída</a></div>
+        </header>
+
+        <div class="alerta alerta-erro" role="alert" th:if="${erroFiltro != null}"><span class="alerta-icone" aria-hidden="true">!</span><div><strong>Revise o filtro</strong><p th:text="${erroFiltro}">Filtro inválido.</p></div></div>
+
+        <form class="painel filtros" th:action="@{/caixa/movimentacoes}" th:object="${filtro}" method="get">
+            <header class="filtros-cabecalho"><h2>Filtrar resultados</h2><p>Use apenas os campos necessários para encontrar uma movimentação.</p></header>
+            <div class="grade-formulario">
+                <div class="campo"><label for="dataInicial">Data inicial</label><input id="dataInicial" type="date" th:field="*{dataInicial}"></div>
+                <div class="campo"><label for="dataFinal">Data final</label><input id="dataFinal" type="date" th:field="*{dataFinal}"></div>
+                <div class="campo"><label for="tipo">Tipo</label><select id="tipo" th:field="*{tipo}"><option value="">Entradas e saídas</option><option th:each="opcao : ${tiposLancamento}" th:value="${opcao}" th:text="${opcao.rotuloAcessivel}">Tipo</option></select></div>
+                <div class="campo"><label for="categoriaId">Categoria</label><select id="categoriaId" th:field="*{categoriaId}"><option value="">Todas as categorias</option><option th:each="categoria : ${categorias}" th:value="${categoria.id}" th:text="|${categoria.nome} · ${categoria.tipo.descricao}|">Categoria</option></select></div>
+                <div class="campo campo-largo"><label for="descricao">Descrição contém</label><input id="descricao" type="search" th:field="*{descricao}" placeholder="Digite uma palavra da descrição"></div>
+            </div>
+            <div class="acoes-formulario"><button class="botao botao-primario" type="submit">Aplicar filtros</button><a class="botao botao-secundario" th:href="@{/caixa/movimentacoes}">Limpar filtros</a></div>
+        </form>
+
+        <section aria-labelledby="resumo-periodo">
+            <div class="cabecalho-secao compacto"><div><p class="etiqueta">Período selecionado</p><h2 id="resumo-periodo">Resumo do período</h2></div><p>Os valores abaixo consideram os filtros aplicados.</p></div>
+            <dl class="painel resumo-periodo">
+                <div><dt>Total de entradas</dt><dd class="valor-entrada" th:text="${@formatador.moeda(resumo.totalEntradas)}">R$ 0,00</dd></div>
+                <div><dt>Total de saídas</dt><dd class="valor-saida" th:text="${@formatador.moeda(resumo.totalSaidas)}">R$ 0,00</dd></div>
+                <div><dt>Saldo do período</dt><dd th:text="${@formatador.moeda(resumo.saldoPeriodo)}">R$ 0,00</dd></div>
+            </dl>
+        </section>
+
+        <section class="secao-espacada" aria-labelledby="lista-movimentacoes">
+            <div class="cabecalho-secao">
+                <div><p class="etiqueta" th:text="|${resumo.quantidadeMovimentacoes} registro(s)|">Registros</p><h2 id="lista-movimentacoes">Resultados encontrados</h2></div>
+                <div class="grupo-botoes"><a class="botao botao-secundario" target="_blank" th:href="@{/caixa/relatorio(dataInicial=${filtro.dataInicial},dataFinal=${filtro.dataFinal},tipo=${filtro.tipo},categoriaId=${filtro.categoriaId},descricao=${filtro.descricao})}">Versão para impressão</a><a class="botao botao-secundario" th:href="@{/caixa/relatorio.csv(dataInicial=${filtro.dataInicial},dataFinal=${filtro.dataFinal},tipo=${filtro.tipo},categoriaId=${filtro.categoriaId},descricao=${filtro.descricao})}">Exportar CSV</a></div>
+            </div>
+
+            <div class="estado-vazio" th:if="${#lists.isEmpty(lancamentos)}">
+                <span class="estado-vazio-icone" aria-hidden="true">↕</span><h2>Ainda não há movimentações para estes filtros</h2><p>Limpe os filtros ou registre uma entrada ou saída para começar.</p><div class="grupo-botoes"><a class="botao botao-secundario" th:href="@{/caixa/movimentacoes}">Limpar filtros</a><a class="botao botao-entrada" th:href="@{/caixa/entrada}">Registrar entrada</a><a class="botao botao-saida" th:href="@{/caixa/saida}">Registrar saída</a></div>
+            </div>
+            <div class="tabela-responsiva" th:unless="${#lists.isEmpty(lancamentos)}">
+                <table class="tabela-adaptavel ledger-table">
+                    <caption>Movimentações do Livro Caixa para os filtros escolhidos</caption>
+                    <thead><tr><th scope="col">Data</th><th scope="col">Tipo</th><th scope="col">Categoria</th><th scope="col">Descrição</th><th scope="col" class="coluna-numero">Valor</th><th scope="col">Ações</th></tr></thead>
+                    <tbody>
+                    <tr th:each="lancamento : ${lancamentos}">
+                        <td data-label="Data" th:text="${@formatador.data(lancamento.data)}">01/01/2026</td>
+                        <td data-label="Tipo"><span class="selo-status" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'selo-entrada' : 'selo-saida'" th:text="${lancamento.tipo.rotuloAcessivel}">↑ Entrada</span></td>
+                        <td data-label="Categoria" th:text="${lancamento.categoria.nome}">Categoria</td>
+                        <td data-label="Descrição"><span class="nome-principal" th:text="${lancamento.descricao}">Descrição</span><small class="texto-secundario" th:if="${lancamento.observacoes != null}" th:text="${lancamento.observacoes}">Observação</small></td>
+                        <td data-label="Valor" class="valor-monetario" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'valor-entrada' : 'valor-saida'" th:text="${(lancamento.tipo.name() == 'ENTRADA' ? '+ ' : '− ') + @formatador.moeda(lancamento.valor)}">R$ 0,00</td>
+                        <td data-label="Ações">
+                            <div class="acoes-tabela"><a class="botao botao-secundario botao-pequeno" th:href="@{/caixa/movimentacoes/{id}(id=${lancamento.id})}" th:aria-label="|Ver lançamento ${lancamento.descricao}|">Ver</a><a class="botao botao-discreto botao-pequeno" th:href="@{/caixa/movimentacoes/{id}/editar(id=${lancamento.id})}" th:aria-label="|Editar lançamento ${lancamento.descricao}|">Editar</a><a class="botao botao-discreto botao-pequeno acao-perigo" th:href="@{/caixa/movimentacoes/{id}/excluir(id=${lancamento.id})}" th:aria-label="|Cancelar lançamento ${lancamento.descricao}|">Cancelar</a></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

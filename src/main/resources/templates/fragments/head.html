@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Sistema de presença e livro caixa da ONG Mulheres Valentes">
+    <meta name="theme-color" content="#144047">
+    <title th:text="${titulo + ' | Mulheres Valentes'}">Mulheres Valentes</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260831-5')}">
+</head>
+</html>

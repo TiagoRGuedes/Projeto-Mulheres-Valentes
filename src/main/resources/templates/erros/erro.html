@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Não foi possível abrir')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<main id="conteudo" class="pagina-erro" tabindex="-1">
+    <section class="painel erro-conteudo">
+        <span class="erro-codigo" th:text="${codigo}">500</span>
+        <p class="sobretitulo">Podemos tentar outro caminho</p>
+        <h1 th:text="${tituloErro}">Algo não saiu como esperado</h1>
+        <p th:text="${mensagemErro}">Tente novamente.</p>
+        <div class="acoes-formulario">
+            <a class="botao botao-primario" th:href="@{/}">Voltar para a Visão geral</a>
+            <a class="botao botao-secundario" th:href="@{/ajuda}">Abrir ajuda</a>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

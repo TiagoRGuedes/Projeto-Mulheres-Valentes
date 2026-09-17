@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Busca no sistema')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('busca')}"></aside>
+    <main id="conteudo" class="conteudo-principal" tabindex="-1">
+        <nav class="migalhas" aria-label="Caminho da página">
+            <a th:href="@{/}">Visão geral</a>
+            <span aria-hidden="true">›</span>
+            <span aria-current="page">Busca no sistema</span>
+        </nav>
+
+        <header class="cabecalho-pagina">
+            <p class="sobretitulo">Encontre em um só lugar</p>
+            <h1>Busca no sistema</h1>
+            <p>Procure participantes, atividades, encontros, movimentações ou categorias financeiras.</p>
+        </header>
+
+        <form class="painel filtros" th:action="@{/busca}" method="get" role="search" aria-labelledby="titulo-busca-global">
+            <header class="filtros-cabecalho">
+                <h2 id="titulo-busca-global">O que você procura?</h2>
+                <p>Digite um nome, uma atividade, uma descrição ou uma categoria.</p>
+            </header>
+            <div class="grade-formulario">
+                <div class="campo campo-largo">
+                    <label for="q">Buscar em todo o sistema</label>
+                    <input id="q" type="search" name="q" th:value="${resultado.termo}"
+                           maxlength="120" autocomplete="off"
+                           placeholder="Ex.: oficina, doação ou nome da participante">
+                    <small class="ajuda-campo">A busca não diferencia letras maiúsculas e minúsculas.</small>
+                </div>
+            </div>
+            <div class="acoes-formulario">
+                <button class="botao botao-primario" type="submit">Buscar</button>
+                <a class="botao botao-secundario" th:if="${resultado.pesquisaRealizada()}" th:href="@{/busca}">Limpar busca</a>
+            </div>
+        </form>
+
+        <section class="secao-espacada" aria-labelledby="resultados-busca" th:if="${resultado.pesquisaRealizada()}">
+            <div class="cabecalho-secao" th:if="${resultado.temResultados()}">
+                <div>
+                    <p class="etiqueta" th:text="|${resultado.totalResultados()} resultado(s)|">Resultados</p>
+                    <h2 id="resultados-busca" th:text="|Resultados para “${resultado.termo}”|">Resultados da busca</h2>
+                </div>
+                <p th:text="|São exibidos até ${resultado.limitePorGrupo} itens de cada área.|">Resultados limitados por área.</p>
+            </div>
+
+            <div class="estado-vazio" th:unless="${resultado.temResultados()}">
+                <span class="estado-vazio-icone" aria-hidden="true">⌕</span>
+                <h2 id="resultados-busca">Nenhum resultado encontrado</h2>
+                <p th:text="|Não encontramos “${resultado.termo}”. Tente uma palavra mais curta ou confira a escrita.|">Tente outra palavra.</p>
+                <a class="botao botao-secundario" th:href="@{/busca}">Fazer outra busca</a>
+            </div>
+
+            <section class="secao-espacada" th:each="grupo : ${resultado.grupos}"
+                     th:aria-labelledby="|grupo-${grupo.chave}|">
+                <div class="cabecalho-secao compacto">
+                    <div>
+                        <p class="etiqueta" th:text="|${grupo.quantidade()} encontrado(s)|">Itens encontrados</p>
+                        <h2 th:id="|grupo-${grupo.chave}|" th:text="${grupo.titulo}">Área</h2>
+                    </div>
+                </div>
+                <div class="painel lista-recente">
+                    <ul class="lista-administrativa">
+                        <li th:each="item : ${grupo.itens}">
+                            <span>
+                                <small th:text="${item.tipo}">Tipo</small>
+                                <strong th:text="${item.titulo}">Título do resultado</strong>
+                                <small th:text="${item.descricao}">Descrição do resultado</small>
+                            </span>
+                            <strong class="selo-status" th:text="${item.situacao}">Situação</strong>
+                            <a class="botao botao-secundario botao-pequeno" th:href="${item.url}"
+                               th:aria-label="|Abrir ${item.tipo.toLowerCase()}: ${item.titulo}|">Abrir</a>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </section>
+
+        <aside class="dica-contextual secao-espacada" th:unless="${resultado.pesquisaRealizada()}">
+            <strong>Como usar a busca</strong>
+            <p>Você pode digitar apenas uma parte do nome. Por exemplo, “oficina” pode encontrar uma atividade, seus encontros e movimentações que usem essa palavra.</p>
+        </aside>
+
+        <a class="link-voltar" th:href="@{/}">← Voltar para a Visão geral</a>
+    </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

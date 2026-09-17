@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="painel timeline-painel" th:fragment="timeline(operacoes, titulo, compacta)" th:classappend="${compacta} ? 'timeline-compacta'" th:attr="aria-label=${titulo != null ? titulo : 'Alterações registradas'}">
+    <h3 th:if="${titulo != null}" th:text="${titulo}">Alterações</h3>
+    <div class="estado-vazio estado-vazio-compacto" th:if="${operacoes == null or #lists.isEmpty(operacoes)}">
+        <strong>Nenhuma alteração registrada</strong>
+        <p>As próximas criações, edições e correções aparecerão aqui.</p>
+    </div>
+    <ol class="timeline-lista" th:unless="${operacoes == null or #lists.isEmpty(operacoes)}">
+        <li th:each="operacao : ${operacoes}" th:classappend="|acao-${#strings.toLowerCase(operacao.acao.name())}|">
+            <span class="timeline-icone" aria-hidden="true" th:text="${operacao.acao.simbolo}">✓</span>
+            <div class="timeline-conteudo">
+                <div class="timeline-cabecalho">
+                    <span class="timeline-titulo"><span class="timeline-acao" th:text="${operacao.acao.descricao}">Ação realizada</span><strong th:text="${operacao.descricao}">Alteração realizada</strong></span>
+                    <time th:datetime="${operacao.dataHora}" th:text="${@formatador.dataHora(operacao.dataHora)}">Data e hora</time>
+                </div>
+                <p><span class="selo-modulo" th:text="${operacao.modulo.descricao}">Módulo</span> <span th:text="${operacao.nomeEntidade}">Registro</span></p>
+                <dl class="timeline-comparacao" th:if="${!compacta and (operacao.valorAnteriorResumo != null or operacao.valorNovoResumo != null)}">
+                    <div th:if="${operacao.valorAnteriorResumo != null}"><dt>Antes</dt><dd th:text="${operacao.valorAnteriorResumo}">Valor anterior</dd></div>
+                    <div th:if="${operacao.valorNovoResumo != null}"><dt>Depois</dt><dd th:text="${operacao.valorNovoResumo}">Valor novo</dd></div>
+                </dl>
+                <th:block th:with="destino=${@historicoLink.url(operacao)}">
+                    <a class="timeline-link" th:if="${destino != null}" th:href="${destino}" th:text="${@historicoLink.rotulo(operacao)}">Ver registro</a>
+                </th:block>
+            </div>
+        </li>
+    </ol>
+</section>
+</body>
+</html>

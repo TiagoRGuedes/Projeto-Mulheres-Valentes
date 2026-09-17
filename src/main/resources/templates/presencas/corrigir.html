@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Corrigir presença')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header><div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('historico-presenca')}"></aside><main id="conteudo" class="conteudo-principal conteudo-estreito" tabindex="-1">
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Visão geral</a><span aria-hidden="true">›</span><a th:href="@{/presencas}">Histórico de presença</a><span aria-hidden="true">›</span><span aria-current="page">Corrigir</span></nav>
+    <header class="cabecalho-pagina"><p class="sobretitulo">Correção simples</p><h1>Corrigir presença</h1><p>Confira a situação atual, escolha a correta e salve.</p></header>
+    <section class="painel painel-conteudo resumo-correcao" aria-labelledby="situacao-atual"><h2 id="situacao-atual" class="titulo-painel-discreto">Situação atual</h2><dl class="lista-detalhes"><div><dt>Participante</dt><dd th:text="${presenca.participante.nome}">Pessoa</dd></div><div><dt>Atividade</dt><dd th:text="${presenca.encontro.atividade.nome}">Atividade</dd></div><div><dt>Data</dt><dd th:text="${@formatador.data(presenca.encontro.data)}">Data</dd></div><div><dt>Situação registrada</dt><dd><span class="selo-status" th:classappend="${presenca.status.name() == 'PRESENTE'} ? 'selo-presente' : (${presenca.status.name() == 'AUSENTE'} ? 'selo-ausente' : 'selo-justificada')" th:text="${presenca.status.descricao}">Situação</span></dd></div></dl></section>
+    <form class="painel formulario secao-espacada" th:action="@{/presencas/{id}/corrigir(id=${presenca.id})}" th:object="${correcaoPresencaForm}" method="post" novalidate>
+        <fieldset>
+            <legend>Nova situação</legend>
+            <p class="ajuda-campo">Escolha abaixo como este registro deve ficar.</p>
+            <div class="opcoes-correcao"><label class="radio-botao" th:each="opcao : ${statusPresenca}"><input type="radio" th:field="*{status}" th:value="${opcao}" th:attr="aria-invalid=${#fields.hasErrors('status')},aria-describedby=${#fields.hasErrors('status') ? 'erro-correcao-status' : null}"><span th:text="${opcao.descricao}">Situação</span></label></div>
+            <p class="erro-campo" id="erro-correcao-status" th:if="${#fields.hasErrors('status')}" th:errors="*{status}">Escolha a situação.</p>
+            <div class="campo secao-espacada"><label for="observacoes">Observação <span class="opcional">opcional</span></label><textarea id="observacoes" th:field="*{observacoes}" maxlength="1000" placeholder="Acrescente apenas se ajudar a entender a correção" th:attr="aria-invalid=${#fields.hasErrors('observacoes')},aria-describedby=${#fields.hasErrors('observacoes') ? 'erro-correcao-observacoes' : null}"></textarea><p class="erro-campo" id="erro-correcao-observacoes" th:if="${#fields.hasErrors('observacoes')}" th:errors="*{observacoes}">Revise a observação.</p></div>
+        </fieldset>
+        <aside class="dica-contextual"><strong>A correção ficará registrada</strong><p>O Histórico do sistema guardará a situação anterior e a nova, sem apagar o registro original.</p></aside>
+        <div class="acoes-formulario"><button class="botao botao-primario" type="submit">Salvar correção</button><a class="botao botao-secundario" th:href="@{/presencas}">Cancelar e voltar</a></div>
+    </form>
+    <section class="secao-espacada" aria-labelledby="historico-presenca"><div class="cabecalho-secao compacto"><div><p class="etiqueta">Alterações administrativas</p><h2 id="historico-presenca">Histórico deste registro</h2></div></div><div th:replace="~{fragments/timeline-historico :: timeline(${historicoEntidade}, null, false)}"></div></section>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer></body></html>

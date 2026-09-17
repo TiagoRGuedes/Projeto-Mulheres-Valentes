@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="barra-lateral" th:fragment="sidebar(secao)">
+    <nav aria-label="Navegação principal">
+        <p class="menu-titulo">Navegação</p>
+        <ul class="menu-lista">
+            <li><a th:href="@{/}" th:classappend="${secao == 'home'} ? 'ativo'" th:attr="aria-current=${secao == 'home'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg></span><span>Visão geral</span>
+            </a></li>
+
+            <li class="menu-separador"><span>Presença</span></li>
+            <li><a th:href="@{/participantes}" th:classappend="${secao == 'participantes'} ? 'ativo'" th:attr="aria-current=${secao == 'participantes'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20v-2a5.5 5.5 0 0 1 11 0v2M16 7h5M18.5 4.5v5"/></svg></span><span>Participantes</span>
+            </a></li>
+            <li><a th:href="@{/atividades}" th:classappend="${secao == 'atividades'} ? 'ativo'" th:attr="aria-current=${secao == 'atividades'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg></span><span>Atividades</span>
+            </a></li>
+            <li><a th:href="@{/encontros}" th:classappend="${secao == 'encontros'} ? 'ativo'" th:attr="aria-current=${secao == 'encontros'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M13 14h3M8 17h3"/></svg></span><span>Encontros</span>
+            </a></li>
+            <li><a th:href="@{/presencas/registrar}" th:classappend="${secao == 'registrar-presenca'} ? 'ativo'" th:attr="aria-current=${secao == 'registrar-presenca'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span><span>Registrar presença</span>
+            </a></li>
+            <li><a th:href="@{/frequencia}" th:classappend="${secao == 'frequencia'} ? 'ativo'" th:attr="aria-current=${secao == 'frequencia'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span><span>Frequência</span>
+            </a></li>
+            <li><a th:href="@{/presencas}" th:classappend="${secao == 'historico-presenca'} ? 'ativo'" th:attr="aria-current=${secao == 'historico-presenca'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6M12 7v5l3 2"/></svg></span><span>Histórico de presença</span>
+            </a></li>
+
+            <li class="menu-separador"><span>Financeiro</span></li>
+            <li><a th:href="@{/caixa}" th:classappend="${secao == 'caixa'} ? 'ativo'" th:attr="aria-current=${secao == 'caixa'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg></span><span>Resumo do caixa</span>
+            </a></li>
+            <li><a th:href="@{/caixa/entrada}" th:classappend="${secao == 'entrada'} ? 'ativo'" th:attr="aria-current=${secao == 'entrada'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span><span>Registrar entrada</span>
+            </a></li>
+            <li><a th:href="@{/caixa/saida}" th:classappend="${secao == 'saida'} ? 'ativo'" th:attr="aria-current=${secao == 'saida'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M18 13l-6 6-6-6"/></svg></span><span>Registrar saída</span>
+            </a></li>
+            <li><a th:href="@{/caixa/movimentacoes}" th:classappend="${secao == 'movimentacoes'} ? 'ativo'" th:attr="aria-current=${secao == 'movimentacoes'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4"/></svg></span><span>Movimentações</span>
+            </a></li>
+            <li><a th:href="@{/caixa/categorias}" th:classappend="${secao == 'categorias'} ? 'ativo'" th:attr="aria-current=${secao == 'categorias'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6l10 10-6 6L4 10zM8 8h.01"/></svg></span><span>Categorias</span>
+            </a></li>
+
+            <li class="menu-separador"><span>Gestão</span></li>
+            <li><a th:href="@{/relatorios}" th:classappend="${secao == 'relatorios'} ? 'ativo'" th:attr="aria-current=${secao == 'relatorios'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 16v-3M12 16V8M16 16v-5"/></svg></span><span>Relatórios</span>
+            </a></li>
+            <li><a th:href="@{/historico}" th:classappend="${secao == 'historico'} ? 'ativo'" th:attr="aria-current=${secao == 'historico'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6M12 7v5l3 2"/></svg></span><span>Histórico do sistema</span>
+            </a></li>
+
+            <li class="menu-separador"><span>Suporte</span></li>
+            <li><a th:href="@{/ajuda}" th:classappend="${secao == 'ajuda'} ? 'ativo'" th:attr="aria-current=${secao == 'ajuda'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 1 1 4 2.2c-1 .6-1.5 1-1.5 2.3M12 17h.01"/></svg></span><span>Primeiros passos</span>
+            </a></li>
+            <li><a th:href="@{/acessibilidade}" th:classappend="${secao == 'acessibilidade'} ? 'ativo'" th:attr="aria-current=${secao == 'acessibilidade'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 8.5h14M12 8.5v11M8 20l4-6 4 6"/></svg></span><span>Acessibilidade</span>
+            </a></li>
+        </ul>
+    </nav>
+</aside>
+</body>
+</html>

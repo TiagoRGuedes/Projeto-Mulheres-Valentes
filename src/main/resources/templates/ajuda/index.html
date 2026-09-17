@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Primeiros passos')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('ajuda')}"></aside>
+    <main id="conteudo" class="conteudo-principal" tabindex="-1">
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Primeiros passos</span></nav>
+        <header class="cabecalho-pagina ajuda-hero">
+            <div>
+                <p class="sobretitulo">Central de ajuda</p>
+                <h1>Primeiros passos</h1>
+                <p>Encontre a tarefa que deseja fazer e acompanhe cada etapa. Você pode voltar a esta página sempre que precisar.</p>
+            </div>
+            <span class="ajuda-hero-icone" aria-hidden="true">?</span>
+        </header>
+
+        <section class="painel primeiros-caminhos" aria-labelledby="primeira-vez">
+            <div><p class="etiqueta">Se é sua primeira vez aqui</p><h2 id="primeira-vez">Escolha por onde começar</h2><p>Não é preciso aprender o sistema inteiro. Siga apenas o caminho da tarefa que deseja fazer.</p></div>
+            <div class="grade-acoes grade-acoes-secundaria"><a class="cartao-acao" href="#guia-presenca"><span class="cartao-icone" aria-hidden="true">✓</span><span class="cartao-conteudo"><strong>Começar presença</strong><span>Da primeira participante até a consulta de frequência.</span></span><span class="cartao-seta" aria-hidden="true">↓</span></a><a class="cartao-acao cartao-entrada" href="#guia-caixa"><span class="cartao-icone" aria-hidden="true">R$</span><span class="cartao-conteudo"><strong>Começar Livro Caixa</strong><span>Das categorias até o saldo e o relatório.</span></span><span class="cartao-seta" aria-hidden="true">↓</span></a></div>
+        </section>
+
+        <nav class="atalhos-ajuda" aria-label="Atalhos desta página">
+            <a href="#registrar-presenca">Registrar presença</a>
+            <a href="#cadastrar-participante">Cadastrar participante</a>
+            <a href="#criar-atividade">Criar atividade</a>
+            <a href="#registrar-entrada">Registrar entrada</a>
+            <a href="#registrar-saida">Registrar saída</a>
+            <a href="#consultar-saldo">Consultar saldo</a>
+            <a href="#ver-movimentacoes">Ver movimentações</a>
+            <a href="#gerar-relatorio">Gerar relatório</a>
+            <a href="#guia-historico">Histórico do sistema</a>
+        </nav>
+
+        <section class="grade-guias-iniciais" aria-label="Guias completos para começar">
+            <article class="painel guia-inicial" id="guia-presenca"><p class="etiqueta">Caminho da presença</p><h2>Começar controle de presença</h2><ol><li><span>1</span><p>Cadastre uma participante.</p></li><li><span>2</span><p>Cadastre uma atividade.</p></li><li><span>3</span><p>Crie um encontro para a data.</p></li><li><span>4</span><p>Registre quem participou.</p></li><li><span>5</span><p>Consulte a frequência.</p></li></ol><a class="botao botao-primario" th:href="@{/participantes/novo}">Começar cadastrando participante</a></article>
+            <article class="painel guia-inicial" id="guia-caixa"><p class="etiqueta">Caminho do caixa</p><h2>Começar Livro Caixa</h2><ol><li><span>1</span><p>Confira ou configure as categorias.</p></li><li><span>2</span><p>Registre uma entrada.</p></li><li><span>3</span><p>Registre uma saída.</p></li><li><span>4</span><p>Consulte as movimentações.</p></li><li><span>5</span><p>Veja o saldo.</p></li><li><span>6</span><p>Gere o relatório.</p></li></ol><a class="botao botao-primario" th:href="@{/caixa}">Abrir o Livro Caixa</a></article>
+        </section>
+
+        <div class="grade-ajuda">
+            <article class="painel passo-a-passo" id="registrar-presenca">
+                <header><span class="numero-tarefa" aria-hidden="true">✓</span><div><p class="etiqueta">Presença</p><h2>Como registrar presença</h2></div></header>
+                <ol>
+                    <li><span>1</span><p>Entre em <strong>“Registrar presença”</strong>.</p></li>
+                    <li><span>2</span><p>Escolha a atividade.</p></li>
+                    <li><span>3</span><p>Escolha o encontro e a data.</p></li>
+                    <li><span>4</span><p>Marque quem compareceu e a situação das demais pessoas.</p></li>
+                    <li><span>5</span><p>Clique em <strong>“Salvar presença”</strong>.</p></li>
+                </ol>
+                <a class="botao botao-secundario" th:href="@{/presencas/registrar}">Ir para registrar presença</a>
+            </article>
+
+            <article class="painel passo-a-passo" id="registrar-entrada">
+                <header><span class="numero-tarefa entrada" aria-hidden="true">↑</span><div><p class="etiqueta">Livro Caixa</p><h2>Como registrar dinheiro que entrou</h2></div></header>
+                <ol>
+                    <li><span>1</span><p>Entre em <strong>“Registrar entrada”</strong>.</p></li>
+                    <li><span>2</span><p>Escolha a data.</p></li>
+                    <li><span>3</span><p>Escolha a categoria que melhor organiza a entrada.</p></li>
+                    <li><span>4</span><p>Informe a descrição e o valor.</p></li>
+                    <li><span>5</span><p>Clique em <strong>“Salvar entrada”</strong>.</p></li>
+                </ol>
+                <a class="botao botao-secundario" th:href="@{/caixa/entrada}">Ir para registrar entrada</a>
+            </article>
+
+            <article class="painel passo-a-passo" id="registrar-saida">
+                <header><span class="numero-tarefa saida" aria-hidden="true">↓</span><div><p class="etiqueta">Livro Caixa</p><h2>Como registrar uma despesa</h2></div></header>
+                <ol>
+                    <li><span>1</span><p>Entre em <strong>“Registrar saída”</strong>.</p></li>
+                    <li><span>2</span><p>Escolha a data do pagamento ou gasto.</p></li>
+                    <li><span>3</span><p>Escolha a categoria.</p></li>
+                    <li><span>4</span><p>Informe o que foi pago e o valor.</p></li>
+                    <li><span>5</span><p>Clique em <strong>“Salvar saída”</strong>.</p></li>
+                </ol>
+                <a class="botao botao-secundario" th:href="@{/caixa/saida}">Ir para registrar saída</a>
+            </article>
+
+            <article class="painel passo-a-passo" id="consultar-saldo">
+                <header><span class="numero-tarefa saldo" aria-hidden="true">R$</span><div><p class="etiqueta">Consulta</p><h2>Como consultar o saldo</h2></div></header>
+                <ol>
+                    <li><span>1</span><p>Entre em <strong>“Consultar caixa”</strong> ou <strong>“Visão geral”</strong>.</p></li>
+                    <li><span>2</span><p>Leia o cartão chamado <strong>“Saldo atual”</strong>.</p></li>
+                    <li><span>3</span><p>Para conferir detalhes, abra <strong>“Ver movimentações”</strong>.</p></li>
+                    <li><span>4</span><p>Use as datas para consultar somente um período, se desejar.</p></li>
+                </ol>
+                <aside class="dica-contextual"><strong>O que é saldo?</strong><p>É a diferença entre tudo que entrou e tudo que saiu do caixa.</p></aside>
+                <a class="botao botao-secundario" th:href="@{/caixa}">Ir para o Livro Caixa</a>
+            </article>
+        </div>
+
+        <section class="secao-espacada" aria-labelledby="outros-guias">
+            <div class="cabecalho-secao compacto"><div><p class="etiqueta">Mais orientações</p><h2 id="outros-guias">Outras tarefas importantes</h2></div></div>
+            <div class="grade-guias-rapidos">
+                <article class="painel guia-rapido" id="cadastrar-participante"><span aria-hidden="true">01</span><div><h3>Cadastrar participante</h3><p>Abra Participantes, escolha “Cadastrar participante”, informe o nome e salve.</p><a th:href="@{/participantes/novo}">Ir para o cadastro <span aria-hidden="true">→</span></a></div></article>
+                <article class="painel guia-rapido" id="criar-atividade"><span aria-hidden="true">02</span><div><h3>Criar atividade</h3><p>Abra Atividades, escolha “Nova atividade”, informe um nome claro e salve.</p><a th:href="@{/atividades/nova}">Ir para atividades <span aria-hidden="true">→</span></a></div></article>
+                <article class="painel guia-rapido" id="ver-movimentacoes"><span aria-hidden="true">03</span><div><h3>Ver movimentações</h3><p>Abra Movimentações e use os filtros para encontrar entradas ou saídas.</p><a th:href="@{/caixa/movimentacoes}">Ver movimentações <span aria-hidden="true">→</span></a></div></article>
+                <article class="painel guia-rapido" id="gerar-relatorio"><span aria-hidden="true">04</span><div><h3>Gerar relatório</h3><p>Abra Relatórios, escolha o tipo desejado, ajuste os filtros e use a versão para impressão.</p><a th:href="@{/relatorios}">Ir para relatórios <span aria-hidden="true">→</span></a></div></article>
+            </div>
+        </section>
+
+        <section class="painel glossario" aria-labelledby="entenda-palavras">
+            <div class="cabecalho-secao compacto"><div><p class="etiqueta">Explicações rápidas</p><h2 id="entenda-palavras">Entenda as palavras do sistema</h2></div></div>
+            <dl>
+                <div><dt>Categoria</dt><dd>Ajuda a organizar de onde veio ou para onde foi o dinheiro.</dd></div>
+                <div><dt>Frequência</dt><dd>Mostra quantas vezes uma pessoa participou das atividades.</dd></div>
+                <div><dt>Encontro</dt><dd>É uma realização de uma atividade em uma data específica.</dd></div>
+                <div><dt>Movimentação</dt><dd>É qualquer entrada ou saída registrada no Livro Caixa.</dd></div>
+            </dl>
+        </section>
+
+        <section class="painel painel-conteudo secao-espacada" id="guia-historico" aria-labelledby="titulo-guia-historico"><p class="etiqueta">Rastreabilidade</p><h2 id="titulo-guia-historico">Como usar o Histórico do sistema</h2><p>O Histórico mostra alterações administrativas, como cadastros, edições, correções, desativações e cancelamentos. Ele não é o mesmo que o Histórico de presença nem que as Movimentações do caixa.</p><ol class="lista-passos-simples"><li>Abra <strong>Histórico do sistema</strong> no menu.</li><li>Escolha um período, uma área ou um tipo de alteração se precisar.</li><li>Use a busca para encontrar um nome ou descrição.</li><li>Leia “Antes” e “Depois” quando uma informação tiver sido editada.</li></ol><a class="botao botao-secundario" th:href="@{/historico}">Abrir Histórico do sistema</a></section>
+
+        <section class="painel painel-conteudo secao-espacada" aria-labelledby="desativar-excluir"><p class="etiqueta">Evite perder informações</p><h2 id="desativar-excluir">Diferença entre desativar, excluir e cancelar</h2><dl class="glossario-acoes"><div><dt>Desativar</dt><dd>Mantém o histórico e apenas impede novos usos. Pode ser desfeito.</dd></div><div><dt>Excluir</dt><dd>Remove um cadastro somente quando ele ainda não possui histórico relacionado.</dd></div><div><dt>Cancelar lançamento</dt><dd>Retira a entrada ou saída do saldo e dos relatórios, mas preserva os dados no histórico para conferência.</dd></div></dl></section>
+    </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

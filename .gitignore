@@ -1,0 +1,17 @@
+target/
+*.class
+.idea/
+*.iml
+.vscode/
+dados/
+application-local.properties
+work/
+outputs/
+.env
+.env.*
+*.mv.db
+*.trace.db
+*.lock.db
+*.log
+.DS_Store
+Thumbs.db

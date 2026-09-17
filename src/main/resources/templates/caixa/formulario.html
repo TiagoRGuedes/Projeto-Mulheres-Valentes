@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="formulario(titulo, explicacao, urlAcao, textoBotao, classeBotao)" aria-labelledby="titulo-formulario-caixa">
+    <header class="cabecalho-pagina">
+        <p class="sobretitulo" th:text="${tipoLancamento.descricao}">Livro Caixa</p>
+        <h1 id="titulo-formulario-caixa" th:text="${titulo}">Registrar lançamento</h1>
+        <p th:text="${explicacao}">Informe os dados abaixo.</p>
+    </header>
+
+    <div class="dica-contextual" role="note">
+        <strong>O que é categoria?</strong>
+        <p>Ajuda a organizar de onde veio ou para onde foi o dinheiro.</p>
+    </div>
+
+    <form class="painel formulario formulario-financeiro secao-espacada" th:action="${urlAcao}" th:object="${lancamentoForm}" method="post" novalidate>
+        <div class="alerta alerta-erro" role="alert" th:if="${#fields.hasGlobalErrors()}">
+            <span class="alerta-icone" aria-hidden="true">!</span>
+            <div>
+                <strong>Não foi possível salvar</strong>
+                <ul class="lista-erros"><li th:each="erro : ${#fields.globalErrors()}" th:text="${erro}">Revise os dados.</li></ul>
+            </div>
+        </div>
+
+        <fieldset>
+            <legend>Informações do lançamento</legend>
+            <p class="ajuda-campo">Os campos marcados com <span class="obrigatorio">*</span> são obrigatórios.</p>
+            <div class="grade-formulario grade-financeira secao-espacada">
+                <div class="campo">
+                    <label for="data">Data <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label>
+                    <input id="data" type="date" th:field="*{data}" th:attr="aria-invalid=${#fields.hasErrors('data')},aria-describedby=${#fields.hasErrors('data') ? 'erro-data ajuda-data' : 'ajuda-data'}">
+                    <small class="ajuda-campo" id="ajuda-data">Informe o dia em que o dinheiro entrou ou saiu.</small>
+                    <p class="erro-campo" id="erro-data" th:if="${#fields.hasErrors('data')}" th:errors="*{data}">Informe a data.</p>
+                </div>
+                <div class="campo">
+                    <label for="categoriaId">Categoria <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label>
+                    <select id="categoriaId" th:field="*{categoriaId}" th:attr="aria-invalid=${#fields.hasErrors('categoriaId')},aria-describedby=${#fields.hasErrors('categoriaId') ? 'erro-categoria ajuda-categoria' : 'ajuda-categoria'}">
+                        <option value="">Escolha uma categoria</option>
+                        <option th:each="categoria : ${categorias}" th:value="${categoria.id}" th:text="${categoria.nome}">Categoria</option>
+                    </select>
+                    <small class="ajuda-campo" id="ajuda-categoria">Escolha a opção que melhor organiza este valor.</small>
+                    <p class="erro-campo" id="erro-categoria" th:if="${#fields.hasErrors('categoriaId')}" th:errors="*{categoriaId}">Escolha uma categoria.</p>
+                </div>
+                <div class="campo campo-largo">
+                    <label for="descricao">Descrição <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label>
+                    <input id="descricao" type="text" th:field="*{descricao}" maxlength="160" placeholder="Ex.: descrição breve do valor" th:attr="aria-invalid=${#fields.hasErrors('descricao')},aria-describedby=${#fields.hasErrors('descricao') ? 'erro-descricao ajuda-descricao' : 'ajuda-descricao'}">
+                    <small class="ajuda-campo" id="ajuda-descricao">Escreva uma frase curta para lembrar o motivo deste lançamento.</small>
+                    <p class="erro-campo" id="erro-descricao" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}">Informe uma descrição.</p>
+                </div>
+                <div class="campo campo-valor-financeiro">
+                    <label for="valor">Valor em reais <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label>
+                    <div class="entrada-monetaria"><span aria-hidden="true">R$</span><input id="valor" type="number" th:field="*{valor}" min="0.01" max="99999999.99" step="0.01" inputmode="decimal" placeholder="0,00" th:attr="aria-invalid=${#fields.hasErrors('valor')},aria-describedby=${#fields.hasErrors('valor') ? 'erro-valor ajuda-valor' : 'ajuda-valor'}"></div>
+                    <small class="ajuda-campo" id="ajuda-valor">Digite somente um valor maior que zero. Exemplo: 125,50.</small>
+                    <p class="erro-campo" id="erro-valor" th:if="${#fields.hasErrors('valor')}" th:errors="*{valor}">Informe um valor maior que zero.</p>
+                </div>
+                <div class="campo campo-largo">
+                    <label for="observacoes">Observação <span class="opcional">opcional</span></label>
+                    <textarea id="observacoes" th:field="*{observacoes}" maxlength="500" placeholder="Acrescente um detalhe apenas se for útil" th:attr="aria-invalid=${#fields.hasErrors('observacoes')},aria-describedby=${#fields.hasErrors('observacoes') ? 'erro-observacoes ajuda-observacoes' : 'ajuda-observacoes'}"></textarea>
+                    <small class="ajuda-campo" id="ajuda-observacoes">Você pode deixar este campo vazio.</small>
+                    <p class="erro-campo" id="erro-observacoes" th:if="${#fields.hasErrors('observacoes')}" th:errors="*{observacoes}">Revise a observação.</p>
+                </div>
+            </div>
+        </fieldset>
+
+        <input type="hidden" th:field="*{tipo}">
+        <div class="acoes-formulario">
+            <button type="submit" class="botao" th:classappend="${classeBotao}" th:text="${textoBotao}">Salvar</button>
+            <a class="botao botao-secundario" th:href="@{/caixa}">Cancelar e voltar</a>
+        </div>
+        <p class="ajuda-campo">Ao salvar, o sistema abrirá um resumo para você conferir o lançamento.</p>
+    </form>
+</section>
+</body>
+</html>

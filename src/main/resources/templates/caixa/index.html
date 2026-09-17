@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Livro Caixa')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('caixa')}"></aside>
+    <main id="conteudo" class="conteudo-principal" tabindex="-1">
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Livro Caixa</span></nav>
+        <header class="cabecalho-pagina com-acoes financeiro-header">
+            <div>
+                <p class="sobretitulo">Gestão financeira simples</p>
+                <h1>Livro Caixa</h1>
+                <p>Registre o que entrou e saiu. O saldo é atualizado automaticamente.</p>
+            </div>
+            <div class="grupo-botoes">
+                <a class="botao botao-entrada" th:href="@{/caixa/entrada}"><span aria-hidden="true">↑</span> Registrar entrada</a>
+                <a class="botao botao-saida" th:href="@{/caixa/saida}"><span aria-hidden="true">↓</span> Registrar saída</a>
+            </div>
+        </header>
+
+        <div class="alerta alerta-erro" role="alert" th:if="${erroFiltro != null}">
+            <span class="alerta-icone" aria-hidden="true">!</span><div><strong>Revise o período</strong><p th:text="${erroFiltro}">Período inválido.</p></div>
+        </div>
+
+        <section class="grade-indicadores finance-overview" aria-label="Resumo financeiro">
+            <article class="indicador saldo-destaque">
+                <span class="indicador-titulo">Saldo atual</span>
+                <strong class="indicador-valor" th:text="${@formatador.moeda(resumo.saldoAtual)}">R$ 0,00</strong>
+                <span class="indicador-ajuda">Tudo que entrou menos tudo que saiu.</span>
+            </article>
+            <article class="indicador entrada">
+                <span class="indicador-titulo">Entradas do período</span>
+                <strong class="indicador-valor" th:text="${@formatador.moeda(resumo.totalEntradas)}">R$ 0,00</strong>
+                <span class="indicador-ajuda">Valores recebidos no período escolhido.</span>
+            </article>
+            <article class="indicador saida">
+                <span class="indicador-titulo">Saídas do período</span>
+                <strong class="indicador-valor" th:text="${@formatador.moeda(resumo.totalSaidas)}">R$ 0,00</strong>
+                <span class="indicador-ajuda">Pagamentos e gastos no período.</span>
+            </article>
+            <article class="indicador neutro">
+                <span class="indicador-titulo">Movimentações</span>
+                <strong class="indicador-valor" th:text="${resumo.quantidadeMovimentacoes}">0</strong>
+                <span class="indicador-ajuda">Quantidade de registros encontrados.</span>
+            </article>
+        </section>
+
+        <nav class="painel acoes-rapidas-caixa" aria-label="Ações rápidas do Livro Caixa">
+            <strong>Outras ações do Livro Caixa</strong>
+            <div class="grupo-botoes"><a class="botao botao-secundario" th:href="@{/caixa/movimentacoes}">Ver movimentações</a><a class="botao botao-secundario" th:href="@{/caixa/categorias}">Categorias</a><a class="botao botao-secundario" th:href="@{/caixa/relatorio}">Abrir relatório</a></div>
+        </nav>
+
+        <form class="painel filtros" th:action="@{/caixa}" th:object="${filtro}" method="get">
+            <header class="filtros-cabecalho"><h2>Filtrar resultados</h2><p>Escolha um período para atualizar o resumo financeiro abaixo.</p></header>
+            <div class="grade-formulario">
+                <div class="campo"><label for="dataInicial">Data inicial</label><input id="dataInicial" type="date" th:field="*{dataInicial}"></div>
+                <div class="campo"><label for="dataFinal">Data final</label><input id="dataFinal" type="date" th:field="*{dataFinal}"></div>
+            </div>
+            <div class="acoes-formulario">
+                <button class="botao botao-primario" type="submit">Atualizar resumo</button>
+                <a class="botao botao-secundario" th:href="@{/caixa}">Limpar período</a>
+            </div>
+        </form>
+
+        <section class="secao-espacada" aria-labelledby="lancamentos-recentes">
+            <div class="cabecalho-secao">
+                <div><p class="etiqueta">Últimos registros</p><h2 id="lancamentos-recentes">Lançamentos recentes</h2></div>
+                <a class="botao botao-secundario" th:href="@{/caixa/movimentacoes}">Ver todas as movimentações</a>
+            </div>
+            <div class="estado-vazio" th:if="${#lists.isEmpty(ultimosLancamentos)}">
+                <span class="estado-vazio-icone" aria-hidden="true">R$</span>
+                <h2>Ainda não há movimentações</h2>
+                <p>Quando você registrar uma entrada ou saída, ela aparecerá aqui.</p>
+                <div class="grupo-botoes"><a class="botao botao-entrada" th:href="@{/caixa/entrada}">Registrar entrada</a><a class="botao botao-saida" th:href="@{/caixa/saida}">Registrar saída</a></div>
+            </div>
+            <div class="tabela-responsiva" th:unless="${#lists.isEmpty(ultimosLancamentos)}">
+                <table class="tabela-adaptavel ledger-table">
+                    <caption>Últimos lançamentos do Livro Caixa</caption>
+                    <thead><tr><th scope="col">Data</th><th scope="col">Tipo</th><th scope="col">Descrição</th><th scope="col">Categoria</th><th scope="col" class="coluna-numero">Valor</th></tr></thead>
+                    <tbody>
+                    <tr th:each="lancamento : ${ultimosLancamentos}">
+                        <td data-label="Data" th:text="${@formatador.data(lancamento.data)}">01/01/2026</td>
+                        <td data-label="Tipo"><span class="selo-status" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'selo-entrada' : 'selo-saida'" th:text="${lancamento.tipo.rotuloAcessivel}">↑ Entrada</span></td>
+                        <td data-label="Descrição"><span class="nome-principal" th:text="${lancamento.descricao}">Descrição</span></td>
+                        <td data-label="Categoria" th:text="${lancamento.categoria.nome}">Categoria</td>
+                        <td data-label="Valor" class="valor-monetario" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'valor-entrada' : 'valor-saida'" th:text="${(lancamento.tipo.name() == 'ENTRADA' ? '+ ' : '− ') + @formatador.moeda(lancamento.valor)}">R$ 0,00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside class="dica-contextual secao-espacada"><strong>O que é saldo?</strong><p>É a diferença entre tudo que entrou e tudo que saiu do caixa.</p></aside>
+    </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

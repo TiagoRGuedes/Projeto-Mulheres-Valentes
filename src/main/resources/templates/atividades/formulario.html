@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${modoEdicao ? 'Editar atividade' : 'Nova atividade'})}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('atividades')}"></aside><main id="conteudo" class="conteudo-principal conteudo-estreito" tabindex="-1">
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><a th:href="@{/atividades}">Atividades</a><span aria-hidden="true">›</span><span aria-current="page" th:text="${modoEdicao ? 'Editar' : 'Nova atividade'}">Nova atividade</span></nav>
+    <header class="cabecalho-pagina"><p class="sobretitulo">Configuração do controle</p><h1 th:text="${modoEdicao ? 'Editar atividade' : 'Nova atividade'}">Nova atividade</h1><p th:text="${modoEdicao ? 'Corrija o nome ou a explicação e salve.' : 'Crie uma opção para organizar encontros do mesmo tipo.'}">Informe a atividade.</p></header>
+    <form class="painel formulario" th:action="${modoEdicao} ? @{/atividades/{id}(id=${atividadeId})} : @{/atividades}" th:object="${atividadeForm}" method="post" novalidate><fieldset><legend>Informações da atividade</legend><div class="grade-formulario secao-espacada">
+        <div class="campo campo-largo"><label for="nome">Nome da atividade <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label><input id="nome" type="text" th:field="*{nome}" maxlength="150" placeholder="Use um nome curto e reconhecível" th:attr="aria-invalid=${#fields.hasErrors('nome')},aria-describedby=${#fields.hasErrors('nome') ? 'erro-nome ajuda-nome' : 'ajuda-nome'}"><small class="ajuda-campo" id="ajuda-nome">Não use uma atividade real da ONG sem confirmação.</small><p class="erro-campo" id="erro-nome" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">Informe o nome.</p></div>
+        <div class="campo campo-largo"><label for="descricao">Descrição <span class="opcional">opcional</span></label><textarea id="descricao" th:field="*{descricao}" maxlength="1000" placeholder="Explique brevemente quando esta opção deve ser usada" th:attr="aria-invalid=${#fields.hasErrors('descricao')},aria-describedby=${#fields.hasErrors('descricao') ? 'erro-descricao-atividade' : null}"></textarea><p class="erro-campo" id="erro-descricao-atividade" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}">Revise a descrição.</p></div>
+    </div></fieldset><div class="acoes-formulario"><button class="botao botao-primario" type="submit" th:text="${modoEdicao ? 'Salvar alterações' : 'Cadastrar atividade'}">Cadastrar atividade</button><a class="botao botao-secundario" th:href="@{/atividades}">Cancelar e voltar</a></div></form>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

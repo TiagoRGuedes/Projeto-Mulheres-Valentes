@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Registrar saída')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('saida')}"></aside>
+    <main id="conteudo" class="conteudo-principal conteudo-estreito" tabindex="-1">
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa}">Livro Caixa</a><span aria-hidden="true">›</span><span aria-current="page">Registrar saída</span></nav>
+        <section th:replace="~{caixa/formulario :: formulario('Registrar saída', 'Registre um pagamento ou gasto realizado pela ONG.', '/caixa/saida', 'Salvar saída', 'botao-saida')}"></section>
+    </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

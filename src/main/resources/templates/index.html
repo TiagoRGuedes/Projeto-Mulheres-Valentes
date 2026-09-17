@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Visão geral')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('home')}"></aside>
+    <main id="conteudo" class="conteudo-principal" tabindex="-1">
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+
+        <section class="boas-vindas dashboard-hero" aria-labelledby="titulo-home">
+            <div class="hero-grade">
+                <div class="hero-conteudo">
+                    <p class="sobretitulo">Mulheres Valentes · Gestão administrativa</p>
+                    <h1 id="titulo-home">Olá.<span> Tudo o que importa está ao seu alcance.</span></h1>
+                    <p class="texto-introdutorio">Registre o trabalho do dia e acompanhe a ONG em uma visão simples, segura e organizada.</p>
+                    <div class="hero-garantia"><span aria-hidden="true">✓</span><span>As telas explicam cada etapa e confirmam quando uma ação é concluída.</span></div>
+                </div>
+                <div class="hero-assinatura" aria-hidden="true">
+                    <span class="nexus-linha"></span><span class="nexus-ponto ponto-a"></span><span class="nexus-ponto ponto-b"></span><span class="nexus-ponto ponto-c"></span>
+                    <img th:src="@{/img/brand/logo-mulheres-valentes.png}" alt="" width="292" height="368">
+                </div>
+            </div>
+            <nav class="action-dock" aria-label="Ações principais do dia">
+                <a class="comando-dock comando-presenca" th:href="@{/presencas/registrar}"><span class="comando-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span><span><strong>Presença</strong><small>Marcar a lista</small></span><span class="comando-seta" aria-hidden="true">→</span></a>
+                <a class="comando-dock comando-entrada" th:href="@{/caixa/entrada}"><span class="comando-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span><span><strong>Entrada</strong><small>Registrar valor recebido</small></span><span class="comando-seta" aria-hidden="true">→</span></a>
+                <a class="comando-dock comando-saida" th:href="@{/caixa/saida}"><span class="comando-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M18 13l-6 6-6-6"/></svg></span><span><strong>Saída</strong><small>Registrar pagamento ou gasto</small></span><span class="comando-seta" aria-hidden="true">→</span></a>
+            </nav>
+        </section>
+
+        <section class="secao-dashboard gestao-atalhos" aria-labelledby="atalhos-gestao">
+            <div class="cabecalho-secao"><div><p class="etiqueta">Gestão</p><h2 id="atalhos-gestao">Cadastros e consultas</h2></div><p>Atalhos para organizar a base de trabalho.</p></div>
+            <div class="atalhos-diretos" aria-label="Ações de gestão"><a class="botao botao-primario" th:href="@{/participantes/novo}">+ Cadastrar participante</a><a class="botao botao-secundario" th:href="@{/encontros/novo}">+ Criar encontro</a></div>
+            <details class="painel mais-atalhos">
+                <summary>Ver todos os cadastros e consultas</summary>
+                <nav class="grade-links-dashboard" aria-label="Todos os atalhos da gestão">
+                    <a th:href="@{/participantes}"><strong>Participantes</strong><span>Consultar e organizar cadastros</span></a><a th:href="@{/atividades}"><strong>Atividades</strong><span>Organizar tipos de atividade</span></a><a th:href="@{/encontros}"><strong>Encontros</strong><span>Consultar datas cadastradas</span></a><a th:href="@{/caixa/categorias}"><strong>Categorias</strong><span>Organizar entradas e saídas</span></a><a th:href="@{/frequencia}"><strong>Frequência</strong><span>Acompanhar participação</span></a><a th:href="@{/caixa/movimentacoes}"><strong>Movimentações</strong><span>Conferir o Livro Caixa</span></a><a th:href="@{/relatorios}"><strong>Relatórios</strong><span>Consultar e imprimir</span></a><a th:href="@{/ajuda}"><strong>Primeiros passos</strong><span>Aprender a usar o sistema</span></a>
+                </nav>
+            </details>
+        </section>
+
+        <section class="secao-dashboard" aria-labelledby="situacao-hoje">
+            <div class="cabecalho-secao"><div><p class="etiqueta">Visão geral</p><h2 id="situacao-hoje">Como está a ONG hoje?</h2></div><p>Uma leitura rápida; os detalhes ficam em cada área.</p></div>
+            <div class="grade-indicadores indicadores-compactos">
+                <article class="indicador neutro"><span class="indicador-titulo">Participantes ativos</span><strong class="indicador-valor" th:text="${dashboard.visaoGeral.participantesAtivos}">0</strong><a class="indicador-link" th:href="@{/participantes}">Ver participantes</a></article><article class="indicador"><span class="indicador-titulo">Atividades ativas</span><strong class="indicador-valor" th:text="${dashboard.visaoGeral.atividadesAtivas}">0</strong><a class="indicador-link" th:href="@{/atividades}">Ver atividades</a></article><article class="indicador"><span class="indicador-titulo">Encontros neste mês</span><strong class="indicador-valor" th:text="${dashboard.visaoGeral.encontrosNoMes}">0</strong><a class="indicador-link" th:href="@{/encontros}">Ver encontros</a></article><article class="indicador entrada"><span class="indicador-titulo">Registros de presença no mês</span><strong class="indicador-valor" th:text="${dashboard.visaoGeral.registrosPresencaNoMes}">0</strong><a class="indicador-link" th:href="@{/presencas}">Ver histórico</a></article>
+            </div>
+        </section>
+
+        <section class="secao-dashboard secao-presenca-editorial" aria-labelledby="dashboard-presenca">
+            <div class="cabecalho-secao"><div><p class="etiqueta">Presença</p><h2 id="dashboard-presenca">Participação neste mês</h2></div><a class="link-seta" th:href="@{/frequencia}">Ver frequência completa <span aria-hidden="true">→</span></a></div>
+            <div class="dashboard-duas-colunas presenca-snapshot">
+                <div class="grade-indicadores grade-indicadores-presenca" aria-label="Indicadores de presença do mês"><article class="indicador frequencia-principal"><span class="indicador-titulo">Frequência média</span><strong class="indicador-valor" th:text="${@formatador.percentual(dashboard.presenca.frequenciaMedia)}">0,0%</strong><span class="barra-presenca" aria-hidden="true"><span th:style="|--frequencia-presenca: ${dashboard.presenca.frequenciaMedia}%|"></span></span><small class="indicador-ajuda">Presenças entre todos os registros do mês</small></article><article class="indicador entrada"><span class="indicador-titulo">Presentes</span><strong class="indicador-valor" th:text="${dashboard.presenca.presentesNoMes}">0</strong></article><article class="indicador saida"><span class="indicador-titulo">Ausentes</span><strong class="indicador-valor" th:text="${dashboard.presenca.ausentesNoMes}">0</strong></article><article class="indicador"><span class="indicador-titulo">Justificadas</span><strong class="indicador-valor" th:text="${dashboard.presenca.justificadasNoMes}">0</strong></article></div>
+                <article class="painel painel-ultimo-encontro" aria-labelledby="ultimo-encontro">
+                    <p class="etiqueta">Último encontro</p>
+                    <div th:if="${dashboard.presenca.ultimoEncontroId != null}"><h3 id="ultimo-encontro" th:text="${dashboard.presenca.ultimaAtividade}">Atividade</h3><p th:text="${@formatador.data(dashboard.presenca.dataUltimoEncontro)}">Data</p><strong class="numero-destaque" th:text="|${dashboard.presenca.presentesUltimoEncontro} presentes de ${dashboard.presenca.registrosUltimoEncontro} registros|">0 presentes</strong><span class="percentual-destaque" th:text="${@formatador.percentual(dashboard.presenca.percentualUltimoEncontro)}">0,0%</span><a class="botao botao-secundario" th:href="@{/presencas/registrar(encontroId=${dashboard.presenca.ultimoEncontroId})}">Ver ou corrigir presença</a></div>
+                    <div th:unless="${dashboard.presenca.ultimoEncontroId != null}"><h3 id="ultimo-encontro">Ainda não há encontros</h3><p>Crie o primeiro encontro para começar o controle de presença.</p><a class="botao botao-primario" th:href="@{/encontros/novo}">Criar encontro</a></div>
+                </article>
+            </div>
+            <div class="painel lista-recente" th:if="${!#lists.isEmpty(dashboard.encontrosRecentes)}"><div class="lista-recente-cabecalho"><h3>Encontros recentes</h3><a th:href="@{/encontros}">Ver todos</a></div><ul class="lista-administrativa"><li th:each="encontro : ${dashboard.encontrosRecentes}"><span><strong th:text="${encontro.atividade}">Atividade</strong><small th:text="${@formatador.data(encontro.data) + ' · ' + encontro.situacao}">Data e situação</small></span><a class="botao botao-secundario botao-pequeno" th:href="@{/presencas/registrar(atividadeId=${encontro.atividadeId},encontroId=${encontro.id})}" th:text="${encontro.registrosPresenca == 0 ? 'Registrar presença' : 'Ver ou corrigir'}">Registrar presença</a></li></ul></div>
+        </section>
+
+        <section class="secao-dashboard secao-financeira-editorial" aria-labelledby="dashboard-caixa">
+            <div class="cabecalho-secao"><div><p class="etiqueta">Livro Caixa</p><h2 id="dashboard-caixa">Resumo financeiro</h2></div><a class="link-seta" th:href="@{/caixa}">Abrir Livro Caixa <span aria-hidden="true">→</span></a></div>
+            <div class="painel painel-financeiro-home"><div class="saldo-home"><span>Saldo atual</span><strong th:text="${@formatador.moeda(dashboard.financeiro.saldoAtual)}">R$ 0,00</strong><small>É a diferença entre tudo que entrou e tudo que saiu.</small></div><dl class="resumo-financeiro-mes"><div class="entrada"><dt>↑ Entradas neste mês</dt><dd th:text="${@formatador.moeda(dashboard.financeiro.entradasNoMes)}">R$ 0,00</dd></div><div class="saida"><dt>↓ Saídas neste mês</dt><dd th:text="${@formatador.moeda(dashboard.financeiro.saidasNoMes)}">R$ 0,00</dd></div><div><dt>Movimentações no mês</dt><dd th:text="${dashboard.financeiro.movimentacoesNoMes}">0</dd></div></dl></div>
+            <div class="painel lista-recente" th:if="${!#lists.isEmpty(dashboard.movimentacoesRecentes)}"><div class="lista-recente-cabecalho"><h3>Movimentações recentes</h3><a th:href="@{/caixa/movimentacoes}">Ver todas as movimentações</a></div><ul class="lista-administrativa lista-movimentacoes"><li th:each="lancamento : ${dashboard.movimentacoesRecentes}"><span class="tipo-movimento" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'entrada' : 'saida'" th:text="${lancamento.tipo.rotuloAcessivel}">Tipo</span><span class="descricao-movimento"><strong th:text="${lancamento.descricao}">Descrição</strong><small th:text="${@formatador.data(lancamento.data) + ' · ' + lancamento.categoria.nome}">Data · Categoria</small></span><strong class="valor-movimento" th:text="${@formatador.moeda(lancamento.valor)}">R$ 0,00</strong><a class="botao botao-secundario botao-pequeno" th:href="@{/caixa/movimentacoes/{id}(id=${lancamento.id})}">Ver</a></li></ul></div>
+            <div class="estado-vazio estado-vazio-compacto" th:if="${#lists.isEmpty(dashboard.movimentacoesRecentes)}"><h3>Ainda não há movimentações</h3><p>Registre uma entrada ou saída para começar.</p><div class="grupo-botoes"><a class="botao botao-entrada" th:href="@{/caixa/entrada}">Registrar entrada</a><a class="botao botao-saida" th:href="@{/caixa/saida}">Registrar saída</a></div></div>
+        </section>
+
+        <section class="secao-dashboard" aria-labelledby="atividade-recente">
+            <div class="cabecalho-secao"><div><p class="etiqueta">Histórico do sistema</p><h2 id="atividade-recente">Atividade recente</h2></div><a class="link-seta" th:href="@{/historico}">Ver histórico completo <span aria-hidden="true">→</span></a></div>
+            <p class="texto-explicativo">Aqui aparecem cadastros, edições, correções, desativações e cancelamentos realizados no sistema.</p>
+            <div th:replace="~{fragments/timeline-historico :: timeline(${dashboard.atividadeRecente}, 'Últimas alterações', true)}"></div>
+        </section>
+
+        <aside th:replace="~{fragments/acessibilidade :: atalho}"></aside>
+    </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

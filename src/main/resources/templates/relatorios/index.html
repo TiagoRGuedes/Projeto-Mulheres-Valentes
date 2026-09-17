@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Relatórios')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header><div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('relatorios')}"></aside><main id="conteudo" class="conteudo-principal" tabindex="-1">
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Relatórios</span></nav>
+    <header class="cabecalho-pagina"><p class="sobretitulo">Informações organizadas</p><h1>Relatórios</h1><p>Escolha o assunto. Você poderá filtrar os dados antes de abrir a versão para impressão.</p></header>
+    <section aria-labelledby="central-relatorios"><div class="cabecalho-secao compacto"><div><p class="etiqueta">Central de relatórios</p><h2 id="central-relatorios">O que você quer consultar?</h2></div><p>Escolha uma área; os filtros aparecem na próxima tela.</p></div><div class="report-center">
+        <a class="report-card report-presenca" th:href="@{/presencas}"><span class="report-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6M4 5h16M4 19h16"/></svg></span><span><strong>Presença</strong><small>Consulte pessoas, atividades, situações e períodos.</small></span><span aria-hidden="true">→</span></a>
+        <a class="report-card report-frequencia" th:href="@{/frequencia}"><span class="report-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span><span><strong>Frequência</strong><small>Compare encontros, presenças, ausências e percentuais.</small></span><span aria-hidden="true">→</span></a>
+        <a class="report-card report-financeiro" th:href="@{/caixa/movimentacoes}"><span class="report-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg></span><span><strong>Financeiro</strong><small>Confira entradas, saídas, saldo e exporte em CSV.</small></span><span aria-hidden="true">→</span></a>
+    </div></section>
+    <aside class="dica-contextual secao-espacada"><strong>Como imprimir um relatório?</strong><p>Abra a “versão para impressão” e pressione <kbd>Ctrl</kbd> + <kbd>P</kbd>. Você pode escolher uma impressora ou salvar em PDF.</p></aside>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer></body></html>

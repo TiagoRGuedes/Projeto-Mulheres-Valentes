@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Acessibilidade')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('acessibilidade')}"></aside>
+    <main id="conteudo" class="conteudo-principal conteudo-estreito" tabindex="-1">
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Acessibilidade</span></nav>
+        <header class="cabecalho-pagina">
+            <p class="sobretitulo">Preferências de leitura</p>
+            <h1>Acessibilidade</h1>
+            <p>Escolha como deseja enxergar o sistema. As preferências ficam ativas durante o seu uso.</p>
+        </header>
+
+        <form class="painel formulario" th:action="@{/acessibilidade}" method="post">
+            <fieldset>
+                <legend>Tamanho das letras</legend>
+                <p class="ajuda-campo">A mudança será aplicada em todas as páginas.</p>
+                <div class="opcoes-cartao">
+                    <label class="opcao-cartao">
+                        <input type="radio" name="tamanhoFonte" value="normal" th:checked="${preferencias.tamanhoFonte == 'normal'}">
+                        <span><strong>Fonte normal</strong><small>Tamanho padrão</small></span>
+                    </label>
+                    <label class="opcao-cartao">
+                        <input type="radio" name="tamanhoFonte" value="grande" th:checked="${preferencias.tamanhoFonte == 'grande'}">
+                        <span class="amostra-grande"><strong>Fonte grande</strong><small>Leitura ampliada</small></span>
+                    </label>
+                    <label class="opcao-cartao">
+                        <input type="radio" name="tamanhoFonte" value="muito-grande" th:checked="${preferencias.tamanhoFonte == 'muito-grande'}">
+                        <span class="amostra-muito-grande"><strong>Fonte muito grande</strong><small>Ampliação máxima</small></span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Aparência e movimento</legend>
+                <div class="lista-opcoes">
+                    <label class="opcao-linha">
+                        <input type="checkbox" name="altoContraste" value="true" th:checked="${preferencias.altoContraste}">
+                        <span><strong>Alto contraste</strong><small>Aumenta a diferença entre textos, fundos e bordas.</small></span>
+                    </label>
+                    <label class="opcao-linha">
+                        <input type="checkbox" name="modoEscuro" value="true" th:checked="${preferencias.modoEscuro}">
+                        <span><strong>Modo escuro</strong><small>Usa fundos escuros para reduzir o brilho da tela.</small></span>
+                    </label>
+                    <label class="opcao-linha">
+                        <input type="checkbox" name="reduzirAnimacoes" value="true" th:checked="${preferencias.reduzirAnimacoes}">
+                        <span><strong>Reduzir animações</strong><small>Remove movimentos e transições visuais.</small></span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <div class="acoes-formulario">
+                <button class="botao botao-primario" type="submit">Salvar preferências</button>
+                <a class="botao botao-secundario" th:href="@{/}">Voltar ao início</a>
+            </div>
+        </form>
+        <form th:action="@{/acessibilidade/restaurar}" method="post" class="acao-restaurar">
+            <button class="botao-link" type="submit">Restaurar aparência padrão</button>
+        </form>
+    </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

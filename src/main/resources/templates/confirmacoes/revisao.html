@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Revisar e confirmar')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('confirmacao')}"></aside>
+<main id="conteudo" class="conteudo-principal conteudo-revisao" tabindex="-1">
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Visão geral</a><span aria-hidden="true">›</span><span aria-current="page">Revisar operação</span></nav>
+    <header class="cabecalho-pagina cabecalho-nexus"><p class="sobretitulo" th:text="${revisao.contexto}">Review Layer</p><h1 th:text="${revisao.titulo}">Revisar operação</h1><span class="nexus-assinatura" aria-hidden="true"></span><p th:text="${revisao.descricao}">Confira antes de confirmar.</p></header>
+
+    <section class="review-layer" th:classappend="|review-${revisao.tom}|" aria-labelledby="titulo-preview">
+        <div class="review-contexto"><span class="review-icone" aria-hidden="true" th:text="${revisao.simbolo}">✓</span><div><p class="etiqueta">Etapa 2 de 2</p><h2 id="titulo-preview">Confira antes de confirmar</h2><p><strong>Nada foi gravado ainda.</strong> A operação só acontecerá ao usar o botão de confirmação.</p></div></div>
+        <dl class="review-dados"><div th:each="campo : ${revisao.campos}" th:classappend="${campo.destaque} ? 'review-destaque'"><dt th:text="${campo.rotulo}">Campo</dt><dd th:text="${campo.valor}">Valor</dd></div></dl>
+
+        <section class="review-comparacao" th:unless="${#lists.isEmpty(revisao.comparacoes)}" aria-labelledby="titulo-antes-depois"><div class="cabecalho-secao compacto"><div><p class="etiqueta">Alteração</p><h2 id="titulo-antes-depois">Antes e depois</h2></div></div><div class="review-comparacao-lista"><article th:each="item : ${revisao.comparacoes}"><h3 th:text="${item.rotulo}">Campo</h3><div><span><small>Antes</small><strong th:text="${item.antes}">Antes</strong></span><span class="review-seta" aria-hidden="true">→</span><span><small>Depois</small><strong th:text="${item.depois}">Depois</strong></span></div></article></div></section>
+
+        <aside class="review-impacto" aria-labelledby="titulo-impacto"><p class="etiqueta">Impacto da confirmação</p><h2 id="titulo-impacto">O que será atualizado?</h2><ul><li th:each="impacto : ${revisao.impactos}"><span aria-hidden="true">✓</span><span th:text="${impacto}">Atualização</span></li></ul></aside>
+
+        <div class="review-acoes">
+            <form th:action="@{/confirmacoes/voltar}" method="post"><input type="hidden" name="token" th:value="${token}"><input type="hidden" name="chave" th:value="${chave}"><button class="botao botao-secundario" type="submit">← Voltar e corrigir</button></form>
+            <form th:action="@{/confirmacoes/confirmar}" method="post"><input type="hidden" name="token" th:value="${token}"><input type="hidden" name="chave" th:value="${chave}"><button class="botao botao-primario botao-confirmar-operacao" th:classappend="${revisao.tom == 'perigo'} ? 'botao-perigo'" type="submit" th:text="${revisao.textoConfirmar}">Confirmar operação</button></form>
+        </div>
+        <p class="review-seguranca"><span aria-hidden="true">◉</span> Esta confirmação vale uma única vez e expira em 10 minutos.</p>
+    </section>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
+</body></html>

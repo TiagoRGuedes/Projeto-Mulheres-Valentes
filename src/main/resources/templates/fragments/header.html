@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="topo" th:fragment="header">
+    <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo principal</a>
+    <div class="topo-conteudo">
+        <a class="marca" th:href="@{/}" aria-label="Mulheres Valentes — ir para a página inicial">
+            <span class="marca-logo">
+                <img th:src="@{/img/brand/logo-mulheres-valentes.png}" alt="" width="292" height="368">
+            </span>
+            <span class="marca-texto">
+                <strong>Mulheres Valentes</strong>
+                <small>Gestão de Presença e Livro Caixa</small>
+            </span>
+        </a>
+        <form class="busca-comando" th:action="@{/busca}" method="get" role="search" aria-label="Buscar em todo o sistema">
+            <svg class="icone-linha" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <label class="sr-only" for="busca-global-topo">Buscar no sistema</label>
+            <input id="busca-global-topo" type="search" name="q" th:value="${param.q}" maxlength="120" placeholder="Buscar no sistema..." autocomplete="off">
+            <button type="submit">Buscar</button>
+        </form>
+        <div class="topo-acoes">
+            <a class="botao botao-discreto" th:href="@{/ajuda}" aria-label="Abrir a Central de Ajuda">
+                <svg class="icone-linha" aria-hidden="true" viewBox="0 0 24 24"><path d="M9.3 9a3 3 0 1 1 4.6 2.5c-1.2.7-1.9 1.3-1.9 2.5M12 18h.01"/></svg>
+                <span>Precisa de ajuda?</span>
+            </a>
+            <a class="botao botao-discreto" th:href="@{/acessibilidade}" aria-label="Abrir opções de acessibilidade">
+                <svg class="icone-linha" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 8.5h14M12 8.5v11M8 20l4-6 4 6"/></svg>
+                <span>Acessibilidade</span>
+            </a>
+        </div>
+    </div>
+</header>
+</body>
+</html>

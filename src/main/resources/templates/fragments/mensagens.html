@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="mensagens" th:fragment="mensagens" aria-live="polite">
+    <div class="alerta alerta-sucesso" role="status" th:if="${sucesso != null or mensagemSucesso != null}">
+        <span class="alerta-icone" aria-hidden="true">✓</span>
+        <div><strong>Pronto!</strong><p th:text="${sucesso != null ? sucesso : mensagemSucesso}">Operação realizada com sucesso.</p></div>
+    </div>
+    <div class="alerta alerta-erro" role="alert" th:if="${erro != null or mensagemErro != null}">
+        <span class="alerta-icone" aria-hidden="true">!</span>
+        <div><strong>Revise esta informação</strong><p th:text="${erro != null ? erro : mensagemErro}">Não foi possível concluir.</p></div>
+    </div>
+    <div class="alerta alerta-aviso" role="status" th:if="${aviso != null}">
+        <span class="alerta-icone" aria-hidden="true">i</span>
+        <div><strong>Atenção</strong><p th:text="${aviso}">Confira as informações.</p></div>
+    </div>
+</div>
+</body>
+</html>

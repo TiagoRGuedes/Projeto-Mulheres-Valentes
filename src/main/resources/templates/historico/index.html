@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Histórico do sistema')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('historico')}"></aside><main id="conteudo" class="conteudo-principal" tabindex="-1">
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Visão geral</a><span aria-hidden="true">›</span><span aria-current="page">Histórico do sistema</span></nav>
+    <header class="cabecalho-pagina"><p class="sobretitulo">Rastreabilidade administrativa</p><h1>Histórico do sistema</h1><p>Veja as alterações realizadas no sistema, como cadastros, edições, correções, desativações e cancelamentos.</p></header>
+    <aside class="dica-contextual"><strong>Este histórico é diferente dos outros</strong><p>O Histórico de presença mostra quem compareceu. As Movimentações mostram dinheiro. Esta página mostra o que foi alterado na administração do sistema.</p></aside>
+
+    <form class="painel filtros secao-espacada" th:action="@{/historico}" method="get" role="search" aria-label="Filtrar o Histórico do sistema">
+        <header class="filtros-cabecalho"><h2>Filtrar resultados</h2><p>Escolha o período, a área, o tipo de alteração ou use a busca.</p></header>
+        <div class="alerta alerta-erro" role="alert" th:if="${erroFiltro != null}"><span class="alerta-icone" aria-hidden="true">!</span><div><strong>Não foi possível usar esse período</strong><p th:text="${erroFiltro}">Revise as datas.</p></div></div>
+        <div class="grade-formulario">
+            <div class="campo"><label for="dataInicial">Data inicial</label><input id="dataInicial" type="date" name="dataInicial" th:value="${dataInicial}"></div>
+            <div class="campo"><label for="dataFinal">Data final</label><input id="dataFinal" type="date" name="dataFinal" th:value="${dataFinal}"></div>
+            <div class="campo"><label for="modulo">Área do sistema</label><select id="modulo" name="modulo"><option value="">Todas as áreas</option><option th:each="opcao : ${modulos}" th:value="${opcao}" th:text="${opcao.descricao}" th:selected="${opcao == moduloSelecionado}">Área</option></select></div>
+            <div class="campo"><label for="acao">Tipo de alteração</label><select id="acao" name="acao"><option value="">Todas as alterações</option><option th:each="opcao : ${acoes}" th:value="${opcao}" th:text="${opcao.descricao}" th:selected="${opcao == acaoSelecionada}">Ação</option></select></div>
+            <div class="campo campo-largo"><label for="busca">Buscar por nome ou descrição</label><input id="busca" type="search" name="busca" th:value="${busca}" placeholder="Ex.: participante atualizado"></div>
+        </div>
+        <div class="acoes-formulario"><button class="botao botao-primario" type="submit">Aplicar filtros</button><a class="botao botao-secundario" th:href="@{/historico}">Limpar filtros</a></div>
+    </form>
+
+    <section class="secao-espacada" aria-labelledby="alteracoes-encontradas">
+        <div class="cabecalho-secao"><div><p class="etiqueta" th:text="|${pagina.totalElements} alteração(ões)|">Alterações</p><h2 id="alteracoes-encontradas">Alterações encontradas</h2></div><p>Os registros são somente leitura e não podem ser apagados por esta interface.</p></div>
+        <div class="estado-vazio" th:if="${pagina.empty}"><span class="estado-vazio-icone" aria-hidden="true">↺</span><h2>Nenhuma alteração encontrada neste período</h2><p>Limpe os filtros ou escolha outro período para consultar.</p><a class="botao botao-secundario" th:href="@{/historico}">Limpar filtros</a></div>
+        <div class="grupos-timeline" th:unless="${pagina.empty}">
+            <section class="grupo-timeline" th:each="grupo : ${grupos}"><h2 th:text="${@formatador.diaRelativo(grupo.data)}">Dia</h2><div th:replace="~{fragments/timeline-historico :: timeline(${grupo.operacoes}, null, false)}"></div></section>
+        </div>
+        <nav class="paginacao" aria-label="Páginas do histórico" th:if="${pagina.totalPages > 1}">
+            <a class="botao botao-secundario" th:if="${pagina.hasPrevious()}" th:href="@{/historico(pagina=${pagina.number - 1},dataInicial=${dataInicial},dataFinal=${dataFinal},modulo=${moduloSelecionado},acao=${acaoSelecionada},busca=${busca})}">← Página anterior</a>
+            <span th:text="|Página ${pagina.number + 1} de ${pagina.totalPages}|">Página</span>
+            <a class="botao botao-secundario" th:if="${pagina.hasNext()}" th:href="@{/historico(pagina=${pagina.number + 1},dataInicial=${dataInicial},dataFinal=${dataFinal},modulo=${moduloSelecionado},acao=${acaoSelecionada},busca=${busca})}">Próxima página →</a>
+        </nav>
+    </section>
+    <a class="link-voltar" th:href="@{/}">← Voltar para a Visão geral</a>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

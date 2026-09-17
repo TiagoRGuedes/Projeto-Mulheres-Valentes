@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Categorias financeiras')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('categorias')}"></aside>
+    <main id="conteudo" class="conteudo-principal" tabindex="-1">
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa}">Livro Caixa</a><span aria-hidden="true">›</span><span aria-current="page">Categorias</span></nav>
+        <header class="cabecalho-pagina"><p class="sobretitulo">Organização configurável</p><h1>Categorias financeiras</h1><p>Crie nomes que ajudem a identificar de onde o dinheiro veio ou para onde foi. Os exemplos atuais são apenas demonstrativos.</p></header>
+        <aside class="alerta alerta-aviso"><span class="alerta-icone" aria-hidden="true">i</span><div><strong>Categorias não confirmadas</strong><p>Os exemplos são fictícios e podem ser editados ou desativados após a entrevista com a ONG.</p></div></aside>
+
+        <form class="painel formulario" th:action="${editandoId != null} ? @{/caixa/categorias/{id}/editar(id=${editandoId})} : @{/caixa/categorias}" th:object="${categoriaForm}" method="post" novalidate>
+            <fieldset><legend th:text="${editandoId != null ? 'Editar categoria' : 'Nova categoria'}">Nova categoria</legend>
+                <div class="alerta alerta-erro" role="alert" th:if="${#fields.hasGlobalErrors()}"><span class="alerta-icone" aria-hidden="true">!</span><div><strong>Não foi possível salvar</strong><ul><li th:each="erro : ${#fields.globalErrors()}" th:text="${erro}">Erro</li></ul></div></div>
+                <div class="grade-formulario secao-espacada">
+                    <div class="campo"><label for="nome">Nome <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label><input id="nome" type="text" th:field="*{nome}" maxlength="80" placeholder="Ex.: Doação" th:attr="aria-invalid=${#fields.hasErrors('nome')},aria-describedby=${#fields.hasErrors('nome') ? 'erro-categoria-nome' : null}"><p class="erro-campo" id="erro-categoria-nome" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">Informe o nome.</p></div>
+                    <div class="campo"><label for="tipo">Usada em <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label><select id="tipo" th:field="*{tipo}" th:attr="aria-invalid=${#fields.hasErrors('tipo')},aria-describedby=${#fields.hasErrors('tipo') ? 'erro-categoria-tipo' : null}"><option value="">Escolha entrada ou saída</option><option th:each="opcao : ${tiposLancamento}" th:value="${opcao}" th:text="${opcao.rotuloAcessivel}">Tipo</option></select><p class="erro-campo" id="erro-categoria-tipo" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}">Escolha o tipo.</p></div>
+                </div>
+            </fieldset>
+            <div class="acoes-formulario"><button class="botao botao-primario" type="submit" th:text="${editandoId != null ? 'Salvar categoria' : 'Adicionar categoria'}">Adicionar categoria</button><a class="botao botao-secundario" th:if="${editandoId != null}" th:href="@{/caixa/categorias}">Cancelar edição</a></div>
+        </form>
+
+        <section class="secao-espacada" aria-labelledby="lista-categorias"><div class="cabecalho-secao compacto"><div><p class="etiqueta">Configuração atual</p><h2 id="lista-categorias">Categorias cadastradas</h2></div></div>
+            <div class="estado-vazio" th:if="${#lists.isEmpty(categorias)}"><span class="estado-vazio-icone" aria-hidden="true">C</span><h2>Nenhuma categoria cadastrada</h2><p>Use o formulário acima para adicionar a primeira categoria.</p></div>
+            <div class="tabela-responsiva" th:unless="${#lists.isEmpty(categorias)}"><table class="tabela-adaptavel"><caption>Categorias de entrada e de saída</caption><thead><tr><th scope="col">Nome</th><th scope="col">Tipo</th><th scope="col">Uso</th><th scope="col">Situação</th><th scope="col">Ações</th></tr></thead><tbody>
+                <tr th:each="categoria : ${categorias}"><td data-label="Nome"><span class="nome-principal" th:text="${categoria.nome}">Nome</span></td><td data-label="Tipo"><span class="selo-status" th:classappend="${categoria.tipo.name() == 'ENTRADA'} ? 'selo-entrada' : 'selo-saida'" th:text="${categoria.tipo.rotuloAcessivel}">Tipo</span></td><td data-label="Uso"><a th:href="@{/caixa/movimentacoes(categoriaId=${categoria.id})}" th:text="|${usosCategorias[categoria.id]} movimentação(ões) ativa(s)|">0 movimentações</a></td><td data-label="Situação"><span class="selo-status" th:classappend="${categoria.ativo} ? 'selo-ativo' : 'selo-inativo'" th:text="${categoria.ativo ? 'Ativa' : 'Desativada'}">Ativa</span></td><td data-label="Ações"><div class="acoes-tabela"><a class="botao botao-secundario botao-pequeno" th:href="@{/caixa/categorias/{id}/editar(id=${categoria.id})}" th:aria-label="|Editar categoria ${categoria.nome}|">Editar</a><form th:action="@{/caixa/categorias/{id}/alternar-status(id=${categoria.id})}" method="post"><button class="botao botao-discreto botao-pequeno" type="submit" th:text="${categoria.ativo ? 'Desativar' : 'Ativar'}" th:aria-label="|${categoria.ativo ? 'Desativar' : 'Ativar'} categoria ${categoria.nome}|">Desativar</button></form></div></td></tr>
+            </tbody></table></div>
+        </section>
+    </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

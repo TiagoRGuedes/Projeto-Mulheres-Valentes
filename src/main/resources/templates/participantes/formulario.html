@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${modoEdicao ? 'Editar participante' : 'Cadastrar participante'})}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('participantes')}"></aside><main id="conteudo" class="conteudo-principal conteudo-estreito" tabindex="-1">
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><a th:href="@{/participantes}">Participantes</a><span aria-hidden="true">›</span><span aria-current="page" th:text="${modoEdicao ? 'Editar' : 'Cadastrar'}">Cadastrar</span></nav>
+    <header class="cabecalho-pagina"><p class="sobretitulo">Cadastro simples</p><h1 th:text="${modoEdicao ? 'Editar participante' : 'Cadastrar participante'}">Cadastrar participante</h1><p th:text="${modoEdicao ? 'Corrija as informações necessárias e salve.' : 'Adicione uma nova pessoa ao sistema. Somente o nome é obrigatório.'}">Adicione uma pessoa.</p></header>
+    <form class="painel formulario" th:action="${modoEdicao} ? @{/participantes/{id}(id=${participanteId})} : @{/participantes}" th:object="${participanteForm}" method="post" novalidate>
+        <fieldset><legend>Informações da pessoa</legend><p class="ajuda-campo">Campos marcados com <span class="obrigatorio">*</span> são obrigatórios.</p><div class="grade-formulario secao-espacada">
+            <div class="campo campo-largo"><label for="nome">Nome <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label><input id="nome" type="text" th:field="*{nome}" maxlength="150" autocomplete="name" placeholder="Digite o nome da pessoa" th:attr="aria-invalid=${#fields.hasErrors('nome')},aria-describedby=${#fields.hasErrors('nome') ? 'erro-nome ajuda-nome' : 'ajuda-nome'}"><small class="ajuda-campo" id="ajuda-nome">Use o nome pelo qual a pessoa é identificada nas atividades.</small><p class="erro-campo" id="erro-nome" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">Informe o nome.</p></div>
+            <div class="campo campo-largo"><label for="observacoes">Observações <span class="opcional">opcional</span></label><textarea id="observacoes" th:field="*{observacoes}" maxlength="1000" placeholder="Registre apenas uma informação útil e autorizada" th:attr="aria-invalid=${#fields.hasErrors('observacoes')},aria-describedby=${#fields.hasErrors('observacoes') ? 'erro-observacoes ajuda-observacoes' : 'ajuda-observacoes'}"></textarea><small class="ajuda-campo" id="ajuda-observacoes">Não inclua documentos, contatos ou dados sensíveis sem necessidade e autorização.</small><p class="erro-campo" id="erro-observacoes" th:if="${#fields.hasErrors('observacoes')}" th:errors="*{observacoes}">Revise a observação.</p></div>
+        </div></fieldset>
+        <div class="acoes-formulario"><button class="botao botao-primario" type="submit" th:text="${modoEdicao ? 'Salvar alterações' : 'Cadastrar participante'}">Cadastrar participante</button><a class="botao botao-secundario" th:href="${modoEdicao} ? @{/participantes/{id}(id=${participanteId})} : @{/participantes}">Cancelar e voltar</a></div>
+        <p class="ajuda-campo">Depois de salvar, o sistema abrirá os detalhes e mostrará uma confirmação.</p>
+    </form>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
