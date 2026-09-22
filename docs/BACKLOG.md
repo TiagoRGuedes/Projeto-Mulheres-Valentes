@@ -1,8 +1,33 @@
-# Backlog preliminar
+# Backlog
 
 ## Aviso de validação
 
-As histórias abaixo orientam a construção acadêmica, mas são baseadas em premissas. Os papéis “pessoa responsável”, “pessoa que registra” e “pessoa que consulta” não representam cargos confirmados na ONG. Prioridades e critérios deverão ser revisados na entrevista.
+As histórias abaixo orientam a construção acadêmica. Os papéis “pessoa responsável”, “pessoa que registra” e “pessoa que consulta” não representam cargos confirmados na ONG.
+
+## Backlog do escopo (AC1)
+
+Estas são as histórias do documento de escopo, com o estado no protótipo. A ONG
+informou que, se o sistema resolvesse só uma coisa, a prioridade seria o **livro
+caixa** — por isso as histórias #4 a #8 vêm antes das de presença na ordem de
+demonstração.
+
+| # | História | Pontos | Estado |
+|---:|---|---:|---|
+| #1 | Cadastrar uma participante | 2 | Implementada, com nome e contato (RF01) |
+| #2 | Registrar a presença de uma participante em uma data | 2 | Implementada no controle único por data (RF02) |
+| #3 | Consultar a listagem de presença por período | 3 | Implementada em `/presencas` e `/frequencia` (RF03) |
+| #4 | Registrar o recebimento mensal do aluguel/patrocínio | 3 | Implementada; categoria Aluguel/Patrocínio no cadastro inicial |
+| #5 | Registrar doação de material com comprovante, sem valor | 3 | Implementada (RF05, RF06, PR05) |
+| #6 | Ver o saldo atual do caixa | 2 | Implementada; soma apenas o que é dinheiro (RF07) |
+| #7 | Gerar extrato do caixa por período | 5 | Implementada em tela, CSV e `GET /api/caixa/extrato` (RF08) |
+| #8 | Corrigir um lançamento feito por engano | 2 | Implementada com edição e cancelamento rastreável (RF09) |
+
+Pendente do escopo: **RNF04 — acesso com login**. Não implementado.
+
+## Histórias anteriores do protótipo
+
+As histórias abaixo foram escritas antes da entrevista e continuam válidas como
+detalhamento do que já está construído.
 
 ## Escala
 

@@ -2,7 +2,8 @@
 
 ## Finalidade
 
-Este é o registro vivo das hipóteses do projeto. A entrevista ainda não ocorreu. A coluna **Classificação** usa:
+Este é o registro vivo das hipóteses do projeto, atualizado após a entrevista
+registrada no documento de escopo (AC1). A coluna **Classificação** usa:
 
 - **Confirmado:** informação explicitamente fornecida sobre a realidade da ONG;
 - **Premissa:** hipótese adotada temporariamente para conseguir prototipar;
@@ -18,19 +19,45 @@ Este é o registro vivo das hipóteses do projeto. A entrevista ainda não ocorr
 | C03 | O controle de presença é realizado manualmente. | Confirmado |
 | C04 | O livro caixa é realizado manualmente. | Confirmado |
 | C05 | Há interesse em digitalizar os controles e necessidade de facilidade de uso e orientação. | Confirmado |
+| C06 | A ONG atende regularmente 60 participantes; as atividades acontecem todos os dias. | Confirmado — entrevista |
+| C07 | O controle de presença é único, não vinculado a uma atividade específica. | Confirmado — entrevista |
+| C08 | Não existe livro caixa formal hoje; a ONG não lança valores. | Confirmado — entrevista |
+| C09 | Há uma única entrada monetária fixa: aluguel/patrocínio de R$ 1.200 por mês. | Confirmado — entrevista |
+| C10 | Doações de material não têm valor monetário; são controladas por comprovante. | Confirmado — entrevista |
+| C11 | Já faltou dinheiro para pagar o aluguel. | Confirmado — entrevista |
+| C12 | É comum uma participante faltar e depois precisar ser reincluída no controle. | Confirmado — entrevista |
+| C13 | A prioridade da ONG é o livro caixa, não a presença. | Confirmado — entrevista |
+| C14 | Karine e Isabelle precisarão de treinamento; nível médio de familiaridade digital. | Confirmado — entrevista |
 
-Não há outros fatos organizacionais confirmados nesta etapa.
+## Premissas do escopo (AC1)
+
+| ID | Premissa | Status | Reflexo no protótipo |
+|---|---|---|---|
+| PR01 | Presença e livro caixa são controles independentes. | A confirmar | Os dois módulos continuam separados; nada liga presença a lançamento. |
+| PR02 | O caixa não precisa de conciliação bancária. | Confirmado — realidade ainda mais simples | Modelo enxuto: entradas, saídas e doações sem valor. |
+| PR03 | Duas pessoas, com nível médio de familiaridade digital, operam o sistema. | Confirmado — ajustado de uma para duas | **Ainda não atendido:** o protótipo não tem login (RNF04). Ver "Limites antes do uso real" no README. |
+| PR04 | O treinamento pode ser atendido com um manual de uso simples. | A confirmar | `docs/GUIA_USUARIO.md` e a Central de Ajuda dentro do sistema. |
+| PR05 | Aluguel/patrocínio é o único valor fixo; doações de material não têm valor. | Confirmado — entrevista | `NaturezaLancamento`: valor nulo e comprovante obrigatório na doação de material. |
+
+## Dúvidas ainda em aberto
+
+- O patrocínio de R$ 1.200 é sempre fixo, ou varia de mês a mês?
+- O comprovante da doação precisa ser texto ou também um anexo de arquivo?
+- Que dispositivo a equipe usa no dia a dia: computador, celular, os dois?
+- O que causou a falta de dinheiro para pagar o aluguel?
 
 ## Premissas adotadas no protótipo
 
+As linhas marcadas com ✅ ou ⚠️ foram tocadas pela entrevista.
+
 | ID | Premissa | Motivo temporário | Risco se estiver errada | Como adaptar |
 |---|---|---|---|---|
-| P01 | Pessoas poderão ser representadas por um cadastro mínimo com nome, estado ativo e observação. | Permitir demonstração sem coletar dados pessoais desnecessários. | O cadastro pode não refletir a unidade real acompanhada. | Alterar DTO, entidade e telas após validação. |
-| P02 | A presença será organizada por atividade e encontro datado. | Separar o tipo de ação de cada ocorrência. | A ONG pode usar turmas, grupos ou eventos com outra estrutura. | Renomear ou introduzir a entidade adequada. |
-| P03 | Cada participante terá uma única situação por encontro. | Evitar dupla contagem. | Pode existir mais de um turno ou sessão no mesmo encontro. | Acrescentar o discriminador confirmado. |
+| P01 ✅ | Pessoas poderão ser representadas por um cadastro mínimo com nome, contato, estado ativo e observação. O contato entrou pelo RF01. | Permitir demonstração sem coletar dados pessoais desnecessários. | O cadastro pode não refletir a unidade real acompanhada. | Alterar DTO, entidade e telas após validação. |
+| P02 ⚠️ | ~~A presença será organizada por atividade e encontro datado.~~ A entrevista confirmou um controle **único por data**. | Separar o tipo de ação de cada ocorrência. | Já se mostrou parcialmente errada. | Feito: a presença passou a ser registrada por data e o encontro virou opcional. |
+| P03 ⚠️ | Cada participante terá uma única situação por encontro **e uma única situação por data no controle avulso**. | Evitar dupla contagem. | Pode existir mais de um turno ou sessão no mesmo dia. | Acrescentar o discriminador confirmado. |
 | P04 | Presente, ausente e justificada serão estados iniciais. | Viabilizar o protótipo solicitado. | Podem faltar estados ou “ausente” pode nem ser registrado. | Ajustar enum e migração de dados. |
 | P05 | O registro será feito para várias pessoas na mesma tela. | Reduzir repetição e tempo. | O processo real pode ocorrer individualmente ou por lista externa. | Oferecer fluxos alternativos. |
-| P06 | O caixa será modelado por entradas e saídas com valores positivos. | Tornar cálculo e compreensão previsíveis. | O controle atual pode incluir estornos, transferências ou múltiplos caixas. | Ampliar tipos somente após entrevista. |
+| P06 ✅ | O caixa será modelado por entradas e saídas com valores positivos, **mais a natureza do lançamento**: dinheiro ou doação de material sem valor. | Tornar cálculo e compreensão previsíveis. | O controle atual pode incluir estornos, transferências ou múltiplos caixas. | Ampliar tipos somente após entrevista. |
 | P07 | Uma categoria ativa e compatível com o tipo classificará cada lançamento. | Ajudar filtros e organização. | Categoria pode não ser obrigatória ou pode haver mais dimensões. | Tornar opcional ou criar dimensões confirmadas. |
 | P08 | O saldo do protótipo será entradas menos saídas desde o início dos registros. | Permitir resumo sem regra contábil adicional. | Pode existir saldo inicial ou fechamento por caixa. | Criar configuração ou lançamento de abertura validado. |
 | P09 | Datas serão informadas sem horário; o horário será usado apenas no registro técnico. | Simplificar formulários. | A ordem no mesmo dia pode ser relevante. | Acrescentar horário de negócio se necessário. |

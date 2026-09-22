@@ -1,5 +1,6 @@
 package com.ibmec.mulheresvalentes.config;
 
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.Presenca;
 import com.ibmec.mulheresvalentes.model.StatusPresenca;
 import com.ibmec.mulheresvalentes.model.TipoLancamento;
@@ -61,6 +62,9 @@ class DadosDemonstracaoConfigIntegrationTest {
         assertThat(participanteRepository.count()).isEqualTo(36);
         assertThat(participanteRepository.countByAtivoTrue()).isEqualTo(32);
         assertThat(participanteRepository.countByAtivoFalse()).isEqualTo(4);
+        assertThat(participanteRepository.findAll())
+                .filteredOn(participante -> participante.getContato() != null)
+                .isNotEmpty();
 
         assertThat(atividadeRepository.count()).isEqualTo(6);
         assertThat(atividadeRepository.countByAtivoTrue()).isEqualTo(5);
@@ -70,7 +74,11 @@ class DadosDemonstracaoConfigIntegrationTest {
         assertThat(encontroRepository.findAll()).allSatisfy(encontro ->
                 assertThat(encontro.getData()).isBetween(LocalDate.now().minusMonths(4), LocalDate.now()));
 
-        assertThat(presencaRepository.count()).isEqualTo(864);
+        assertThat(presencaRepository.count()).isEqualTo(972);
+        assertThat(presencaRepository.findAll())
+                .filteredOn(presenca -> presenca.getEncontro() == null)
+                .hasSize(108)
+                .allSatisfy(presenca -> assertThat(presenca.getData()).isNotNull());
         assertThat(presencaRepository.findAll()).extracting(Presenca::getStatus)
                 .contains(StatusPresenca.PRESENTE, StatusPresenca.AUSENTE, StatusPresenca.JUSTIFICADA);
 
@@ -80,24 +88,42 @@ class DadosDemonstracaoConfigIntegrationTest {
                         presenca -> presenca.getParticipante().getId(),
                         Collectors.counting()));
         assertThat(Set.copyOf(presentesPorParticipante.values()))
-                .containsExactlyInAnyOrder(10L, 14L, 17L, 19L, 21L, 23L);
+                .containsExactlyInAnyOrder(13L, 17L, 20L, 22L, 24L, 26L);
 
-        assertThat(categoriaRepository.count()).isEqualTo(11);
-        assertThat(categoriaRepository.findByAtivoTrueOrderByTipoAscNomeAsc()).hasSize(9);
+        assertThat(categoriaRepository.count()).isEqualTo(13);
+        assertThat(categoriaRepository.findByAtivoTrueOrderByTipoAscNomeAsc()).hasSize(11);
 
-        assertThat(lancamentoRepository.count()).isEqualTo(50);
+        assertThat(lancamentoRepository.count()).isEqualTo(30);
         assertThat(lancamentoRepository.findAll())
-                .allSatisfy(lancamento -> {
-                    assertThat(lancamento.getValor()).isGreaterThan(BigDecimal.ZERO);
-                    assertThat(lancamento.getValor().scale()).isEqualTo(2);
-                })
                 .filteredOn(lancamento -> lancamento.getTipo() == TipoLancamento.ENTRADA)
                 .hasSize(20);
         assertThat(lancamentoRepository.findAll())
                 .filteredOn(lancamento -> lancamento.getTipo() == TipoLancamento.SAIDA)
-                .hasSize(30);
+                .hasSize(10);
 
-        assertThat(historicoRepository.count()).isEqualTo(12);
+        assertThat(lancamentoRepository.findAll())
+                .filteredOn(lancamento -> lancamento.getNatureza() == NaturezaLancamento.MONETARIA)
+                .hasSize(22)
+                .allSatisfy(lancamento -> {
+                    assertThat(lancamento.getValor()).isGreaterThan(BigDecimal.ZERO);
+                    assertThat(lancamento.getValor().scale()).isEqualTo(2);
+                });
+
+        assertThat(lancamentoRepository.findAll())
+                .filteredOn(lancamento -> lancamento.getNatureza() == NaturezaLancamento.DOACAO_MATERIAL)
+                .hasSize(8)
+                .allSatisfy(lancamento -> {
+                    assertThat(lancamento.getValor()).isNull();
+                    assertThat(lancamento.getComprovante()).isNotBlank();
+                });
+
+        assertThat(lancamentoRepository.findAll())
+                .filteredOn(lancamento -> "Aluguel/Patrocínio".equals(lancamento.getCategoria().getNome()))
+                .hasSize(12)
+                .allSatisfy(lancamento ->
+                        assertThat(lancamento.getValor()).isEqualByComparingTo(new BigDecimal("1200.00")));
+
+        assertThat(historicoRepository.count()).isEqualTo(14);
 
         Contagens antes = contagensAtuais();
         dadosDemonstracaoConfig.run(new DefaultApplicationArguments(new String[0]));

@@ -33,7 +33,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Endpoint único do último passo da Review Layer. */
 @Controller
 @RequestMapping("/confirmacoes")
 public class ConfirmacaoOperacaoController {

@@ -18,6 +18,8 @@ public interface PresencaRepository extends JpaRepository<Presenca, Long> {
 
     boolean existsByParticipanteIdAndEncontroId(Long participanteId, Long encontroId);
 
+    boolean existsByParticipanteIdAndDataAndEncontroIsNull(Long participanteId, LocalDate data);
+
     boolean existsByParticipanteId(Long participanteId);
 
     boolean existsByEncontroId(Long encontroId);
@@ -28,24 +30,27 @@ public interface PresencaRepository extends JpaRepository<Presenca, Long> {
     List<Presenca> findByEncontroIdOrderByParticipanteNomeAsc(Long encontroId);
 
     @EntityGraph(attributePaths = {"participante", "encontro", "encontro.atividade"})
-    List<Presenca> findByParticipanteIdOrderByEncontroDataDesc(Long participanteId);
+    List<Presenca> findByParticipanteIdOrderByDataDescIdDesc(Long participanteId);
+
+    @EntityGraph(attributePaths = {"participante"})
+    List<Presenca> findByDataAndEncontroIsNullOrderByParticipanteNomeAsc(LocalDate data);
 
     @Query("""
             select p
               from Presenca p
               join fetch p.participante
-              join fetch p.encontro e
-              join fetch e.atividade
-             order by e.data desc, p.id desc
+              left join fetch p.encontro e
+              left join fetch e.atividade
+             order by p.data desc, p.id desc
             """)
     List<Presenca> findAllComRelacionamentos();
 
-    @Query("select count(p) from Presenca p where p.encontro.data between :inicio and :fim")
+    @Query("select count(p) from Presenca p where p.data between :inicio and :fim")
     long contarPorPeriodo(@Param("inicio") LocalDate inicio, @Param("fim") LocalDate fim);
 
     @Query("""
             select count(p) from Presenca p
-             where p.encontro.data between :inicio and :fim
+             where p.data between :inicio and :fim
                and p.status = :status
             """)
     long contarPorPeriodoEStatus(
@@ -57,6 +62,9 @@ public interface PresencaRepository extends JpaRepository<Presenca, Long> {
 
     long countByEncontroIdAndStatus(Long encontroId, com.ibmec.mulheresvalentes.model.StatusPresenca status);
 
-    @Query("select count(distinct p.encontro.id) from Presenca p")
+    @Query("select count(distinct p.encontro.id) from Presenca p where p.encontro is not null")
     long contarEncontrosComPresenca();
+
+    @Query("select count(distinct p.data) from Presenca p")
+    long contarDatasComPresenca();
 }

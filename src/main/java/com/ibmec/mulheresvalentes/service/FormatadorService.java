@@ -1,5 +1,8 @@
 package com.ibmec.mulheresvalentes.service;
 
+import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
+import com.ibmec.mulheresvalentes.model.TipoLancamento;
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -19,6 +22,26 @@ public class FormatadorService {
     public String moeda(BigDecimal valor) {
         BigDecimal seguro = valor == null ? BigDecimal.ZERO : valor;
         return NumberFormat.getCurrencyInstance(BRASIL).format(seguro);
+    }
+
+    public String valorLancamento(LancamentoCaixa lancamento) {
+        if (lancamento == null) {
+            return "—";
+        }
+        return lancamento.isMonetario()
+                ? moeda(lancamento.getValor())
+                : "Sem valor (material)";
+    }
+
+    public String valorComSinal(LancamentoCaixa lancamento) {
+        if (lancamento == null) {
+            return "—";
+        }
+        if (!lancamento.isMonetario()) {
+            return "Sem valor (material)";
+        }
+        String sinal = lancamento.getTipo() == TipoLancamento.ENTRADA ? "+ " : "− ";
+        return sinal + moeda(lancamento.getValor());
     }
 
     public String percentual(BigDecimal valor) {

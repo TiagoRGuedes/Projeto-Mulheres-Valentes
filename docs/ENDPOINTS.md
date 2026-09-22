@@ -1,8 +1,30 @@
-# Endpoints preliminares
+# Endpoints
 
 ## Status do contrato
 
-Esta documentação descreve o contrato planejado para o protótipo. Rotas ligadas a fluxos da ONG continuam sujeitas à entrevista. Antes de integrar outro sistema, conferir a implementação e criar versionamento da API.
+Esta documentação descreve o contrato implementado no protótipo, já alinhado ao
+documento de escopo (AC1). Antes de integrar outro sistema, conferir a
+implementação e criar versionamento da API.
+
+### Correspondência com o escopo
+
+O escopo lista as rotas sem prefixo. Na implementação elas ficam sob `/api`,
+porque `/participantes`, `/presencas` e `/caixa` já são as páginas Thymeleaf que
+a equipe da ONG usa no navegador.
+
+| Escopo | Implementação |
+|---|---|
+| POST /participantes | POST /api/participantes |
+| GET /participantes | GET /api/participantes |
+| GET /participantes/{id} | GET /api/participantes/{id} |
+| PUT /participantes/{id} | PUT /api/participantes/{id} |
+| DELETE /participantes/{id} | DELETE /api/participantes/{id} |
+| POST /presencas | POST /api/presencas |
+| GET /participantes/{id}/presencas | GET /api/participantes/{id}/presencas |
+| POST /caixa | POST /api/caixa |
+| GET /caixa | GET /api/caixa |
+| GET /caixa/saldo | GET /api/caixa/saldo |
+| GET /caixa/extrato | GET /api/caixa/extrato |
 
 Base local:
 
@@ -78,7 +100,7 @@ http://localhost:8080
 | Método | Rota | Finalidade |
 |---|---|---|
 | GET | /presencas | Histórico de registros |
-| GET | /presencas/registrar | Escolher atividade e encontro ou mostrar lista |
+| GET | /presencas/registrar | Chamada por data (padrão) ou por encontro; aceita `data`, `atividadeId`, `encontroId` e `busca` |
 | POST | /presencas/registrar | Salvar uma lista de presença |
 | GET | /presencas/{id}/corrigir | Exibir a presença e o formulário de correção |
 | POST | /presencas/{id}/corrigir | Corrigir situação/observação e registrar histórico |
@@ -119,7 +141,7 @@ Lista participantes. Filtros preliminares:
 
 | Parâmetro | Tipo | Exemplo | Uso |
 |---|---|---|---|
-| busca | texto | ana | trecho do nome |
+| busca | texto | ana | trecho do nome ou do contato |
 
 Resposta esperada: 200 OK.
 
@@ -130,9 +152,12 @@ Cria participante.
 ~~~json
 {
   "nome": "Pessoa Fictícia 04",
+  "contato": "(11) 90000-0000",
   "observacoes": "Registro somente para demonstração"
 }
 ~~~
+
+`contato` é opcional e aceita até 120 caracteres (RF01).
 
 Respostas:
 
@@ -151,9 +176,12 @@ Atualiza os campos permitidos.
 ~~~json
 {
   "nome": "Pessoa Fictícia 04",
+  "contato": "exemplo@demonstracao.invalid",
   "observacoes": "Cadastro demonstrativo desativado"
 }
 ~~~
+
+Enviar `contato` nulo limpa o contato gravado.
 
 - 200 OK quando atualizado;
 - 400 Bad Request para dados inválidos;
@@ -183,63 +211,94 @@ Lista registros. Filtros que podem ser oferecidos:
 
 Resposta esperada: 200 OK.
 
+### GET /api/participantes/{id}/presencas
+
+Lista a frequência de uma participante (RF03). Aceita `dataInicial`,
+`dataFinal` e `status`.
+
+- 200 OK com a lista, ordenada da data mais recente para a mais antiga.
+
 ### POST /api/presencas
 
-Cria um registro individual:
+Cria um registro individual. `encontroId` é opcional:
 
 ~~~json
 {
   "participanteId": 1,
-  "encontroId": 2,
+  "data": "2026-09-15",
   "status": "PRESENTE",
   "observacoes": ""
 }
 ~~~
 
+Sem `encontroId`, a presença entra no controle único por data (RF02). Com
+`encontroId`, a data do encontro prevalece sobre a data enviada. Omitindo os
+dois, o registro usa a data de hoje.
+
+Campos `encontroId`, `atividadeId` e `atividadeNome` vêm nulos na resposta das
+presenças avulsas.
+
 Respostas:
 
 - 201 Created quando criado;
 - 400 Bad Request para formato inválido;
-- 422 Unprocessable Entity para referência ou regra de negócio inválida;
+- 422 Unprocessable Entity para regra de negócio inválida, incluindo data no futuro;
 - 404 Not Found se participante ou encontro não existir;
-- 409 Conflict quando já existe presença para participante + encontro.
+- 409 Conflict quando já existe presença para participante + encontro, ou para participante + data no controle único.
 
 O formulário web pode enviar vários itens juntos a um DTO próprio, preservando validação transacional. Uma rota REST de lote só deverá ser publicada se for necessária e documentada.
 
-## API REST — Lançamentos
+## API REST — Livro Caixa
 
-### GET /api/lancamentos
+### GET /api/caixa
 
-Lista lançamentos, com filtros preliminares:
+Lista lançamentos, com filtros:
 
 | Parâmetro | Tipo | Exemplo |
 |---|---|---|
 | dataInicial | data | 2026-08-01 |
 | dataFinal | data | 2026-08-31 |
 | tipo | enum | ENTRADA |
+| natureza | enum | DOACAO_MATERIAL |
 | categoriaId | número | 1 |
-| descricao | texto | evento |
+| descricao | texto | aluguel |
 
 Um intervalo com data inicial posterior à final retorna 400 Bad Request.
 
-### POST /api/lancamentos
+### POST /api/caixa
 
-Cria entrada ou saída:
+Cria entrada ou saída. Um lançamento monetário:
 
 ~~~json
 {
   "data": "2026-08-27",
   "tipo": "ENTRADA",
+  "natureza": "MONETARIA",
   "categoriaId": 1,
-  "descricao": "Entrada fictícia para demonstração",
-  "valor": 125.50,
-  "observacoes": "Sem relação com movimentação real"
+  "descricao": "Aluguel/patrocínio mensal",
+  "valor": 1200.00,
+  "observacoes": ""
+}
+~~~
+
+Uma doação de material, sem valor e com comprovante (RF05, RF06):
+
+~~~json
+{
+  "data": "2026-08-27",
+  "tipo": "ENTRADA",
+  "natureza": "DOACAO_MATERIAL",
+  "categoriaId": 2,
+  "descricao": "Doação de cestas básicas",
+  "comprovante": "Recibo 012/2026 — 4 caixas conferidas"
 }
 ~~~
 
 Regras:
 
-- valor maior que zero;
+- `natureza` omitida vale como `MONETARIA`, o que mantém integrações antigas funcionando;
+- em `MONETARIA`, valor maior que zero é obrigatório e o comprovante é opcional;
+- em `DOACAO_MATERIAL`, o comprovante é obrigatório e qualquer valor enviado é descartado;
 - categoria existente, ativa e do mesmo tipo;
 - descrição obrigatória;
 - valor armazenado positivo.
@@ -251,12 +310,41 @@ Respostas:
 - 422 Unprocessable Entity para regra de negócio inválida;
 - 404 Not Found para categoria inexistente.
 
-### GET /api/lancamentos/{id}
+### GET /api/caixa/saldo
+
+Saldo atual, somando apenas lançamentos monetários não cancelados (RF07).
+
+~~~json
+{ "saldoAtual": 12727.10 }
+~~~
+
+### GET /api/caixa/extrato
+
+Extrato por período para prestação de contas (RF08). Aceita os mesmos filtros do
+GET /api/caixa e devolve resumo e lançamentos juntos:
+
+~~~json
+{
+  "resumo": {
+    "dataInicial": "2026-08-01",
+    "dataFinal": "2026-08-31",
+    "totalEntradas": 1200.00,
+    "totalSaidas": 420.75,
+    "saldoPeriodo": 779.25,
+    "saldoAtual": 12727.10,
+    "quantidadeMovimentacoes": 9,
+    "quantidadeDoacoesMaterial": 3
+  },
+  "lancamentos": []
+}
+~~~
+
+### GET /api/caixa/{id}
 
 - 200 OK;
 - 404 Not Found.
 
-### PUT /api/lancamentos/{id}
+### PUT /api/caixa/{id}
 
 Atualiza lançamento com o mesmo formato do POST.
 
@@ -264,7 +352,7 @@ Atualiza lançamento com o mesmo formato do POST.
 - 400 Bad Request;
 - 404 Not Found.
 
-### DELETE /api/lancamentos/{id}
+### DELETE /api/caixa/{id}
 
 Cancela logicamente o lançamento. O registro deixa de compor saldo, extrato, relatórios, CSV, API e dashboards, mas permanece no banco e sua exclusão fica descrita no Histórico do sistema.
 
@@ -280,7 +368,11 @@ Cancela logicamente o lançamento. O registro deixa de compor saldo, extrato, re
 Parâmetros opcionais:
 
 - dataInicial;
-- dataFinal.
+- dataFinal;
+- tipo;
+- natureza;
+- categoriaId;
+- descricao.
 
 Exemplo de resposta:
 
@@ -292,9 +384,13 @@ Exemplo de resposta:
   "totalSaidas": 420.75,
   "saldoPeriodo": 1079.25,
   "saldoAtual": 1079.25,
-  "quantidadeMovimentacoes": 8
+  "quantidadeMovimentacoes": 8,
+  "quantidadeDoacoesMaterial": 2
 }
 ~~~
+
+Totais e saldo somam apenas lançamentos monetários; as doações de material
+aparecem somente como contagem, porque não têm valor (PR05).
 
 Sem datas, o resumo considera todos os lançamentos disponíveis. A interface deve deixar isso claro.
 

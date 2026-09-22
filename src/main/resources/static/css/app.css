@@ -7,7 +7,6 @@
 }
 
 :root {
-    /* Identidade oficial Mulheres Valentes, adaptada ao ambiente administrativo. */
     --mv-primary: #144047;
     --mv-primary-strong: #10383e;
     --mv-primary-dark: #002c33;
@@ -70,7 +69,6 @@ html {
     scroll-behavior: smooth;
 }
 
-/* A preferência precisa ampliar também medidas em rem, não apenas texto herdado. */
 html:has(body.fonte-grande) {
     font-size: 112.5%;
 }
@@ -207,7 +205,6 @@ h3 {
     border: 0;
 }
 
-/* Estrutura principal */
 .topo {
     position: relative;
     z-index: 30;
@@ -419,7 +416,6 @@ h3 {
     margin: .15rem 0;
 }
 
-/* Cabeçalhos e navegação */
 .boas-vindas {
     position: relative;
     display: flex;
@@ -528,7 +524,6 @@ h3 {
     margin-top: 2.8rem;
 }
 
-/* Botões */
 .botao {
     display: inline-flex;
     align-items: center;
@@ -662,7 +657,6 @@ h3 {
     text-align: center;
 }
 
-/* Cards de ação */
 .grade-acoes {
     display: grid;
     gap: 1rem;
@@ -766,7 +760,6 @@ h3 {
     font-size: 1.3rem;
 }
 
-/* Painéis, indicadores e avisos */
 .painel {
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-md);
@@ -985,7 +978,6 @@ h3 {
     font-weight: 750;
 }
 
-/* Formulários */
 .formulario {
     padding: clamp(1.2rem, 3vw, 2rem);
 }
@@ -1317,6 +1309,10 @@ kbd {
     background: var(--surface-soft);
 }
 
+.grupo-radio.duas-colunas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .radio-botao {
     position: relative;
 }
@@ -1352,7 +1348,6 @@ kbd {
     outline-offset: 2px;
 }
 
-/* Tabelas */
 .tabela-responsiva {
     width: 100%;
     max-width: 100%;
@@ -1506,7 +1501,6 @@ tbody tr:hover {
     font-variant-numeric: tabular-nums;
 }
 
-/* Registro de presença */
 .progresso-etapas {
     margin-bottom: .75rem;
     color: var(--text-secondary);
@@ -1630,7 +1624,6 @@ tbody tr:hover {
     background: var(--surface-card);
 }
 
-/* Ajuda */
 .ajuda-hero {
     display: flex;
     align-items: center;
@@ -1792,7 +1785,6 @@ tbody tr:hover {
     color: var(--text-secondary);
 }
 
-/* Erros */
 .pagina-erro {
     display: grid;
     min-height: calc(100vh - var(--header-height) - 110px);
@@ -1839,7 +1831,6 @@ tbody tr:hover {
     }
 }
 
-/* Responsividade */
 @media (max-width: 1120px) {
     .finance-overview {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2229,7 +2220,6 @@ tbody tr:hover {
     }
 }
 
-/* Review Layer — uma única linguagem visual para toda operação que grava dados. */
 .conteudo-revisao {
     max-width: 1040px;
 }
@@ -2541,7 +2531,6 @@ body.reduzir-animacoes .review-layer *::after {
     }
 }
 
-/* Evolução administrativa: dashboard, histórico e confirmações. */
 .secao-dashboard {
     margin-top: 3.2rem;
     scroll-margin-top: 1rem;
@@ -2797,7 +2786,6 @@ body.reduzir-animacoes .review-layer *::after {
     margin-bottom: .6rem;
 }
 
-/* Timeline administrativa */
 .timeline-painel {
     padding: 1.2rem;
 }
@@ -2959,7 +2947,6 @@ body.reduzir-animacoes .review-layer *::after {
     font-weight: 740;
 }
 
-/* Confirmações e ações seguras */
 .confirmacao-bloco {
     margin-top: .8rem;
     padding: .9rem;
@@ -3113,7 +3100,6 @@ body.reduzir-animacoes .review-layer *::after {
     color: var(--text-secondary);
 }
 
-/* Central de Ajuda */
 .primeiros-caminhos {
     margin-bottom: 1.3rem;
     padding: 1.3rem;
@@ -3254,10 +3240,6 @@ body.reduzir-animacoes .review-layer *::after {
     }
 }
 
-/* ========================================================================== 
-   Redesign institucional Mulheres Valentes — sistema administrativo
-   Referência: identidade visual publicada em mulheresvalentes.org.br
-   ========================================================================== */
 
 .icone-linha,
 .menu-icone svg,
@@ -3271,7 +3253,6 @@ body.reduzir-animacoes .review-layer *::after {
     stroke-linejoin: round;
 }
 
-/* Marca e navegação */
 .topo {
     min-height: var(--header-height);
     border-bottom: 0;
@@ -3409,7 +3390,6 @@ body.reduzir-animacoes .review-layer *::after {
     padding: clamp(1.5rem, 3vw, 3rem);
 }
 
-/* Cabeçalhos e identidade das páginas */
 .migalhas {
     margin-bottom: 1.35rem;
     color: var(--text-secondary);
@@ -3450,7 +3430,6 @@ body.reduzir-animacoes .review-layer *::after {
     color: var(--text-secondary);
 }
 
-/* Home */
 .boas-vindas {
     isolation: isolate;
     align-items: center;
@@ -3540,7 +3519,6 @@ body.reduzir-animacoes .review-layer *::after {
     color: #fff;
 }
 
-/* Home editorial: contexto, assinatura de conexão e comandos do dia. */
 .dashboard-hero {
     display: block;
     padding: clamp(1.5rem, 3vw, 2.6rem);
@@ -3815,7 +3793,6 @@ body.reduzir-animacoes .review-layer *::after {
     background: var(--mv-teal);
 }
 
-/* Componentes administrativos */
 .painel,
 .formulario,
 .tabela-responsiva,
@@ -3963,7 +3940,6 @@ td {
     background: linear-gradient(100deg, var(--mv-accent-soft), var(--surface-card));
 }
 
-/* Presença e frequência */
 .linha-presenca {
     border-color: var(--border-soft);
     border-radius: .85rem;
@@ -4030,7 +4006,6 @@ td {
     background: linear-gradient(90deg, var(--mv-teal), var(--mv-primary));
 }
 
-/* Central de relatórios */
 .report-center {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4102,7 +4077,6 @@ td {
 .report-frequencia .report-icone { background: var(--status-info-soft); color: var(--status-info-text); }
 .report-financeiro .report-icone { background: var(--status-success-soft); color: var(--status-success-text); }
 
-/* Ajuda */
 .ajuda-hero {
     border-color: rgba(228, 26, 129, .2);
     background:
@@ -4168,7 +4142,6 @@ td {
     font-weight: 760;
 }
 
-/* Footer e impressão */
 .rodape {
     padding: 1.6rem max(1.25rem, calc((100% - var(--content-max)) / 2 + 1.5rem));
     border-top: 4px solid var(--mv-secondary);
@@ -4241,7 +4214,6 @@ td {
     display: none;
 }
 
-/* Paletas acessíveis */
 body.modo-escuro {
     --surface-page: #071a1e;
     --surface-soft: #0b2429;
@@ -4523,7 +4495,6 @@ body .campo :where(input, select, textarea):focus-visible {
     }
 }
 
-/* Pontos de quebra testados para notebook, tablet e celular. */
 @media (max-width: 1120px) {
     .finance-overview {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4731,17 +4702,12 @@ body .campo :where(input, select, textarea):focus-visible {
     }
 }
 
-/* Links de texto usam variantes com contraste AA; o teal oficial permanece nos elementos decorativos. */
 a,
 .migalhas a {
     color: var(--link-color);
 }
 
-/* ========================================================================== 
-   Valentes Nexus — busca global e relações entre módulos
-   ========================================================================== */
 
-/* Compatibilidade semântica para labels exclusivamente destinadas a leitores de tela. */
 .somente-leitor {
     position: absolute;
     width: 1px;
@@ -5109,7 +5075,6 @@ a,
     color: var(--mv-primary-strong);
 }
 
-/* As superfícies conectadas continuam reconhecíveis nas paletas acessíveis. */
 .modo-escuro .busca-comando {
     border-color: rgba(255, 255, 255, .35);
     background: rgba(255, 255, 255, .08);
@@ -5350,7 +5315,6 @@ a,
     }
 }
 
-/* A ampliação máxima ganha espaço horizontal antes de empilhar os componentes. */
 body.fonte-muito-grande .busca-comando {
     max-width: 30rem;
 }

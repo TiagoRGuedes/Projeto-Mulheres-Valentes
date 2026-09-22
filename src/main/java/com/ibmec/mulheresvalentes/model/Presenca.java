@@ -11,11 +11,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,7 +26,8 @@ import java.time.LocalDateTime;
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_presenca_participante_encontro",
                 columnNames = {"participante_id", "encontro_id"}
-        )
+        ),
+        indexes = @Index(name = "idx_presenca_data", columnList = "data_presenca")
 )
 public class Presenca {
 
@@ -37,10 +40,13 @@ public class Presenca {
     @JoinColumn(name = "participante_id", nullable = false)
     private Participante participante;
 
-    @NotNull(message = "Escolha o encontro.")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "encontro_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "encontro_id")
     private Encontro encontro;
+
+    @NotNull(message = "Informe a data da presença.")
+    @Column(name = "data_presenca", nullable = false)
+    private LocalDate data;
 
     @NotNull(message = "Informe a situação da presença.")
     @Enumerated(EnumType.STRING)
@@ -59,12 +65,25 @@ public class Presenca {
 
     public Presenca(
             Participante participante,
+            LocalDate data,
+            StatusPresenca status,
+            String observacoes
+    ) {
+        this.participante = participante;
+        this.data = data;
+        this.status = status;
+        this.observacoes = observacoes;
+    }
+
+    public Presenca(
+            Participante participante,
             Encontro encontro,
             StatusPresenca status,
             String observacoes
     ) {
         this.participante = participante;
         this.encontro = encontro;
+        this.data = encontro == null ? null : encontro.getData();
         this.status = status;
         this.observacoes = observacoes;
     }
@@ -97,6 +116,25 @@ public class Presenca {
 
     public void setEncontro(Encontro encontro) {
         this.encontro = encontro;
+        if (encontro != null) {
+            this.data = encontro.getData();
+        }
+    }
+
+    public LocalDate getData() {
+        return data;
+    }
+
+    public void setData(LocalDate data) {
+        this.data = data;
+    }
+
+    public boolean isVinculadaAEncontro() {
+        return encontro != null;
+    }
+
+    public String getContexto() {
+        return encontro == null ? "Presença geral" : encontro.getAtividade().getNome();
     }
 
     public StatusPresenca getStatus() {

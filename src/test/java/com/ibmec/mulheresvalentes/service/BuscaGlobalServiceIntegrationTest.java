@@ -51,7 +51,7 @@ class BuscaGlobalServiceIntegrationTest {
 
     @Test
     void deveBuscarEAgruparRegistrosComLinksParaAsTelasCorretas() {
-        var participante = participanteService.cadastrar("Ana Conexão Fictícia", null);
+        var participante = participanteService.cadastrar("Ana Conexão Fictícia", null, null);
         Atividade atividade = atividadeService.cadastrar(
                 "Oficina Conexão Fictícia", "Encontro de demonstração para a busca global");
         var encontro = encontroService.cadastrar(atividade.getId(), LocalDate.now(), null);
@@ -79,7 +79,7 @@ class BuscaGlobalServiceIntegrationTest {
     @Test
     void deveLimitarCadaGrupoEIgnorarLancamentoCancelado() {
         for (int indice = 1; indice <= 8; indice++) {
-            participanteService.cadastrar("Pessoa Limite Global " + indice, null);
+            participanteService.cadastrar("Pessoa Limite Global " + indice, null, null);
         }
         CategoriaFinanceira categoria = categoriaService.cadastrar(
                 "Entrada para cancelamento global", TipoLancamento.ENTRADA);

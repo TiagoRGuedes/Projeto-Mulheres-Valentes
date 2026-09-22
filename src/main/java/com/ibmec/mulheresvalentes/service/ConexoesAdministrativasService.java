@@ -18,11 +18,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-/**
- * Monta as visões conectadas das páginas de detalhe. As informações vêm sempre
- * das mesmas tabelas usadas pelos relatórios e pelo dashboard, evitando números
- * paralelos ou desatualizados no HTML.
- */
 @Service
 public class ConexoesAdministrativasService {
 
@@ -44,7 +39,7 @@ public class ConexoesAdministrativasService {
         Participante participante = participanteRepository.findById(participanteId)
                 .orElseThrow();
         List<Presenca> registros = presencaRepository
-                .findByParticipanteIdOrderByEncontroDataDesc(participanteId);
+                .findByParticipanteIdOrderByDataDescIdDesc(participanteId);
         long presentes = contar(registros, StatusPresenca.PRESENTE);
         long ausentes = contar(registros, StatusPresenca.AUSENTE);
         long justificadas = contar(registros, StatusPresenca.JUSTIFICADA);
@@ -64,7 +59,8 @@ public class ConexoesAdministrativasService {
         List<Encontro> encontros = encontroRepository
                 .findByAtividadeIdOrderByDataDescIdDesc(atividadeId);
         List<Presenca> registros = presencaRepository.findAllComRelacionamentos().stream()
-                .filter(presenca -> presenca.getEncontro().getAtividade().getId().equals(atividadeId))
+                .filter(presenca -> presenca.getEncontro() != null
+                        && presenca.getEncontro().getAtividade().getId().equals(atividadeId))
                 .toList();
         return new AtividadeConectadaDTO(
                 encontros.size(),

@@ -1,6 +1,7 @@
 package com.ibmec.mulheresvalentes.controller.api;
 
 import com.ibmec.mulheresvalentes.dto.ResumoFinanceiroDTO;
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.TipoLancamento;
 import com.ibmec.mulheresvalentes.service.LancamentoCaixaService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,9 +29,10 @@ public class FinanceiroRestController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFinal,
             @RequestParam(required = false) TipoLancamento tipo,
+            @RequestParam(required = false) NaturezaLancamento natureza,
             @RequestParam(required = false) Long categoriaId,
             @RequestParam(required = false) String descricao) {
-        return lancamentoService.calcularResumo(
-                CaixaRestController.filtro(dataInicial, dataFinal, tipo, categoriaId, descricao));
+        return lancamentoService.calcularResumo(CaixaRestController.filtro(
+                dataInicial, dataFinal, tipo, natureza, categoriaId, descricao));
     }
 }

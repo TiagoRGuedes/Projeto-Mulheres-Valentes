@@ -47,12 +47,15 @@ Use este caminho para incluir uma nova pessoa na lista de presença.
 
 1. Na Home, selecione **Cadastrar participante**.
 2. No campo **Nome**, informe um nome fictício durante a demonstração.
-3. Se precisar, use **Observações** para um lembrete que não contenha informação sensível.
-4. Confira o que escreveu.
-5. Selecione **Cadastrar participante**.
-6. Aguarde a mensagem de sucesso.
+3. Em **Contato**, informe telefone, WhatsApp ou e-mail, se a pessoa autorizar.
+4. Se precisar, use **Observações** para um lembrete que não contenha informação sensível.
+5. Confira o que escreveu.
+6. Selecione **Cadastrar participante**.
+7. Aguarde a mensagem de sucesso.
 
-O nome é obrigatório. Documento, telefone e e-mail não são pedidos porque a necessidade desses dados ainda não foi confirmada.
+Somente o nome é obrigatório. O contato é opcional e existe para ajudar a ONG a
+falar com a pessoa depois; registre apenas com o consentimento dela. Documento,
+endereço e data de nascimento continuam fora do sistema.
 
 ### Se o nome já existir
 
@@ -68,12 +71,13 @@ A regra para diferenciar pessoas com o mesmo nome ainda deverá ser combinada co
 ## Pesquisar participante
 
 1. Abra **Participantes**.
-2. Digite uma parte do nome no campo de pesquisa.
+2. Digite uma parte do nome — ou do contato — no campo de pesquisa.
 3. Selecione **Pesquisar**.
 4. Confira os resultados.
 5. Para voltar à lista completa, apague a pesquisa ou selecione **Limpar**.
 
-Não importa se você escreve com letra maiúscula ou minúscula.
+Não importa se você escreve com letra maiúscula ou minúscula. A pesquisa também
+encontra a pessoa por um trecho do telefone ou do e-mail.
 
 ## Corrigir o cadastro de participante
 
@@ -117,22 +121,33 @@ Não use o nome de uma atividade real da ONG durante a demonstração.
 
 ## Registrar presença
 
+A chamada é feita por data. Você não precisa escolher atividade nenhuma.
+
 ### Passo a passo
 
-1. Na Home, selecione **Registrar presença**.
-2. Escolha a atividade.
-3. Escolha o encontro ou a data disponível.
-4. Confira o título da lista antes de continuar.
-5. Localize as pessoas e marque uma situação para cada uma:
+1. Na Home, selecione **Registrar presença**. A tela já abre com a data de hoje.
+2. Se a chamada for de outro dia, troque a **Data** e selecione **Atualizar lista**.
+3. Confira, acima da lista, a data que está sendo registrada.
+4. Localize as pessoas e marque uma situação para cada uma:
    - **Presente:** compareceu;
    - **Ausente:** não compareceu;
    - **Justificada:** ausência marcada como justificada no protótipo.
-6. Se a maioria compareceu, use **Marcar todos como presentes** e depois ajuste as exceções.
-7. Confira total, presentes, ausentes e justificadas.
-8. Selecione **Salvar presença** uma única vez.
-9. Aguarde a confirmação.
+5. Se a maioria compareceu, use **Marcar todos como presentes** e depois ajuste as exceções.
+6. Confira total, presentes, ausentes e justificadas.
+7. Selecione **Salvar presença** uma única vez.
+8. Confira a revisão e selecione **Confirmar presença**.
 
-Os três tipos de situação são preliminares. Siga a orientação da apresentação e não trate essas opções como regra oficial da ONG.
+Se quiser registrar de novo a mesma data, o sistema não duplica: ele atualiza a
+situação de quem já estava na lista.
+
+Os três tipos de situação ainda são preliminares. Siga a orientação da
+apresentação e não trate essas opções como regra oficial da ONG.
+
+### Separar a chamada por atividade (opcional)
+
+Se em algum momento a ONG quiser separar a presença por programa, escolha uma
+**Atividade** e um **Encontro** na primeira parte da tela. A data passa a ser a
+do encontro. Nada obriga a usar esse caminho.
 
 ### Encontrar uma pessoa na lista
 
@@ -144,7 +159,9 @@ A tela mostrará que nenhuma pessoa está cadastrada. Use **Cadastrar participan
 
 ### Se não houver encontro
 
-Cadastre uma atividade e um encontro antes de registrar a lista.
+Você não precisa de encontro para registrar a presença. Ele só é necessário se
+você escolher separar a chamada por atividade — nesse caso, cadastre a atividade
+e o encontro antes.
 
 ## Corrigir uma presença
 
@@ -177,13 +194,32 @@ Use **Registrar entrada** quando um valor entrar no caixa.
 1. Na Home, selecione **Registrar entrada**.
 2. Confira o título **Registrar entrada**.
 3. Informe a **Data**.
-4. Escolha uma **Categoria de entrada**.
-5. Escreva uma **Descrição** curta que permita reconhecer o lançamento.
-6. Informe o **Valor**.
-7. Use **Observação** somente se for necessário.
-8. Revise data, categoria, descrição e valor.
-9. Selecione **Salvar entrada** uma única vez.
-10. Confira a mensagem **Entrada registrada com sucesso.**
+4. Em **Este lançamento tem valor em dinheiro?**, escolha **Sim, valor em dinheiro**.
+5. Escolha uma **Categoria de entrada**. Para o patrocínio mensal, use **Aluguel/Patrocínio**.
+6. Escreva uma **Descrição** curta que permita reconhecer o lançamento.
+7. Informe o **Valor**.
+8. Use **Comprovante** e **Observação** somente se for necessário.
+9. Revise data, categoria, descrição e valor.
+10. Selecione **Salvar entrada** uma única vez.
+11. Confira a mensagem **Entrada registrada com sucesso.**
+
+## Registrar uma doação de material
+
+Quando a ONG recebe itens — cestas, roupas, material de papelaria — não entra
+dinheiro. Registre assim:
+
+1. Na Home, selecione **Registrar entrada**.
+2. Informe a **Data** em que os itens chegaram.
+3. Em **Este lançamento tem valor em dinheiro?**, escolha **Não, doação de material**.
+4. Escolha a categoria **Doação de material**.
+5. Escreva na **Descrição** o que foi recebido, por exemplo "Doação de cestas básicas".
+6. No campo **Comprovante**, escreva a referência do recibo ou da lista guardada
+   pela ONG. Esse campo é obrigatório: ele é o controle da doação.
+7. Não preencha o valor. Doação de material não tem valor em dinheiro.
+8. Revise e confirme.
+
+A doação aparece nas movimentações e no extrato, mas **não altera o saldo**,
+porque nenhum dinheiro entrou.
 
 ### Como informar o valor
 

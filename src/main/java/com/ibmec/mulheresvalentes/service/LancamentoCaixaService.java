@@ -11,6 +11,7 @@ import com.ibmec.mulheresvalentes.model.CategoriaFinanceira;
 import com.ibmec.mulheresvalentes.model.AcaoHistorico;
 import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
 import com.ibmec.mulheresvalentes.model.ModuloHistorico;
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.TipoLancamento;
 import com.ibmec.mulheresvalentes.repository.LancamentoCaixaRepository;
 import org.springframework.stereotype.Service;
@@ -64,8 +65,8 @@ public class LancamentoCaixaService {
             throw new RegraNegocioException("Informe os dados do lançamento.");
         }
         return criarNovo(
-                form.getData(), tipo, form.getCategoriaId(), form.getDescricao(),
-                form.getValor(), form.getObservacoes());
+                form.getData(), tipo, form.getNatureza(), form.getCategoriaId(), form.getDescricao(),
+                form.getValor(), form.getComprovante(), form.getObservacoes());
     }
 
     @Transactional
@@ -74,8 +75,8 @@ public class LancamentoCaixaService {
             throw new RegraNegocioException("Informe os dados do lançamento.");
         }
         return criarNovo(
-                request.data(), request.tipo(), request.categoriaId(), request.descricao(),
-                request.valor(), request.observacoes());
+                request.data(), request.tipo(), request.naturezaOuPadrao(), request.categoriaId(),
+                request.descricao(), request.valor(), request.comprovante(), request.observacoes());
     }
 
     @Transactional(readOnly = true)
@@ -87,10 +88,6 @@ public class LancamentoCaixaService {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Lançamento não encontrado."));
     }
 
-    /**
-     * Consulta usada pela trilha de auditoria. Inclui lançamentos cancelados,
-     * que permanecem preservados e são exibidos apenas em modo de leitura.
-     */
     @Transactional(readOnly = true)
     public LancamentoCaixa buscarPorIdIncluindoCancelados(Long id) {
         if (id == null) {
@@ -113,6 +110,7 @@ public class LancamentoCaixaService {
                 seguro.getDataInicial(),
                 seguro.getDataFinal(),
                 seguro.getTipo(),
+                seguro.getNatureza(),
                 seguro.getCategoriaId(),
                 seguro.getDescricaoNormalizada());
     }
@@ -137,6 +135,10 @@ public class LancamentoCaixaService {
         BigDecimal saldoPeriodo = entradas.subtract(saidas).setScale(2, RoundingMode.UNNECESSARY);
         BigDecimal saldoAtual = calcularSaldoAtual();
 
+        long doacoesMaterial = lancamentosDoPeriodo.stream()
+                .filter(lancamento -> !lancamento.isMonetario())
+                .count();
+
         return new ResumoFinanceiroDTO(
                 seguro.getDataInicial(),
                 seguro.getDataFinal(),
@@ -144,7 +146,8 @@ public class LancamentoCaixaService {
                 saidas,
                 saldoPeriodo,
                 saldoAtual,
-                lancamentosDoPeriodo.size());
+                lancamentosDoPeriodo.size(),
+                doacoesMaterial);
     }
 
     @Transactional(readOnly = true)
@@ -166,8 +169,8 @@ public class LancamentoCaixaService {
         LancamentoCaixa lancamento = buscarPorId(id);
         return atualizarExistente(
                 lancamento,
-                request.data(), request.tipo(), request.categoriaId(), request.descricao(),
-                request.valor(), request.observacoes());
+                request.data(), request.tipo(), request.naturezaOuPadrao(), request.categoriaId(),
+                request.descricao(), request.valor(), request.comprovante(), request.observacoes());
     }
 
     @Transactional
@@ -178,8 +181,8 @@ public class LancamentoCaixaService {
         LancamentoCaixa lancamento = buscarPorId(id);
         return atualizarExistente(
                 lancamento,
-                form.getData(), lancamento.getTipo(), form.getCategoriaId(), form.getDescricao(),
-                form.getValor(), form.getObservacoes());
+                form.getData(), lancamento.getTipo(), form.getNatureza(), form.getCategoriaId(),
+                form.getDescricao(), form.getValor(), form.getComprovante(), form.getObservacoes());
     }
 
     @Transactional
@@ -206,35 +209,43 @@ public class LancamentoCaixaService {
         DecimalFormat numero = new DecimalFormat("0.00", DecimalFormatSymbols.getInstance(Locale.of("pt", "BR")));
 
         StringBuilder csv = new StringBuilder();
-        csv.append("Data;Tipo;Categoria;Descrição;Valor;Observações\r\n");
+        csv.append("Data;Tipo;Natureza;Categoria;Descrição;Valor;Comprovante;Observações\r\n");
         for (LancamentoCaixa lancamento : lancamentos) {
             csv.append(campoCsv(lancamento.getData().toString())).append(';')
                     .append(campoCsv(lancamento.getTipo().getDescricao())).append(';')
+                    .append(campoCsv(lancamento.getNatureza().getDescricao())).append(';')
                     .append(campoCsv(lancamento.getCategoria().getNome())).append(';')
                     .append(campoCsv(lancamento.getDescricao())).append(';')
-                    .append(campoCsv(numero.format(lancamento.getValor()))).append(';')
+                    .append(campoCsv(lancamento.isMonetario()
+                            ? numero.format(lancamento.getValor()) : "")).append(';')
+                    .append(campoCsv(lancamento.getComprovante())).append(';')
                     .append(campoCsv(lancamento.getObservacoes())).append("\r\n");
         }
         csv.append("\r\n")
-                .append("Resumo do período;;;;;\r\n")
-                .append("Total de entradas;").append(campoCsv(numero.format(resumo.totalEntradas()))).append(";;;;\r\n")
-                .append("Total de saídas;").append(campoCsv(numero.format(resumo.totalSaidas()))).append(";;;;\r\n")
-                .append("Saldo do período;").append(campoCsv(numero.format(resumo.saldoPeriodo()))).append(";;;;\r\n");
+                .append("Resumo do período;;;;;;;\r\n")
+                .append("Total de entradas;").append(campoCsv(numero.format(resumo.totalEntradas()))).append(";;;;;;\r\n")
+                .append("Total de saídas;").append(campoCsv(numero.format(resumo.totalSaidas()))).append(";;;;;;\r\n")
+                .append("Saldo do período;").append(campoCsv(numero.format(resumo.saldoPeriodo()))).append(";;;;;;\r\n")
+                .append("Doações de material (sem valor);")
+                .append(campoCsv(Long.toString(resumo.quantidadeDoacoesMaterial()))).append(";;;;;;\r\n");
         return csv.toString();
     }
 
     private LancamentoCaixa criarNovo(
             LocalDate data,
             TipoLancamento tipo,
+            NaturezaLancamento natureza,
             Long categoriaId,
             String descricao,
             BigDecimal valor,
+            String comprovante,
             String observacoes) {
-        validarCampos(data, tipo, descricao, valor, observacoes);
+        validarCampos(data, tipo, natureza, descricao, valor, comprovante, observacoes);
         CategoriaFinanceira categoria = categoriaService.buscarAtivaDoTipo(categoriaId, tipo);
         LancamentoCaixa lancamento = new LancamentoCaixa(
-                data, tipo, categoria, normalizarDescricao(descricao),
-                normalizarValor(valor), normalizarObservacoes(observacoes));
+                data, tipo, natureza, categoria, normalizarDescricao(descricao),
+                normalizarValor(natureza, valor), normalizarTextoOpcional(comprovante),
+                normalizarObservacoes(observacoes));
         LancamentoCaixa salvo = lancamentoRepository.save(lancamento);
         String nomeAcao = tipo == TipoLancamento.ENTRADA ? "Entrada registrada" : "Saída registrada";
         historicoService.registrar(
@@ -243,7 +254,7 @@ public class LancamentoCaixaService {
                 salvo.getId(),
                 salvo.getDescricao(),
                 AcaoHistorico.REGISTRO,
-                nomeAcao + ": " + formatadorService.moeda(salvo.getValor()) + ".",
+                nomeAcao + ": " + descreverValor(salvo) + ".",
                 null,
                 resumoLancamento(salvo));
         return salvo;
@@ -253,12 +264,14 @@ public class LancamentoCaixaService {
             LancamentoCaixa lancamento,
             LocalDate data,
             TipoLancamento tipo,
+            NaturezaLancamento natureza,
             Long categoriaId,
             String descricao,
             BigDecimal valor,
+            String comprovante,
             String observacoes) {
         String anterior = resumoLancamento(lancamento);
-        validarCampos(data, tipo, descricao, valor, observacoes);
+        validarCampos(data, tipo, natureza, descricao, valor, comprovante, observacoes);
         CategoriaFinanceira categoria;
         if (lancamento.getCategoria().getId().equals(categoriaId)
                 && lancamento.getCategoria().getTipo() == tipo) {
@@ -269,9 +282,11 @@ public class LancamentoCaixaService {
 
         lancamento.setData(data);
         lancamento.setTipo(tipo);
+        lancamento.setNatureza(natureza);
         lancamento.setCategoria(categoria);
         lancamento.setDescricao(normalizarDescricao(descricao));
-        lancamento.setValor(normalizarValor(valor));
+        lancamento.setValor(normalizarValor(natureza, valor));
+        lancamento.setComprovante(comprovante);
         lancamento.setObservacoes(normalizarObservacoes(observacoes));
         LancamentoCaixa salvo = lancamentoRepository.save(lancamento);
         historicoService.registrar(
@@ -289,8 +304,10 @@ public class LancamentoCaixaService {
     private void validarCampos(
             LocalDate data,
             TipoLancamento tipo,
+            NaturezaLancamento natureza,
             String descricao,
             BigDecimal valor,
+            String comprovante,
             String observacoes) {
         if (data == null) {
             throw new RegraNegocioException("Informe a data do lançamento.");
@@ -298,16 +315,28 @@ public class LancamentoCaixaService {
         if (tipo == null) {
             throw new RegraNegocioException("Informe se o lançamento é uma entrada ou saída.");
         }
+        if (natureza == null) {
+            throw new RegraNegocioException(
+                    "Informe se o lançamento tem valor em dinheiro ou é uma doação de material.");
+        }
         if (!StringUtils.hasText(descricao)) {
             throw new RegraNegocioException("Informe uma descrição.");
         }
         if (normalizarDescricao(descricao).length() > 160) {
             throw new RegraNegocioException("A descrição deve ter no máximo 160 caracteres.");
         }
+        if (comprovante != null && comprovante.trim().length() > 200) {
+            throw new RegraNegocioException("O comprovante deve ter no máximo 200 caracteres.");
+        }
         if (observacoes != null && observacoes.trim().length() > 500) {
             throw new RegraNegocioException("A observação deve ter no máximo 500 caracteres.");
         }
-        validarValor(valor);
+        if (natureza.isMonetaria()) {
+            validarValor(valor);
+        } else if (!StringUtils.hasText(comprovante)) {
+            throw new RegraNegocioException(
+                    "Informe o comprovante da doação de material. Ele é o único controle dessas doações.");
+        }
     }
 
     private void validarValor(BigDecimal valor) {
@@ -332,13 +361,31 @@ public class LancamentoCaixaService {
     private BigDecimal somar(List<LancamentoCaixa> lancamentos, TipoLancamento tipo) {
         return lancamentos.stream()
                 .filter(lancamento -> lancamento.getTipo() == tipo)
+                .filter(LancamentoCaixa::isMonetario)
                 .map(LancamentoCaixa::getValor)
+                .filter(java.util.Objects::nonNull)
                 .reduce(ZERO_MOEDA, BigDecimal::add)
                 .setScale(2, RoundingMode.UNNECESSARY);
     }
 
-    private BigDecimal normalizarValor(BigDecimal valor) {
+    private BigDecimal normalizarValor(NaturezaLancamento natureza, BigDecimal valor) {
+        if (!natureza.isMonetaria()) {
+            return null;
+        }
         return valor.setScale(2, RoundingMode.UNNECESSARY);
+    }
+
+    private String normalizarTextoOpcional(String texto) {
+        if (!StringUtils.hasText(texto)) {
+            return null;
+        }
+        return texto.trim().replaceAll("\\s+", " ");
+    }
+
+    private String descreverValor(LancamentoCaixa lancamento) {
+        return lancamento.isMonetario()
+                ? formatadorService.moeda(lancamento.getValor())
+                : "doação de material, sem valor monetário";
     }
 
     private BigDecimal valorSeguro(BigDecimal valor) {
@@ -346,11 +393,16 @@ public class LancamentoCaixaService {
     }
 
     private String resumoLancamento(LancamentoCaixa lancamento) {
-        return lancamento.getTipo().getDescricao()
-                + "; data: " + lancamento.getData()
-                + "; categoria: " + lancamento.getCategoria().getNome()
-                + "; descrição: " + lancamento.getDescricao()
-                + "; valor: " + formatadorService.moeda(lancamento.getValor());
+        StringBuilder resumo = new StringBuilder(lancamento.getTipo().getDescricao())
+                .append("; data: ").append(lancamento.getData())
+                .append("; natureza: ").append(lancamento.getNatureza().getDescricao())
+                .append("; categoria: ").append(lancamento.getCategoria().getNome())
+                .append("; descrição: ").append(lancamento.getDescricao())
+                .append("; valor: ").append(descreverValor(lancamento));
+        if (lancamento.getComprovante() != null) {
+            resumo.append("; comprovante: ").append(lancamento.getComprovante());
+        }
+        return resumo.toString();
     }
 
     private String normalizarDescricao(String descricao) {

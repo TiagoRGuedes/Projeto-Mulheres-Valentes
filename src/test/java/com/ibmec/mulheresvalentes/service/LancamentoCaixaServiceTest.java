@@ -8,6 +8,7 @@ import com.ibmec.mulheresvalentes.exception.RecursoNaoEncontradoException;
 import com.ibmec.mulheresvalentes.exception.RegraNegocioException;
 import com.ibmec.mulheresvalentes.model.CategoriaFinanceira;
 import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.TipoLancamento;
 import com.ibmec.mulheresvalentes.repository.LancamentoCaixaRepository;
 import org.junit.jupiter.api.Test;
@@ -161,8 +162,8 @@ class LancamentoCaixaServiceTest {
                 formulario(categoria, "10.00", LocalDate.of(2026, 8, 1)));
 
         LancamentoCaixaRequest alteracao = new LancamentoCaixaRequest(
-                LocalDate.of(2026, 8, 2), TipoLancamento.ENTRADA, categoria.getId(),
-                "Valor corrigido", new BigDecimal("12.50"), null);
+                LocalDate.of(2026, 8, 2), TipoLancamento.ENTRADA, NaturezaLancamento.MONETARIA,
+                categoria.getId(), "Valor corrigido", new BigDecimal("12.50"), null, null);
         LancamentoCaixa atualizado = lancamentoService.atualizar(salvo.getId(), alteracao);
 
         assertThat(atualizado.getDescricao()).isEqualTo("Valor corrigido");
@@ -184,11 +185,88 @@ class LancamentoCaixaServiceTest {
         assertThat(lancamentoService.calcularSaldoAtual()).isEqualByComparingTo("0.00");
     }
 
+    @Test
+    void deveRegistrarDoacaoDeMaterialSemValorEComComprovante() {
+        CategoriaFinanceira categoria = categoriaService.cadastrar(
+                "Doação de material", TipoLancamento.ENTRADA);
+
+        LancamentoCaixa salvo = lancamentoService.registrarEntrada(
+                doacaoDeMaterial(categoria, "Recibo 001/2026 — 3 caixas conferidas"));
+
+        assertThat(salvo.getNatureza()).isEqualTo(NaturezaLancamento.DOACAO_MATERIAL);
+        assertThat(salvo.getValor()).isNull();
+        assertThat(salvo.getComprovante()).isEqualTo("Recibo 001/2026 — 3 caixas conferidas");
+        assertThat(salvo.isMonetario()).isFalse();
+    }
+
+    @Test
+    void deveExigirComprovanteNaDoacaoDeMaterial() {
+        CategoriaFinanceira categoria = categoriaService.cadastrar(
+                "Doação sem comprovante", TipoLancamento.ENTRADA);
+
+        assertThatThrownBy(() -> lancamentoService.registrarEntrada(doacaoDeMaterial(categoria, null)))
+                .isInstanceOf(RegraNegocioException.class)
+                .hasMessageContaining("comprovante da doação de material");
+    }
+
+    @Test
+    void deveIgnorarValorEnviadoEmDoacaoDeMaterial() {
+        CategoriaFinanceira categoria = categoriaService.cadastrar(
+                "Doação com valor indevido", TipoLancamento.ENTRADA);
+        LancamentoCaixaForm form = doacaoDeMaterial(categoria, "Recibo 002/2026");
+        form.setValor(new BigDecimal("500.00"));
+
+        assertThat(lancamentoService.registrarEntrada(form).getValor()).isNull();
+    }
+
+    @Test
+    void doacaoDeMaterialNaoDeveAlterarOSaldo() {
+        CategoriaFinanceira entrada = categoriaService.cadastrar(
+                "Aluguel/Patrocínio", TipoLancamento.ENTRADA);
+        CategoriaFinanceira material = categoriaService.cadastrar(
+                "Material recebido", TipoLancamento.ENTRADA);
+        lancamentoService.registrarEntrada(
+                formulario(entrada, "1200.00", LocalDate.of(2026, 8, 5)));
+        lancamentoService.registrarEntrada(
+                doacaoDeMaterial(material, "Recibo 003/2026"));
+
+        ResumoFinanceiroDTO resumo = lancamentoService.calcularResumo(new LancamentoCaixaFiltro());
+
+        assertThat(lancamentoService.calcularSaldoAtual()).isEqualByComparingTo("1200.00");
+        assertThat(resumo.totalEntradas()).isEqualByComparingTo("1200.00");
+        assertThat(resumo.quantidadeMovimentacoes()).isEqualTo(2);
+        assertThat(resumo.quantidadeDoacoesMaterial()).isEqualTo(1);
+    }
+
+    @Test
+    void extratoDeveMostrarDoacaoDeMaterialSemValor() {
+        CategoriaFinanceira material = categoriaService.cadastrar(
+                "Material para extrato", TipoLancamento.ENTRADA);
+        lancamentoService.registrarEntrada(doacaoDeMaterial(material, "Recibo 004/2026"));
+
+        String csv = lancamentoService.gerarCsv(new LancamentoCaixaFiltro());
+
+        assertThat(csv).contains("Data;Tipo;Natureza;Categoria;Descrição;Valor;Comprovante;Observações");
+        assertThat(csv).contains("\"Doação de material\"");
+        assertThat(csv).contains("\"Recibo 004/2026\"");
+        assertThat(csv).contains("Doações de material (sem valor);\"1\"");
+    }
+
     private LancamentoCaixaForm formulario(
             CategoriaFinanceira categoria,
             String valor,
             LocalDate data) {
         return formulario(categoria, valor, data, "Lançamento de teste");
+    }
+
+    private LancamentoCaixaForm doacaoDeMaterial(CategoriaFinanceira categoria, String comprovante) {
+        LancamentoCaixaForm form = new LancamentoCaixaForm();
+        form.setData(LocalDate.of(2026, 8, 12));
+        form.setNatureza(NaturezaLancamento.DOACAO_MATERIAL);
+        form.setCategoriaId(categoria.getId());
+        form.setDescricao("Doação de material fictícia");
+        form.setComprovante(comprovante);
+        return form;
     }
 
     private LancamentoCaixaForm formulario(

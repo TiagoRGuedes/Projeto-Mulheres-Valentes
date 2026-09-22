@@ -37,7 +37,8 @@ public class ParticipanteRestController {
 
     @PostMapping
     public ResponseEntity<ParticipanteResponse> cadastrar(@Valid @RequestBody ParticipanteRequest request) {
-        Participante participante = participanteService.cadastrar(request.nome(), request.observacoes());
+        Participante participante = participanteService.cadastrar(
+                request.nome(), request.contato(), request.observacoes());
         URI localizacao = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(participante.getId())
@@ -56,7 +57,7 @@ public class ParticipanteRestController {
             @Valid @RequestBody ParticipanteRequest request
     ) {
         return ParticipanteResponse.de(
-                participanteService.atualizar(id, request.nome(), request.observacoes())
+                participanteService.atualizar(id, request.nome(), request.contato(), request.observacoes())
         );
     }
 

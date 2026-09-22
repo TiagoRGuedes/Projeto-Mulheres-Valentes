@@ -7,6 +7,7 @@ import com.ibmec.mulheresvalentes.model.Encontro;
 import com.ibmec.mulheresvalentes.model.HistoricoOperacao;
 import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
 import com.ibmec.mulheresvalentes.model.ModuloHistorico;
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.Participante;
 import com.ibmec.mulheresvalentes.model.Presenca;
 import com.ibmec.mulheresvalentes.model.StatusPresenca;
@@ -29,19 +30,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Cria um cenário amplo, inteiramente fictício, somente quando cada domínio
- * ainda está vazio. A gravação direta pelos repositórios evita que a carga
- * inicial gere uma operação administrativa para cada uma das centenas de
- * presenças.
- */
 @Component
 @ConditionalOnProperty(name = "app.dados-demonstracao", havingValue = "true")
 public class DadosDemonstracaoConfig implements ApplicationRunner {
 
     private static final int QUANTIDADE_PARTICIPANTES = 36;
     private static final int QUANTIDADE_ENCONTROS = 24;
-    private static final int QUANTIDADE_LANCAMENTOS = 50;
+
+    private static final int MESES_DE_ALUGUEL = 12;
+    private static final BigDecimal VALOR_ALUGUEL = new BigDecimal("1200.00");
+    private static final int QUANTIDADE_DOACOES_MATERIAL = 8;
+    private static final int QUANTIDADE_SAIDAS = 10;
+
+    private static final int DIAS_DE_CHAMADA_AVULSA = 3;
 
     private static final String[] NOMES_FICTICIOS = {
         "Ana Exemplo", "Beatriz Modelo", "Carla Demonstração", "Daniela Exemplo",
@@ -55,23 +56,28 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
         "Irene Exemplo", "Joana Modelo", "Lívia Demonstração", "Mônica Exemplo"
     };
 
-    /** Quantidade exata de presenças em 24 encontros para cada faixa. */
     private static final int[] PRESENCAS_POR_FAIXA = {23, 21, 19, 17, 14, 10};
 
-    private static final String[] DESCRICOES_ENTRADA = {
-        "Doação espontânea demonstrativa",
-        "Contribuição para atividade",
-        "Arrecadação de encontro solidário",
-        "Apoio de parceria fictícia",
-        "Doação para materiais",
-        "Contribuição mensal demonstrativa",
-        "Arrecadação de ação comunitária",
-        "Apoio para oficina demonstrativa"
+    private static final String[] DESCRICOES_DOACAO_MATERIAL = {
+        "Doação de cestas básicas",
+        "Doação de material de papelaria",
+        "Doação de roupas",
+        "Doação de produtos de higiene",
+        "Doação de livros",
+        "Doação de brinquedos",
+        "Doação de material de limpeza",
+        "Doação de tecidos para oficina"
     };
 
-    private static final String[] VALORES_ENTRADA = {
-        "850.00", "420.00", "1260.50", "600.00", "315.75",
-        "980.00", "540.00", "1475.00", "275.50", "720.00"
+    private static final String[] COMPROVANTES_DOACAO = {
+        "Recibo fictício 001/2026 — entrega na sede",
+        "Recibo fictício 002/2026 — 4 caixas conferidas",
+        "Recibo fictício 003/2026 — lista de itens assinada",
+        "Recibo fictício 004/2026 — entrega registrada em foto",
+        "Recibo fictício 005/2026 — 2 caixas de livros",
+        "Recibo fictício 006/2026 — doação de pessoa física",
+        "Recibo fictício 007/2026 — entrega conferida por duas pessoas",
+        "Recibo fictício 008/2026 — 5 metros de tecido"
     };
 
     private static final String[] DESCRICOES_SAIDA = {
@@ -90,6 +96,11 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
     private static final String[] VALORES_SAIDA = {
         "146.75", "82.40", "195.30", "310.00", "225.00",
         "68.90", "124.50", "178.25", "245.80", "96.00"
+    };
+
+    private static final String[] CONTATOS_FICTICIOS = {
+        "(11) 90000-0001", "(11) 90000-0002", "exemplo1@demonstracao.invalid",
+        "(11) 90000-0004", "(11) 90000-0005", "exemplo2@demonstracao.invalid"
     };
 
     private final ParticipanteRepository participanteRepository;
@@ -136,6 +147,7 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
         List<Atividade> atividades = criarAtividades();
         List<Encontro> encontros = criarEncontros(atividades);
         List<Presenca> presencas = criarPresencas(participantes, encontros);
+        criarPresencasAvulsas(participantes);
         criarHistoricoDePresenca(participantes, atividades, encontros, presencas);
     }
 
@@ -144,6 +156,7 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
         for (int indice = 0; indice < QUANTIDADE_PARTICIPANTES; indice++) {
             Participante participante = new Participante(
                     NOMES_FICTICIOS[indice],
+                    indice % 7 == 0 ? null : CONTATOS_FICTICIOS[indice % CONTATOS_FICTICIOS.length],
                     indice % 9 == 0 ? "Cadastro inteiramente fictício para apresentação." : null);
             if (indice >= QUANTIDADE_PARTICIPANTES - 4) {
                 participante.desativar();
@@ -219,6 +232,18 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
         return presencaRepository.saveAll(presencas);
     }
 
+    private void criarPresencasAvulsas(List<Participante> participantes) {
+        LocalDate hoje = LocalDate.now();
+        List<Presenca> avulsas = new ArrayList<>(participantes.size() * DIAS_DE_CHAMADA_AVULSA);
+        for (int dia = 0; dia < DIAS_DE_CHAMADA_AVULSA; dia++) {
+            LocalDate data = hoje.minusDays(dia);
+            for (Participante participante : participantes) {
+                avulsas.add(new Presenca(participante, data, StatusPresenca.PRESENTE, null));
+            }
+        }
+        presencaRepository.saveAll(avulsas);
+    }
+
     private void criarHistoricoDePresenca(
             List<Participante> participantes,
             List<Atividade> atividades,
@@ -256,6 +281,11 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
                         ModuloHistorico.PRESENCAS, "Encontro", recente.getId(), nomeEncontro(recente),
                         AcaoHistorico.REGISTRO,
                         "Presenças demonstrativas registradas para 36 participantes."),
+                historico(
+                        ModuloHistorico.PRESENCAS, "Chamada", null,
+                        "Chamada de " + LocalDate.now(),
+                        AcaoHistorico.REGISTRO,
+                        "Chamada demonstrativa do controle único, sem vínculo com atividade."),
                 new HistoricoOperacao(
                         ModuloHistorico.PRESENCAS,
                         "Presenca",
@@ -280,6 +310,8 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
 
     private List<CategoriaFinanceira> criarCategoriasEntrada() {
         List<CategoriaFinanceira> categorias = new ArrayList<>(List.of(
+                new CategoriaFinanceira("Aluguel/Patrocínio", TipoLancamento.ENTRADA),
+                new CategoriaFinanceira("Doação de material", TipoLancamento.ENTRADA),
                 new CategoriaFinanceira("Doações", TipoLancamento.ENTRADA),
                 new CategoriaFinanceira("Contribuições", TipoLancamento.ENTRADA),
                 new CategoriaFinanceira("Eventos solidários", TipoLancamento.ENTRADA),
@@ -305,36 +337,47 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
             List<CategoriaFinanceira> categoriasEntrada,
             List<CategoriaFinanceira> categoriasSaida) {
         LocalDate hoje = LocalDate.now();
-        List<LancamentoCaixa> lancamentos = new ArrayList<>(QUANTIDADE_LANCAMENTOS);
-        int indiceEntrada = 0;
-        int indiceSaida = 0;
+        CategoriaFinanceira categoriaAluguel = categoriasEntrada.getFirst();
+        CategoriaFinanceira categoriaMaterial = categoriasEntrada.get(1);
+        List<LancamentoCaixa> lancamentos = new ArrayList<>(
+                MESES_DE_ALUGUEL + QUANTIDADE_DOACOES_MATERIAL + QUANTIDADE_SAIDAS);
 
-        for (int indice = 0; indice < QUANTIDADE_LANCAMENTOS; indice++) {
-            LocalDate data = hoje.minusDays((QUANTIDADE_LANCAMENTOS - 1L - indice) * 2L);
-            boolean entrada = indice % 5 < 2;
-            if (entrada) {
-                CategoriaFinanceira categoria = categoriasEntrada.get(
-                        indiceEntrada % (categoriasEntrada.size() - 1));
-                lancamentos.add(new LancamentoCaixa(
-                        data,
-                        TipoLancamento.ENTRADA,
-                        categoria,
-                        DESCRICOES_ENTRADA[indiceEntrada % DESCRICOES_ENTRADA.length],
-                        new BigDecimal(VALORES_ENTRADA[indiceEntrada % VALORES_ENTRADA.length]),
-                        indiceEntrada % 7 == 0 ? "Valor inteiramente fictício para demonstração." : null));
-                indiceEntrada++;
-            } else {
-                CategoriaFinanceira categoria = categoriasSaida.get(
-                        indiceSaida % (categoriasSaida.size() - 1));
-                lancamentos.add(new LancamentoCaixa(
-                        data,
-                        TipoLancamento.SAIDA,
-                        categoria,
-                        DESCRICOES_SAIDA[indiceSaida % DESCRICOES_SAIDA.length],
-                        new BigDecimal(VALORES_SAIDA[indiceSaida % VALORES_SAIDA.length]),
-                        indiceSaida % 8 == 0 ? "Despesa fictícia usada na apresentação." : null));
-                indiceSaida++;
-            }
+        for (int mes = MESES_DE_ALUGUEL - 1; mes >= 0; mes--) {
+            lancamentos.add(new LancamentoCaixa(
+                    hoje.minusMonths(mes).withDayOfMonth(5),
+                    TipoLancamento.ENTRADA,
+                    NaturezaLancamento.MONETARIA,
+                    categoriaAluguel,
+                    "Aluguel/patrocínio mensal",
+                    VALOR_ALUGUEL,
+                    null,
+                    mes == 0 ? "Valor fixo informado pela ONG; cenário fictício." : null));
+        }
+
+        for (int indice = 0; indice < QUANTIDADE_DOACOES_MATERIAL; indice++) {
+            lancamentos.add(new LancamentoCaixa(
+                    hoje.minusDays(indice * 11L + 3L),
+                    TipoLancamento.ENTRADA,
+                    NaturezaLancamento.DOACAO_MATERIAL,
+                    categoriaMaterial,
+                    DESCRICOES_DOACAO_MATERIAL[indice],
+                    null,
+                    COMPROVANTES_DOACAO[indice],
+                    null));
+        }
+
+        for (int indice = 0; indice < QUANTIDADE_SAIDAS; indice++) {
+            CategoriaFinanceira categoria = categoriasSaida.get(
+                    indice % (categoriasSaida.size() - 1));
+            lancamentos.add(new LancamentoCaixa(
+                    hoje.minusDays(indice * 9L + 5L),
+                    TipoLancamento.SAIDA,
+                    NaturezaLancamento.MONETARIA,
+                    categoria,
+                    DESCRICOES_SAIDA[indice],
+                    new BigDecimal(VALORES_SAIDA[indice]),
+                    null,
+                    indice % 8 == 0 ? "Despesa fictícia usada na apresentação." : null));
         }
         return lancamentoRepository.saveAll(lancamentos);
     }
@@ -351,6 +394,10 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
                 .orElseThrow();
         LancamentoCaixa primeiraSaida = lancamentos.stream()
                 .filter(lancamento -> lancamento.getTipo() == TipoLancamento.SAIDA)
+                .findFirst()
+                .orElseThrow();
+        LancamentoCaixa primeiraDoacao = lancamentos.stream()
+                .filter(lancamento -> !lancamento.isMonetario())
                 .findFirst()
                 .orElseThrow();
         LancamentoCaixa lancamentoEditado = lancamentos.getLast();
@@ -372,6 +419,10 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
                         ModuloHistorico.LIVRO_CAIXA, "LancamentoCaixa", primeiraSaida.getId(),
                         primeiraSaida.getDescricao(), AcaoHistorico.REGISTRO,
                         "Saída demonstrativa registrada no Livro Caixa."),
+                historico(
+                        ModuloHistorico.LIVRO_CAIXA, "LancamentoCaixa", primeiraDoacao.getId(),
+                        primeiraDoacao.getDescricao(), AcaoHistorico.REGISTRO,
+                        "Doação de material registrada sem valor monetário, apenas com comprovante."),
                 new HistoricoOperacao(
                         ModuloHistorico.LIVRO_CAIXA,
                         "LancamentoCaixa",

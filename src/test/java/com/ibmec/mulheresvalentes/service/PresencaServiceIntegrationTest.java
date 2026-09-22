@@ -51,8 +51,8 @@ class PresencaServiceIntegrationTest {
 
     @BeforeEach
     void prepararCenario() {
-        ana = participanteService.cadastrar("Ana Exemplo", null);
-        bia = participanteService.cadastrar("Bia Exemplo", null);
+        ana = participanteService.cadastrar("Ana Exemplo", null, null);
+        bia = participanteService.cadastrar("Bia Exemplo", null, null);
         atividade = atividadeService.cadastrar("Atividade fictícia", "Somente para teste");
         encontroUm = encontroService.cadastrar(
                 atividade.getId(), LocalDate.of(2026, 8, 10), null
@@ -64,7 +64,7 @@ class PresencaServiceIntegrationTest {
 
     @Test
     void deveRegistrarPresencaIndividual() {
-        var presenca = presencaService.registrar(
+        var presenca = presencaService.registrarNoEncontro(
                 ana.getId(), encontroUm.getId(), StatusPresenca.PRESENTE, "Chegou no horário"
         );
 
@@ -77,11 +77,11 @@ class PresencaServiceIntegrationTest {
 
     @Test
     void deveImpedirDuplicidadeDeParticipanteEEncontro() {
-        presencaService.registrar(
+        presencaService.registrarNoEncontro(
                 ana.getId(), encontroUm.getId(), StatusPresenca.PRESENTE, null
         );
 
-        assertThatThrownBy(() -> presencaService.registrar(
+        assertThatThrownBy(() -> presencaService.registrarNoEncontro(
                 ana.getId(), encontroUm.getId(), StatusPresenca.AUSENTE, null
         ))
                 .isInstanceOf(RegistroDuplicadoException.class)
@@ -149,10 +149,10 @@ class PresencaServiceIntegrationTest {
         Encontro encontroTres = encontroService.cadastrar(
                 atividade.getId(), LocalDate.of(2026, 8, 24), null
         );
-        presencaService.registrar(ana.getId(), encontroUm.getId(), StatusPresenca.PRESENTE, null);
-        presencaService.registrar(ana.getId(), encontroDois.getId(), StatusPresenca.AUSENTE, null);
-        presencaService.registrar(ana.getId(), encontroTres.getId(), StatusPresenca.JUSTIFICADA, null);
-        presencaService.registrar(bia.getId(), encontroUm.getId(), StatusPresenca.JUSTIFICADA, null);
+        presencaService.registrarNoEncontro(ana.getId(), encontroUm.getId(), StatusPresenca.PRESENTE, null);
+        presencaService.registrarNoEncontro(ana.getId(), encontroDois.getId(), StatusPresenca.AUSENTE, null);
+        presencaService.registrarNoEncontro(ana.getId(), encontroTres.getId(), StatusPresenca.JUSTIFICADA, null);
+        presencaService.registrarNoEncontro(bia.getId(), encontroUm.getId(), StatusPresenca.JUSTIFICADA, null);
 
         List<FrequenciaParticipanteDto> frequencias = presencaService.calcularFrequencias(
                 atividade.getId(), null, null, null
@@ -162,7 +162,7 @@ class PresencaServiceIntegrationTest {
                 .filter(item -> item.participanteId().equals(ana.getId()))
                 .findFirst()
                 .orElseThrow();
-        assertThat(frequenciaAna.encontros()).isEqualTo(3);
+        assertThat(frequenciaAna.registros()).isEqualTo(3);
         assertThat(frequenciaAna.presencas()).isEqualTo(1);
         assertThat(frequenciaAna.ausencias()).isEqualTo(1);
         assertThat(frequenciaAna.justificadas()).isEqualTo(1);
@@ -178,8 +178,8 @@ class PresencaServiceIntegrationTest {
 
     @Test
     void deveFiltrarHistoricoPorPeriodo() {
-        presencaService.registrar(ana.getId(), encontroUm.getId(), StatusPresenca.PRESENTE, null);
-        presencaService.registrar(ana.getId(), encontroDois.getId(), StatusPresenca.AUSENTE, null);
+        presencaService.registrarNoEncontro(ana.getId(), encontroUm.getId(), StatusPresenca.PRESENTE, null);
+        presencaService.registrarNoEncontro(ana.getId(), encontroDois.getId(), StatusPresenca.AUSENTE, null);
 
         var historico = presencaService.listarHistorico(
                 ana.getId(), null, atividade.getId(),
@@ -201,8 +201,102 @@ class PresencaServiceIntegrationTest {
                 .hasMessage("A data inicial deve ser anterior ou igual à data final.");
     }
 
+    @Test
+    void deveRegistrarPresencaAvulsaSomentePelaData() {
+        LocalDate ontem = LocalDate.now().minusDays(1);
+
+        var presenca = presencaService.registrar(
+                ana.getId(), ontem, StatusPresenca.PRESENTE, null);
+
+        assertThat(presenca.getData()).isEqualTo(ontem);
+        assertThat(presenca.getEncontro()).isNull();
+        assertThat(presenca.isVinculadaAEncontro()).isFalse();
+        assertThat(presenca.getContexto()).isEqualTo("Presença geral");
+    }
+
+    @Test
+    void deveRecusarDuasPresencasAvulsasNaMesmaData() {
+        LocalDate hoje = LocalDate.now();
+        presencaService.registrar(ana.getId(), hoje, StatusPresenca.PRESENTE, null);
+
+        assertThatThrownBy(() ->
+                presencaService.registrar(ana.getId(), hoje, StatusPresenca.AUSENTE, null))
+                .isInstanceOf(RegistroDuplicadoException.class)
+                .hasMessage("Já existe uma presença registrada para este participante nessa data.");
+    }
+
+    @Test
+    void deveRecusarPresencaComDataNoFuturo() {
+        assertThatThrownBy(() -> presencaService.registrar(
+                ana.getId(), LocalDate.now().plusDays(1), StatusPresenca.PRESENTE, null))
+                .isInstanceOf(RegraNegocioException.class)
+                .hasMessage("A data da presença não pode estar no futuro.");
+    }
+
+    @Test
+    void deveSalvarChamadaColetivaSemEncontro() {
+        LocalDate hoje = LocalDate.now();
+
+        ResumoRegistroPresencaDto resumo = presencaService.salvarRegistroColetivo(formulario(
+                hoje,
+                item(ana, StatusPresenca.PRESENTE),
+                item(bia, StatusPresenca.AUSENTE)));
+
+        assertThat(resumo.total()).isEqualTo(2);
+        assertThat(resumo.presentes()).isEqualTo(1);
+        assertThat(presencaRepository.findByDataAndEncontroIsNullOrderByParticipanteNomeAsc(hoje))
+                .hasSize(2)
+                .allSatisfy(presenca -> assertThat(presenca.getEncontro()).isNull());
+    }
+
+    @Test
+    void deveCorrigirChamadaAvulsaSemDuplicar() {
+        LocalDate hoje = LocalDate.now();
+        presencaService.salvarRegistroColetivo(formulario(hoje, item(ana, StatusPresenca.AUSENTE)));
+
+        presencaService.salvarRegistroColetivo(formulario(hoje, item(ana, StatusPresenca.PRESENTE)));
+
+        assertThat(presencaRepository.findByDataAndEncontroIsNullOrderByParticipanteNomeAsc(hoje))
+                .singleElement()
+                .extracting(presenca -> presenca.getStatus())
+                .isEqualTo(StatusPresenca.PRESENTE);
+    }
+
+    @Test
+    void chamadaAvulsaEPorEncontroDevemConviverNoMesmoHistorico() {
+        LocalDate hoje = LocalDate.now();
+        presencaService.registrarNoEncontro(
+                ana.getId(), encontroUm.getId(), StatusPresenca.PRESENTE, null);
+        presencaService.registrar(ana.getId(), hoje, StatusPresenca.PRESENTE, null);
+
+        var historico = presencaService.listarHistorico(
+                ana.getId(), null, null, null, null, null, null);
+
+        assertThat(historico).hasSize(2);
+        assertThat(historico).extracting(presenca -> presenca.getEncontro() == null)
+                .containsExactlyInAnyOrder(true, false);
+    }
+
+    @Test
+    void filtroPorAtividadeDeveIgnorarPresencasAvulsas() {
+        presencaService.registrarNoEncontro(
+                ana.getId(), encontroUm.getId(), StatusPresenca.PRESENTE, null);
+        presencaService.registrar(ana.getId(), LocalDate.now(), StatusPresenca.PRESENTE, null);
+
+        var daAtividade = presencaService.listarHistorico(
+                null, null, atividade.getId(), null, null, null, null);
+
+        assertThat(daAtividade).singleElement()
+                .extracting(presenca -> presenca.getEncontro().getId())
+                .isEqualTo(encontroUm.getId());
+    }
+
     private RegistroPresencaForm formulario(Encontro encontro, ItemRegistroPresencaForm... itens) {
-        return new RegistroPresencaForm(encontro.getId(), List.of(itens));
+        return new RegistroPresencaForm(encontro.getData(), encontro.getId(), List.of(itens));
+    }
+
+    private RegistroPresencaForm formulario(LocalDate data, ItemRegistroPresencaForm... itens) {
+        return new RegistroPresencaForm(data, null, List.of(itens));
     }
 
     private ItemRegistroPresencaForm item(Participante participante, StatusPresenca status) {

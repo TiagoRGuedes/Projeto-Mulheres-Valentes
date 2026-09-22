@@ -22,7 +22,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/presencas")
+@RequestMapping("/api")
 public class PresencaRestController {
 
     private final PresencaService presencaService;
@@ -31,7 +31,7 @@ public class PresencaRestController {
         this.presencaService = presencaService;
     }
 
-    @GetMapping
+    @GetMapping("/presencas")
     public List<PresencaResponse> listar(
             @RequestParam(required = false) Long participanteId,
             @RequestParam(required = false) Long encontroId,
@@ -47,19 +47,37 @@ public class PresencaRestController {
                 .toList();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/presencas/{id}")
     public PresencaResponse buscar(@PathVariable Long id) {
         return PresencaResponse.de(presencaService.buscar(id));
     }
 
-    @PostMapping
+    @GetMapping("/participantes/{id}/presencas")
+    public List<PresencaResponse> listarDaParticipante(
+            @PathVariable Long id,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFinal,
+            @RequestParam(required = false) StatusPresenca status
+    ) {
+        return presencaService.listarHistorico(id, null, null, dataInicial, dataFinal, status, null)
+                .stream()
+                .map(PresencaResponse::de)
+                .toList();
+    }
+
+    @PostMapping("/presencas")
     public ResponseEntity<PresencaResponse> registrar(@Valid @RequestBody PresencaRequest request) {
-        Presenca presenca = presencaService.registrar(
-                request.participanteId(),
-                request.encontroId(),
-                request.status(),
-                request.observacoes()
-        );
+        Presenca presenca = request.encontroId() == null
+                ? presencaService.registrar(
+                        request.participanteId(),
+                        request.data() == null ? LocalDate.now() : request.data(),
+                        request.status(),
+                        request.observacoes())
+                : presencaService.registrarNoEncontro(
+                        request.participanteId(),
+                        request.encontroId(),
+                        request.status(),
+                        request.observacoes());
         URI localizacao = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(presenca.getId())

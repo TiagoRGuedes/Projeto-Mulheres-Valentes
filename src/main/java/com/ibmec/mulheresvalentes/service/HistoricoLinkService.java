@@ -8,7 +8,6 @@ import com.ibmec.mulheresvalentes.repository.ParticipanteRepository;
 import com.ibmec.mulheresvalentes.repository.PresencaRepository;
 import org.springframework.stereotype.Component;
 
-/** Resolve links seguros da timeline apenas quando o registro ainda pode ser aberto. */
 @Component("historicoLink")
 public class HistoricoLinkService {
 

@@ -16,11 +16,6 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
-/**
- * Registro imutável e somente leitura das alterações administrativas.
- * Não guarda observações privadas nem dados pessoais além do nome necessário
- * para que a ação possa ser compreendida.
- */
 @Entity
 @Table(
         name = "historico_operacoes",

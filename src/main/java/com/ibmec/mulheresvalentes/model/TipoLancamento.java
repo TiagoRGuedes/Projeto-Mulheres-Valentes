@@ -1,9 +1,5 @@
 package com.ibmec.mulheresvalentes.model;
 
-/**
- * Define se um lançamento acrescenta ou retira dinheiro do caixa.
- * O valor monetário é sempre armazenado como positivo.
- */
 public enum TipoLancamento {
     ENTRADA("Entrada", "↑"),
     SAIDA("Saída", "↓");

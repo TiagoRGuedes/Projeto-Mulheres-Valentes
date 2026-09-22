@@ -1,8 +1,14 @@
-# Modelo de dados preliminar
+# Modelo de dados
 
 ## Status
 
-Este modelo foi criado para viabilizar o protótipo acadêmico. As entidades e regras são **premissas de solução**, não uma descrição confirmada do processo da ONG. Depois da entrevista, nomes, campos, cardinalidades e regras deverão ser revistos.
+A entrevista com a ONG foi realizada e o modelo foi ajustado ao que ela confirmou (AC1 — Documento de Escopo). Três pontos do escopo mudaram o protótipo original:
+
+- **Participante tem contato** (RF01), além do nome;
+- **Presença é um controle único por data** (RF02): o vínculo com atividade/encontro passou a ser opcional;
+- **Lançamento do caixa tem natureza** (RF04, RF05, RF06, PR05): valor em dinheiro ou doação de material, e neste caso o valor fica nulo e o comprovante é obrigatório.
+
+Atividade e Encontro continuam no modelo porque já estavam implementados e ainda são úteis para organizar a chamada, mas deixaram de ser obrigatórios — a ONG informou que não separa a presença por atividade.
 
 O projeto usa tipos Java no domínio e H2 persistente em desenvolvimento:
 
@@ -25,6 +31,7 @@ erDiagram
     PARTICIPANTE {
         Long id PK
         String nome
+        String contato
         Boolean ativo
         String observacoes
         LocalDateTime dataCadastro
@@ -50,7 +57,8 @@ erDiagram
     PRESENCA {
         Long id PK
         Long participante_id FK
-        Long encontro_id FK
+        Long encontro_id FK "opcional"
+        LocalDate data
         StatusPresenca status
         String observacoes
         LocalDateTime registradoEm
@@ -67,9 +75,11 @@ erDiagram
         Long id PK
         LocalDate data
         TipoLancamento tipo
+        NaturezaLancamento natureza
         Long categoria_id FK
         String descricao
-        BigDecimal valor
+        BigDecimal valor "nulo em doação de material"
+        String comprovante
         String observacoes
         LocalDateTime registradoEm
         LocalDateTime atualizadoEm
@@ -101,6 +111,7 @@ Representa, no protótipo, uma pessoa disponível para o controle de presença.
 |---|---|---:|---|
 | id | Long | sim | chave primária gerada |
 | nome | String | sim | não vazio; tamanho limitado na aplicação |
+| contato | String | não | telefone, WhatsApp ou e-mail; até 120 caracteres (RF01) |
 | ativo | Boolean | sim | inicia como true |
 | observacoes | String | não | texto livre com tamanho limitado |
 | dataCadastro | LocalDateTime | sim | definida na criação |
@@ -108,9 +119,9 @@ Representa, no protótipo, uma pessoa disponível para o controle de presença.
 
 **Decisões de privacidade**
 
-- documento, telefone, e-mail, endereço e data de nascimento não fazem parte do modelo;
-- não existe requisito confirmado para coletar esses dados;
-- nomes demonstrativos devem ser fictícios;
+- o campo contato existe porque o RF01 pede nome **e** contato; ele é opcional e deve ser preenchido só com o consentimento da pessoa;
+- documento, endereço e data de nascimento continuam fora do modelo, porque não existe requisito para eles;
+- nomes e contatos demonstrativos são fictícios e usam domínio `.invalid`;
 - desativação preserva o histórico.
 
 **Dúvidas:** como diferenciar homônimos; quais dados são indispensáveis; por quanto tempo guardar; quem pode consultar.
@@ -145,16 +156,28 @@ Não foi confirmada uma regra de unicidade para atividade + data. Podem existir 
 
 ## Presenca
 
-Liga participante e encontro e registra uma situação.
+Registra a situação de uma participante em uma data. A ONG confirmou que o
+controle é único e não depende de atividade, então o encontro é opcional.
 
-| Campo | Tipo Java | Obrigatório | Regra preliminar |
+| Campo | Tipo Java | Obrigatório | Regra |
 |---|---|---:|---|
 | id | Long | sim | chave primária gerada |
 | participante | Participante | sim | associação ManyToOne |
-| encontro | Encontro | sim | associação ManyToOne |
+| data | LocalDate | sim | coluna `data_presenca`; não pode estar no futuro |
+| encontro | Encontro | não | associação ManyToOne opcional; quando existe, a data acompanha a do encontro |
 | status | StatusPresenca | sim | armazenado como texto |
 | observacoes | String | não | justificativa ou detalhe opcional |
 | registradoEm | LocalDateTime | sim | definida no registro |
+
+### Dois modos de chamada
+
+- **Controle único (padrão, RF02):** `encontro` nulo. A tela de registro abre
+  nesse modo, com a data de hoje.
+- **Chamada por encontro:** `encontro` preenchido, para quem quiser separar a
+  presença por atividade. Nada obriga a usar esse modo.
+
+As duas formas convivem no mesmo histórico e na mesma frequência; o filtro por
+atividade simplesmente não alcança as presenças avulsas.
 
 ### StatusPresenca
 
@@ -166,11 +189,18 @@ Esses três estados foram definidos para o protótipo, mas ainda não foram conf
 
 ### Integridade
 
-Existe unicidade para participante_id + encontro_id. A validação deve ocorrer no service e também no banco, protegendo contra requisições concorrentes.
+Existe unicidade de banco para participante_id + encontro_id, que protege a
+chamada por encontro contra requisições concorrentes.
 
-Mensagem esperada:
+Para a presença avulsa, o banco não resolve: em SQL, colunas nulas não colidem
+em índice único, então a regra "uma presença por participante por data" é
+verificada no service (`existsByParticipanteIdAndDataAndEncontroIsNull`).
+
+Mensagens esperadas:
 
 > Já existe uma presença registrada para este participante nesse encontro.
+
+> Já existe uma presença registrada para este participante nessa data.
 
 ## CategoriaFinanceira
 
@@ -185,12 +215,15 @@ Representa um agrupamento configurável para lançamentos.
 
 É recomendada unicidade de nome + tipo, comparada de maneira consistente. Uma categoria de entrada não pode ser usada em uma saída e vice-versa.
 
-Categorias de demonstração são fictícias:
+As duas primeiras categorias de entrada vêm da entrevista e não são fictícias:
 
-- entrada: Doação, Contribuição, Evento e Outros;
-- saída: Materiais, Transporte, Alimentação, Manutenção e Outros.
+- **Aluguel/Patrocínio** — o valor fixo mensal de R$ 1.200, único valor monetário recorrente informado pela ONG;
+- **Doação de material** — as doações físicas controladas por comprovante.
 
-Esses nomes não são categorias oficiais da ONG.
+As demais categorias carregadas na demonstração são fictícias:
+
+- entrada: Doações, Contribuições, Eventos solidários, Parcerias e Outras entradas;
+- saída: Materiais, Transporte, Alimentação, Manutenção, Serviços e Outras saídas.
 
 ## LancamentoCaixa
 
@@ -201,9 +234,11 @@ Representa uma movimentação individual do livro caixa.
 | id | Long | BIGINT | sim | chave primária gerada |
 | data | LocalDate | DATE | sim | data de negócio |
 | tipo | TipoLancamento | VARCHAR | sim | armazenado como texto |
+| natureza | NaturezaLancamento | VARCHAR(20) | sim | MONETARIA ou DOACAO_MATERIAL (RF05) |
 | categoria | CategoriaFinanceira | BIGINT/FK | sim | tipo compatível e categoria ativa no cadastro |
 | descricao | String | VARCHAR | sim | não vazia |
-| valor | BigDecimal | DECIMAL(10,2) | sim | estritamente maior que zero |
+| valor | BigDecimal | DECIMAL(10,2) | condicional | maior que zero quando MONETARIA; **sempre nulo** quando DOACAO_MATERIAL (RF04, PR05) |
+| comprovante | String | VARCHAR(200) | condicional | obrigatório quando DOACAO_MATERIAL (RF06); opcional nos monetários |
 | observacoes | String | VARCHAR | não | texto opcional |
 | registradoEm | LocalDateTime | TIMESTAMP | sim | definida na criação |
 | atualizadoEm | LocalDateTime | TIMESTAMP | sim | atualizada na edição |
@@ -216,6 +251,25 @@ Representa uma movimentação individual do livro caixa.
 - SAIDA.
 
 O valor sempre é armazenado positivo. O tipo determina seu efeito no saldo. Não são usados double ou float.
+
+### NaturezaLancamento
+
+- **MONETARIA** — entra ou sai dinheiro. Exige valor e compõe o saldo, os totais e o extrato.
+- **DOACAO_MATERIAL** — a ONG recebe itens, não dinheiro. O valor fica nulo, o
+  comprovante é obrigatório e o lançamento **não entra no saldo** (RF07); ele
+  aparece nas listas e no extrato com a contagem separada
+  `quantidadeDoacoesMaterial`.
+
+Se a tela ou a API enviarem um valor junto de uma doação de material, o service
+o descarta em vez de gravá-lo, para que o saldo nunca dependa de um número que a
+ONG não movimentou.
+
+O escopo modela essa distinção como um único campo `tipo`
+(`'ALUGUEL_PATROCINIO'` ou `'DOACAO_MATERIAL'`). O protótipo separa em dois
+campos — `tipo` (entrada/saída) e `natureza` (dinheiro/material) — porque
+entrada e saída continuam necessárias para o saldo, e porque a categoria
+Aluguel/Patrocínio é uma entre várias possíveis. A regra de negócio é a mesma:
+doação de material não tem valor e é controlada pelo comprovante.
 
 ### Cancelamento lógico
 
