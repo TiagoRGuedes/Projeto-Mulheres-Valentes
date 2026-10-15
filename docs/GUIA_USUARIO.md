@@ -349,7 +349,7 @@ O lançamento sai do saldo e das listas financeiras comuns, mas não é apagado 
 
 O Histórico mostra o que foi criado, editado, ativado, desativado, corrigido, registrado ou cancelado pelos fluxos administrativos.
 
-1. Abra **Histórico** no menu lateral.
+1. No menu lateral, abra **Mais opções** e escolha **Histórico do sistema**.
 2. Se quiser, escolha um período, um módulo ou um tipo de ação.
 3. Digite parte de um nome ou descrição no campo de busca.
 4. Selecione **Aplicar filtros**.

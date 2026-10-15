@@ -303,6 +303,24 @@ com autorização das pessoas retratadas, principalmente quando houver crianças
 As duas imagens atuais (`acolhimento.jpg` e `rede-de-mulheres.jpg`) vieram do
 site oficial da ONG e são ilustrações, não fotos das atividades.
 
+## Painel da equipe
+
+O menu lateral mostra só o que é usado no dia a dia: **Visão geral**,
+**Inscrições**, **Participantes**, **Registrar presença**, **Livro Caixa**,
+**Relatórios** e **Ajuda e acessibilidade**. As demais páginas (atividades,
+encontros, frequência, histórico de presença, movimentações, categorias,
+histórico do sistema e acessibilidade) ficam em **Mais opções**, que já abre
+sozinho quando uma delas está aberta.
+
+A **Visão geral** começa pelas três ações do dia (presença, entrada e saída),
+mostra o aviso de inscrições novas, quatro indicadores (saldo, frequência do
+mês, participantes ativas e entradas do mês) e as últimas movimentações.
+
+No **Livro Caixa**, os indicadores mostram o caixa todo (ou o período escolhido
+em **Filtrar por período**), e os botões **Todas**, **Entradas**, **Saídas** e
+**Doações** filtram só a tabela, que mostra até 15 movimentações. A lista
+completa fica em **Movimentações**.
+
 ## Uso rápido
 
 ### Cadastrar uma pessoa
@@ -335,7 +353,7 @@ somente se quiser separar o registro por programa.
 
 ### Consultar alterações administrativas
 
-1. Abra **Histórico** no menu lateral.
+1. No menu lateral, abra **Mais opções** e escolha **Histórico do sistema**.
 2. Escolha período, módulo ou tipo de ação se quiser reduzir a lista.
 3. Use a busca para localizar um nome ou descrição.
 4. O histórico é somente leitura: ele não pode ser editado ou apagado pela interface comum.
