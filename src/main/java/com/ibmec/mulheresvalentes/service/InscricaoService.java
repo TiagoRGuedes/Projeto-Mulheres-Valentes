@@ -8,6 +8,7 @@ import com.ibmec.mulheresvalentes.model.AcaoHistorico;
 import com.ibmec.mulheresvalentes.model.Inscricao;
 import com.ibmec.mulheresvalentes.model.ModuloHistorico;
 import com.ibmec.mulheresvalentes.model.Participante;
+import com.ibmec.mulheresvalentes.model.PreferenciaContato;
 import com.ibmec.mulheresvalentes.model.StatusInscricao;
 import com.ibmec.mulheresvalentes.repository.InscricaoRepository;
 import com.ibmec.mulheresvalentes.repository.ParticipanteRepository;
@@ -18,11 +19,14 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 public class InscricaoService {
 
     private static final int TAMANHO_MINIMO_CONTATO_COMPARAVEL = 8;
+    private static final Pattern EMAIL = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$");
+    private static final Pattern CARACTERES_DE_TELEFONE = Pattern.compile("^[0-9()+.\\-\\s]+$");
 
     private final InscricaoRepository inscricaoRepository;
     private final ParticipanteRepository participanteRepository;
@@ -55,10 +59,17 @@ public class InscricaoService {
         if (form.getPreferenciaContato() == null) {
             throw new RegraNegocioException("Escolha como prefere que a gente fale com você.");
         }
+        String contato = obrigatorio(form.getContato(), 120,
+                "Deixe um telefone, WhatsApp ou e-mail para a gente falar com você.");
+        problemaNoContato(contato).ifPresent(problema -> {
+            throw new RegraNegocioException(problema);
+        });
+        problemaNaPreferencia(contato, form.getPreferenciaContato()).ifPresent(problema -> {
+            throw new RegraNegocioException(problema);
+        });
         Inscricao inscricao = new Inscricao(
                 obrigatorio(form.getNome(), 150, "Escreva o seu nome."),
-                obrigatorio(form.getContato(), 120,
-                        "Deixe um telefone, WhatsApp ou e-mail para a gente falar com você."),
+                formatarContato(contato),
                 form.getPreferenciaContato(),
                 opcional(form.getContatoSeguro(), 200),
                 opcional(form.getBairro(), 100),
@@ -175,6 +186,69 @@ public class InscricaoService {
                 "Situação: " + anterior.getDescricao(),
                 "Situação: " + salva.getStatus().getDescricao());
         return salva;
+    }
+
+    public static Optional<String> problemaNoContato(String contato) {
+        if (!StringUtils.hasText(contato)) {
+            return Optional.empty();
+        }
+        String limpo = contato.trim();
+        if (limpo.contains("@")) {
+            return EMAIL.matcher(limpo).matches()
+                    ? Optional.empty()
+                    : Optional.of("Este e-mail parece incompleto. Confira se está no formato nome@exemplo.com.");
+        }
+        if (!CARACTERES_DE_TELEFONE.matcher(limpo).matches()) {
+            return Optional.of("Escreva um telefone só com números, ou um e-mail completo.");
+        }
+        int digitos = digitosDoTelefone(limpo).length();
+        if (digitos == 8 || digitos == 9) {
+            return Optional.of("Parece faltar o DDD ou algum número. Confira: DDD e número, por exemplo (11) 91234-5678.");
+        }
+        if (digitos != 10 && digitos != 11) {
+            return Optional.of("Este telefone parece ter números a mais ou a menos. Confira: DDD e número, por exemplo (11) 91234-5678.");
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<String> problemaNaPreferencia(String contato, PreferenciaContato preferencia) {
+        if (!StringUtils.hasText(contato) || preferencia == null || problemaNoContato(contato).isPresent()) {
+            return Optional.empty();
+        }
+        boolean email = contato.contains("@");
+        if (preferencia == PreferenciaContato.EMAIL && !email) {
+            return Optional.of("Você escolheu e-mail, mas deixou um telefone. Troque a opção ou informe um e-mail.");
+        }
+        if (preferencia != PreferenciaContato.EMAIL && email) {
+            return Optional.of("Você deixou um e-mail. Para ligação ou WhatsApp, informe um telefone, ou escolha a opção e-mail.");
+        }
+        return Optional.empty();
+    }
+
+    public static String formatarContato(String contato) {
+        if (!StringUtils.hasText(contato)) {
+            return contato;
+        }
+        String limpo = contato.trim();
+        if (limpo.contains("@")) {
+            return limpo.toLowerCase(Locale.ROOT);
+        }
+        String digitos = digitosDoTelefone(limpo);
+        if (digitos.length() == 11) {
+            return "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 7) + "-" + digitos.substring(7);
+        }
+        if (digitos.length() == 10) {
+            return "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 6) + "-" + digitos.substring(6);
+        }
+        return limpo;
+    }
+
+    private static String digitosDoTelefone(String telefone) {
+        String digitos = telefone.replaceAll("\\D", "");
+        if (digitos.startsWith("55") && (digitos.length() == 12 || digitos.length() == 13)) {
+            return digitos.substring(2);
+        }
+        return digitos;
     }
 
     static String normalizarContato(String contato) {

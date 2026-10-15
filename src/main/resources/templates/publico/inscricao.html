@@ -9,6 +9,11 @@
         <p class="sobretitulo-publico">Inscrição</p>
         <h1>Quero participar da Mulheres Valentes</h1>
         <p>Conte só o necessário. Depois a nossa equipe fala com você do jeito que for mais seguro.</p>
+        <ol class="etapas-publicas" aria-label="Etapas da inscrição">
+            <li class="atual" aria-current="step"><span>1</span> Preencher</li>
+            <li><span>2</span> Conferir</li>
+            <li><span>3</span> Enviar</li>
+        </ol>
     </header>
 
     <div class="inscricao-grade">
@@ -79,7 +84,8 @@
                 <p class="erro-publico" th:if="${#fields.hasErrors('consentimento')}" th:errors="*{consentimento}">Erro</p>
             </div>
 
-            <button class="botao-publico botao-publico-destaque botao-publico-grande" type="submit">Enviar minha inscrição</button>
+            <button class="botao-publico botao-publico-destaque botao-publico-grande" type="submit">Conferir meus dados</button>
+            <p class="nota-envio">Na próxima tela você vê tudo o que escreveu e pode corrigir antes de enviar.</p>
         </form>
 
         <aside class="inscricao-lateral" aria-label="Informações importantes">

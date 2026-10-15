@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/publico :: head('Confira seus dados — ONG Mulheres Valentes', 'Confira os dados da sua inscrição antes de enviar.')}"></head>
+<body class="pagina-publica" th:classappend="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<div th:replace="~{fragments/publico :: topo}"></div>
+
+<main id="conteudo" tabindex="-1" class="pagina-inscricao">
+    <header class="cabecalho-inscricao">
+        <p class="sobretitulo-publico">Inscrição</p>
+        <h1>Confira os seus dados</h1>
+        <p>Veja se está tudo certo, principalmente o seu contato: é por ele que a equipe vai falar com você. Ainda não enviamos nada.</p>
+        <ol class="etapas-publicas" aria-label="Etapas da inscrição">
+            <li class="concluida"><span>1</span> Preencher</li>
+            <li class="atual" aria-current="step"><span>2</span> Conferir</li>
+            <li><span>3</span> Enviar</li>
+        </ol>
+    </header>
+
+    <div class="alerta-publico alerta-publico-aviso" role="status" th:if="${avisoConferencia != null}" th:text="${avisoConferencia}">Aviso</div>
+
+    <form class="conferencia-inscricao" th:action="@{/inscricao/confirmar}" method="post" th:object="${inscricaoForm}">
+        <input type="hidden" name="conferencia" th:value="${conferencia}">
+        <input type="hidden" th:field="*{nome}">
+        <input type="hidden" th:field="*{bairro}">
+        <input type="hidden" th:field="*{contato}">
+        <input type="hidden" th:field="*{preferenciaContato}">
+        <input type="hidden" th:field="*{contatoSeguro}">
+        <input type="hidden" name="areas" th:each="area : *{areas}" th:value="${area}">
+        <input type="hidden" th:field="*{mensagem}">
+        <input type="hidden" name="consentimento" value="true">
+
+        <section class="cartao-conferencia cartao-conferencia-destaque" aria-labelledby="conf-contato">
+            <h2 id="conf-contato">Como vamos falar com você</h2>
+            <dl>
+                <div><dt>Contato</dt><dd class="conferencia-contato" th:text="${contatoFormatado}">(11) 91234-5678</dd></div>
+                <div><dt>Prefere</dt><dd th:text="*{preferenciaContato.descricao}">WhatsApp</dd></div>
+                <div class="conferencia-largo"><dt>Como e quando é seguro</dt><dd th:text="*{contatoSeguro != null and !#strings.isEmpty(contatoSeguro)} ? *{contatoSeguro} : 'Você não deixou orientação.'">Orientação</dd></div>
+            </dl>
+            <p class="conferencia-pergunta">Este contato está certo? Se faltar um número, a equipe não consegue te encontrar.</p>
+        </section>
+
+        <section class="cartao-conferencia" aria-labelledby="conf-voce">
+            <h2 id="conf-voce">Sobre você</h2>
+            <dl>
+                <div><dt>Nome</dt><dd th:text="*{nome}">Nome</dd></div>
+                <div><dt>Bairro</dt><dd th:text="*{bairro != null and !#strings.isEmpty(bairro)} ? *{bairro} : 'Não informado'">Bairro</dd></div>
+                <div class="conferencia-largo"><dt>Como podemos ajudar</dt><dd><span th:if="*{#sets.isEmpty(areas)}">Você não marcou nenhuma opção.</span><ul class="lista-etiquetas" th:unless="*{#sets.isEmpty(areas)}"><li th:each="area : *{areas}" th:text="${area.descricao}">Área</li></ul></dd></div>
+                <div class="conferencia-largo"><dt>Sua mensagem</dt><dd class="texto-preservado" th:text="*{mensagem != null and !#strings.isEmpty(mensagem)} ? *{mensagem} : 'Nenhuma mensagem.'">Mensagem</dd></div>
+            </dl>
+        </section>
+
+        <div class="acoes-conferencia">
+            <button class="botao-publico botao-publico-destaque botao-publico-grande" type="submit">Está tudo certo, enviar inscrição</button>
+            <button class="botao-publico botao-publico-contorno botao-publico-grande" type="submit" th:formaction="@{/inscricao/corrigir}">Corrigir meus dados</button>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/publico :: rodape}"></footer>
+</body>
+</html>

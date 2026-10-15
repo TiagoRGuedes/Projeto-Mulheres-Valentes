@@ -117,6 +117,45 @@ class InscricaoServiceIntegrationTest {
                 .isEqualTo("maria@exemplo.com");
     }
 
+    @Test
+    void deveAceitarTelefonesComDddEmQualquerFormato() {
+        assertThat(InscricaoService.problemaNoContato("(11) 91234-5678")).isEmpty();
+        assertThat(InscricaoService.problemaNoContato("11912345678")).isEmpty();
+        assertThat(InscricaoService.problemaNoContato("+55 11 91234-5678")).isEmpty();
+        assertThat(InscricaoService.problemaNoContato("(11) 3456-7890")).isEmpty();
+        assertThat(InscricaoService.problemaNoContato("maria@exemplo.com")).isEmpty();
+    }
+
+    @Test
+    void deveApontarContatosQueAEquipeNaoConseguiriaUsar() {
+        assertThat(InscricaoService.problemaNoContato("91234-5678")).get().asString().contains("DDD");
+        assertThat(InscricaoService.problemaNoContato("(11) 9123-456")).get().asString().contains("faltar");
+        assertThat(InscricaoService.problemaNoContato("(11) 91234-56789")).get().asString().contains("a mais ou a menos");
+        assertThat(InscricaoService.problemaNoContato("maria@exemplo")).get().asString().contains("incompleto");
+        assertThat(InscricaoService.problemaNoContato("ligar pra vizinha")).get().asString().contains("só com números");
+    }
+
+    @Test
+    void deveApontarPreferenciaIncompativelComOContato() {
+        assertThat(InscricaoService.problemaNaPreferencia("(11) 91234-5678", PreferenciaContato.EMAIL)).isPresent();
+        assertThat(InscricaoService.problemaNaPreferencia("maria@exemplo.com", PreferenciaContato.WHATSAPP)).isPresent();
+        assertThat(InscricaoService.problemaNaPreferencia("(11) 91234-5678", PreferenciaContato.LIGACAO)).isEmpty();
+    }
+
+    @Test
+    void deveGuardarOContatoNumFormatoUnico() {
+        Inscricao inscricao = inscricaoService.receber(formulario("Elza", "+55 11 912345678"));
+
+        assertThat(inscricao.getContato()).isEqualTo("(11) 91234-5678");
+    }
+
+    @Test
+    void deveRecusarTelefoneSemDddMesmoForaDaTela() {
+        assertThatThrownBy(() -> inscricaoService.receber(formulario("Fátima", "91234-5678")))
+                .isInstanceOf(RegraNegocioException.class)
+                .hasMessageContaining("DDD");
+    }
+
     private InscricaoForm formulario(String nome, String contato) {
         InscricaoForm form = new InscricaoForm();
         form.setNome(nome);

@@ -6474,6 +6474,141 @@ body.pagina-publica {
     }
 }
 
+.etapas-publicas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.25rem;
+    margin: 1.4rem 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.etapas-publicas li {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.etapas-publicas span {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 2px solid var(--border-strong);
+    border-radius: 50%;
+    font-size: .85rem;
+}
+
+.etapas-publicas .atual {
+    color: var(--mv-secondary-dark);
+}
+
+.etapas-publicas .atual span {
+    border-color: var(--mv-secondary);
+    background: var(--mv-secondary);
+    color: #fff;
+}
+
+.etapas-publicas .concluida span {
+    border-color: var(--status-success);
+    background: var(--status-success-soft);
+    color: var(--status-success-text);
+}
+
+.modo-escuro .etapas-publicas .atual {
+    color: var(--mv-accent);
+}
+
+.nota-envio {
+    margin: -.4rem 0 0;
+    color: var(--text-secondary);
+    font-size: .92rem;
+    text-align: center;
+}
+
+.alerta-publico-aviso {
+    max-width: 52rem;
+    margin-bottom: 1.25rem;
+    border-left-color: var(--status-warning);
+    background: var(--status-warning-soft);
+}
+
+.conferencia-inscricao {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 52rem;
+}
+
+.cartao-conferencia {
+    padding: 1.5rem;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    background: var(--surface-card);
+}
+
+.cartao-conferencia-destaque {
+    border: 2px solid var(--mv-secondary);
+    background: var(--mv-accent-soft);
+}
+
+.cartao-conferencia h2 {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+}
+
+.cartao-conferencia dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 0;
+}
+
+.cartao-conferencia dt {
+    margin-bottom: .2rem;
+    color: var(--text-secondary);
+    font-size: .8rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.cartao-conferencia dd {
+    margin: 0;
+    font-size: 1.08rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.conferencia-largo {
+    grid-column: 1 / -1;
+}
+
+.conferencia-contato {
+    font-size: 1.45rem !important;
+    font-weight: 800;
+    letter-spacing: .01em;
+}
+
+.conferencia-pergunta {
+    margin: 1.1rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-soft);
+    font-weight: 700;
+}
+
+.acoes-conferencia {
+    display: grid;
+    gap: .75rem;
+}
+
+@media (max-width: 640px) {
+    .cartao-conferencia dl {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media print {
     .faixa-seguranca,
     .topo-publico,

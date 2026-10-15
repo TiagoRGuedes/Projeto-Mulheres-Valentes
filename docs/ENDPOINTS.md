@@ -54,8 +54,16 @@ http://localhost:8080
 |---|---|---|
 | GET | / | Página de apresentação da ONG |
 | GET | /inscricao | Formulário de inscrição |
-| POST | /inscricao | Recebe a inscrição e redireciona |
+| POST | /inscricao | Valida e mostra a tela de conferência; não grava nada |
+| POST | /inscricao/corrigir | Volta ao formulário com os dados preenchidos |
+| POST | /inscricao/confirmar | Grava a inscrição e redireciona para a confirmação |
 | GET | /inscricao/recebida | Confirmação para quem se inscreveu |
+
+A tela de conferência leva os dados em campos escondidos e um código de uso
+único guardado na sessão. Se o mesmo código chegar duas vezes (clique duplo), a
+segunda requisição vai direto para a confirmação, sem gravar de novo. Se o
+código não for reconhecido, por exemplo depois de reiniciar o servidor, a tela
+de conferência volta com os dados e pede para confirmar outra vez.
 
 O formulário tem um campo escondido (`site`) que pessoas não preenchem. Se ele
 chegar preenchido, o envio é tratado como robô: a resposta é a mesma página de

@@ -270,6 +270,15 @@ Pelo botão **Quero participar**, a mulher preenche uma inscrição curta: nome,
 contato, como prefere ser contatada, como e quando é seguro falar com ela,
 áreas de interesse e uma mensagem opcional. O envio exige consentimento.
 
+Antes de enviar, ela passa por uma tela de **conferência** com tudo o que
+escreveu e o contato em destaque, e escolhe entre **Corrigir meus dados** e
+**Está tudo certo, enviar inscrição**. Nada é gravado antes disso. O contato
+também é verificado: telefone precisa ter DDD e número completos, e-mail
+precisa estar no formato nome@exemplo.com, e a forma preferida precisa combinar
+com o contato (e-mail com e-mail, ligação ou WhatsApp com telefone). Telefones
+são guardados sempre no mesmo formato, por exemplo (11) 91234-5678, e um clique
+duplo no botão de envio não cria inscrição repetida.
+
 Como a ONG atua no enfrentamento à violência doméstica, as páginas públicas
 têm um botão **Sair rápido** no topo e mostram os telefones 190 e 180.
 
