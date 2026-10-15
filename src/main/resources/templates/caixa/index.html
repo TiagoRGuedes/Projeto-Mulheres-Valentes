@@ -24,75 +24,80 @@
             <span class="alerta-icone" aria-hidden="true">!</span><div><strong>Revise o período</strong><p th:text="${erroFiltro}">Período inválido.</p></div>
         </div>
 
-        <section class="grade-indicadores finance-overview" aria-label="Resumo financeiro">
-            <article class="indicador saldo-destaque">
-                <span class="indicador-titulo">Saldo atual</span>
-                <strong class="indicador-valor" th:text="${@formatador.moeda(resumo.saldoAtual)}">R$ 0,00</strong>
-                <span class="indicador-ajuda">Tudo que entrou menos tudo que saiu.</span>
+        <section class="caixa-indicadores" aria-label="Resumo financeiro">
+            <article class="caixa-indicador caixa-indicador-saldo">
+                <span class="caixa-indicador-rotulo">Saldo atual</span>
+                <strong class="caixa-indicador-valor" th:text="${@formatador.moeda(resumo.saldoAtual)}">R$ 0,00</strong>
+                <small>Tudo que entrou menos tudo que saiu.</small>
             </article>
-            <article class="indicador entrada">
-                <span class="indicador-titulo">Entradas do período</span>
-                <strong class="indicador-valor" th:text="${@formatador.moeda(resumo.totalEntradas)}">R$ 0,00</strong>
-                <span class="indicador-ajuda">Valores recebidos no período escolhido.</span>
+            <article class="caixa-indicador caixa-indicador-entrada">
+                <span class="caixa-indicador-rotulo"><span aria-hidden="true">↑</span> Entradas</span>
+                <strong class="caixa-indicador-valor" th:text="${@formatador.moeda(resumo.totalEntradas)}">R$ 0,00</strong>
+                <small th:if="${filtro.dataInicial != null or filtro.dataFinal != null}">No período escolhido.</small>
             </article>
-            <article class="indicador saida">
-                <span class="indicador-titulo">Saídas do período</span>
-                <strong class="indicador-valor" th:text="${@formatador.moeda(resumo.totalSaidas)}">R$ 0,00</strong>
-                <span class="indicador-ajuda">Pagamentos e gastos no período.</span>
+            <article class="caixa-indicador caixa-indicador-saida">
+                <span class="caixa-indicador-rotulo"><span aria-hidden="true">↓</span> Saídas</span>
+                <strong class="caixa-indicador-valor" th:text="${@formatador.moeda(resumo.totalSaidas)}">R$ 0,00</strong>
+                <small th:if="${filtro.dataInicial != null or filtro.dataFinal != null}">No período escolhido.</small>
             </article>
-            <article class="indicador neutro">
-                <span class="indicador-titulo">Movimentações</span>
-                <strong class="indicador-valor" th:text="${resumo.quantidadeMovimentacoes}">0</strong>
-                <span class="indicador-ajuda">Quantidade de registros encontrados.</span>
+            <article class="caixa-indicador">
+                <span class="caixa-indicador-rotulo">Movimentações</span>
+                <strong class="caixa-indicador-valor" th:text="${resumo.quantidadeMovimentacoes}">0</strong>
+                <small>Doações de material não entram no saldo.</small>
             </article>
         </section>
 
-        <nav class="painel acoes-rapidas-caixa" aria-label="Ações rápidas do Livro Caixa">
-            <strong>Outras ações do Livro Caixa</strong>
-            <div class="grupo-botoes"><a class="botao botao-secundario" th:href="@{/caixa/movimentacoes}">Ver movimentações</a><a class="botao botao-secundario" th:href="@{/caixa/categorias}">Categorias</a><a class="botao botao-secundario" th:href="@{/caixa/relatorio}">Abrir relatório</a></div>
-        </nav>
+        <details class="caixa-periodo" th:open="${filtro.dataInicial != null or filtro.dataFinal != null or erroFiltro != null}">
+            <summary>Filtrar por período</summary>
+            <form th:action="@{/caixa}" th:object="${filtro}" method="get">
+                <input type="hidden" th:field="*{tipo}">
+                <input type="hidden" th:field="*{natureza}">
+                <div class="grade-formulario">
+                    <div class="campo"><label for="dataInicial">Data inicial</label><input id="dataInicial" type="date" th:field="*{dataInicial}"></div>
+                    <div class="campo"><label for="dataFinal">Data final</label><input id="dataFinal" type="date" th:field="*{dataFinal}"></div>
+                </div>
+                <div class="acoes-formulario">
+                    <button class="botao botao-primario" type="submit">Atualizar resumo</button>
+                    <a class="botao botao-secundario" th:href="@{/caixa}">Limpar período</a>
+                </div>
+            </form>
+        </details>
 
-        <form class="painel filtros" th:action="@{/caixa}" th:object="${filtro}" method="get">
-            <header class="filtros-cabecalho"><h2>Filtrar resultados</h2><p>Escolha um período para atualizar o resumo financeiro abaixo.</p></header>
-            <div class="grade-formulario">
-                <div class="campo"><label for="dataInicial">Data inicial</label><input id="dataInicial" type="date" th:field="*{dataInicial}"></div>
-                <div class="campo"><label for="dataFinal">Data final</label><input id="dataFinal" type="date" th:field="*{dataFinal}"></div>
+        <section class="caixa-movimentacoes" aria-labelledby="lancamentos-recentes">
+            <div class="caixa-movimentacoes-cabecalho">
+                <h2 id="lancamentos-recentes">Movimentações</h2>
+                <nav class="caixa-filtros" aria-label="Mostrar movimentações">
+                    <a th:href="@{/caixa(dataInicial=${filtro.dataInicial},dataFinal=${filtro.dataFinal})}" th:classappend="${filtro.tipo == null and filtro.natureza == null} ? 'ativo'" th:attr="aria-current=${filtro.tipo == null and filtro.natureza == null} ? 'true' : null">Todas</a>
+                    <a th:href="@{/caixa(dataInicial=${filtro.dataInicial},dataFinal=${filtro.dataFinal},tipo='ENTRADA',natureza='MONETARIA')}" th:classappend="${filtro.tipo != null and filtro.tipo.name() == 'ENTRADA'} ? 'ativo'" th:attr="aria-current=${filtro.tipo != null and filtro.tipo.name() == 'ENTRADA'} ? 'true' : null">Entradas</a>
+                    <a th:href="@{/caixa(dataInicial=${filtro.dataInicial},dataFinal=${filtro.dataFinal},tipo='SAIDA')}" th:classappend="${filtro.tipo != null and filtro.tipo.name() == 'SAIDA'} ? 'ativo'" th:attr="aria-current=${filtro.tipo != null and filtro.tipo.name() == 'SAIDA'} ? 'true' : null">Saídas</a>
+                    <a th:href="@{/caixa(dataInicial=${filtro.dataInicial},dataFinal=${filtro.dataFinal},natureza='DOACAO_MATERIAL')}" th:classappend="${filtro.tipo == null and filtro.natureza != null and filtro.natureza.name() == 'DOACAO_MATERIAL'} ? 'ativo'" th:attr="aria-current=${filtro.tipo == null and filtro.natureza != null and filtro.natureza.name() == 'DOACAO_MATERIAL'} ? 'true' : null">Doações</a>
+                </nav>
             </div>
-            <div class="acoes-formulario">
-                <button class="botao botao-primario" type="submit">Atualizar resumo</button>
-                <a class="botao botao-secundario" th:href="@{/caixa}">Limpar período</a>
-            </div>
-        </form>
-
-        <section class="secao-espacada" aria-labelledby="lancamentos-recentes">
-            <div class="cabecalho-secao">
-                <div><p class="etiqueta">Últimos registros</p><h2 id="lancamentos-recentes">Lançamentos recentes</h2></div>
-                <a class="botao botao-secundario" th:href="@{/caixa/movimentacoes}">Ver todas as movimentações</a>
-            </div>
-            <div class="estado-vazio" th:if="${#lists.isEmpty(ultimosLancamentos)}">
-                <span class="estado-vazio-icone" aria-hidden="true">R$</span>
-                <h2>Ainda não há movimentações</h2>
-                <p>Quando você registrar uma entrada ou saída, ela aparecerá aqui.</p>
-                <div class="grupo-botoes"><a class="botao botao-entrada" th:href="@{/caixa/entrada}">Registrar entrada</a><a class="botao botao-saida" th:href="@{/caixa/saida}">Registrar saída</a></div>
+            <div class="caixa-vazio" th:if="${#lists.isEmpty(ultimosLancamentos)}">
+                <p th:text="${filtro.tipo == null and filtro.natureza == null and filtro.dataInicial == null and filtro.dataFinal == null} ? 'Ainda não há movimentações. Quando você registrar uma entrada ou saída, ela aparecerá aqui.' : 'Nenhuma movimentação encontrada com este filtro.'">Ainda não há movimentações.</p>
             </div>
             <div class="tabela-responsiva" th:unless="${#lists.isEmpty(ultimosLancamentos)}">
-                <table class="tabela-adaptavel ledger-table">
-                    <caption>Últimos lançamentos do Livro Caixa</caption>
+                <table class="tabela-adaptavel caixa-tabela">
+                    <caption class="sr-only">Movimentações do Livro Caixa</caption>
                     <thead><tr><th scope="col">Data</th><th scope="col">Tipo</th><th scope="col">Descrição</th><th scope="col">Categoria</th><th scope="col" class="coluna-numero">Valor</th></tr></thead>
                     <tbody>
                     <tr th:each="lancamento : ${ultimosLancamentos}">
                         <td data-label="Data" th:text="${@formatador.data(lancamento.data)}">01/01/2026</td>
-                        <td data-label="Tipo"><span class="selo-status" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'selo-entrada' : 'selo-saida'" th:text="${lancamento.tipo.rotuloAcessivel}">↑ Entrada</span></td>
-                        <td data-label="Descrição"><span class="nome-principal" th:text="${lancamento.descricao}">Descrição</span></td>
+                        <td data-label="Tipo"><span class="selo-status" th:classappend="${!lancamento.monetario} ? 'selo-material' : (${lancamento.tipo.name() == 'ENTRADA'} ? 'selo-entrada' : 'selo-saida')" th:text="${!lancamento.monetario} ? 'Doação' : ${lancamento.tipo.rotuloAcessivel}">↑ Entrada</span></td>
+                        <td data-label="Descrição"><a class="nome-principal" th:href="@{/caixa/movimentacoes/{id}(id=${lancamento.id})}" th:text="${lancamento.descricao}">Descrição</a></td>
                         <td data-label="Categoria" th:text="${lancamento.categoria.nome}">Categoria</td>
-                        <td data-label="Valor" class="valor-monetario" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'valor-entrada' : 'valor-saida'" th:text="${@formatador.valorComSinal(lancamento)}">R$ 0,00</td>
+                        <td data-label="Valor" class="valor-monetario" th:classappend="${!lancamento.monetario} ? 'valor-material' : (${lancamento.tipo.name() == 'ENTRADA'} ? 'valor-entrada' : 'valor-saida')" th:text="${@formatador.valorComSinal(lancamento)}">R$ 0,00</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+            <div class="caixa-movimentacoes-rodape">
+                <span th:if="${totalEncontrados > #lists.size(ultimosLancamentos)}" th:text="|Mostrando ${#lists.size(ultimosLancamentos)} de ${totalEncontrados}.|">Mostrando 15 de 40.</span>
+                <a th:href="@{/caixa/movimentacoes}">Ver todas as movimentações →</a>
+                <a th:href="@{/caixa/categorias}">Categorias</a>
+                <a th:href="@{/caixa/relatorio}">Relatório</a>
+            </div>
         </section>
-
-        <aside class="dica-contextual secao-espacada"><strong>O que é saldo?</strong><p>É a diferença entre tudo que entrou e tudo que saiu do caixa.</p></aside>
     </main>
 </div>
 <footer th:replace="~{fragments/footer :: footer}"></footer>

@@ -48,13 +48,13 @@
                 <legend><span class="bloco-numero" aria-hidden="true">2</span> Como falar com você</legend>
                 <div class="campo-publico">
                     <label for="contato">Telefone, WhatsApp ou e-mail <span class="obrigatorio-publico">obrigatório</span></label>
-                    <input id="contato" type="text" th:field="*{contato}" maxlength="120" autocomplete="tel" inputmode="tel" th:attr="aria-invalid=${#fields.hasErrors('contato')},aria-describedby=${#fields.hasErrors('contato') ? 'erro-contato' : null}">
+                    <input id="contato" type="text" th:field="*{contato}" maxlength="120" autocomplete="tel" inputmode="tel" placeholder="(11) 91234-5678" th:attr="aria-invalid=${#fields.hasErrors('contato')},aria-describedby=${#fields.hasErrors('contato') ? 'erro-contato' : null}">
                     <p class="erro-publico" id="erro-contato" th:if="${#fields.hasErrors('contato')}" th:errors="*{contato}">Erro</p>
                 </div>
                 <fieldset class="grupo-opcoes">
                     <legend>Como prefere que a gente fale com você? <span class="obrigatorio-publico">obrigatório</span></legend>
                     <div class="opcoes-publicas">
-                        <label class="opcao-publica" th:each="opcao : ${preferenciasContato}"><input type="radio" th:field="*{preferenciaContato}" th:value="${opcao}"><span th:text="${opcao.descricao}">Opção</span></label>
+                        <label class="opcao-publica opcao-pilula" th:each="opcao : ${preferenciasContato}"><input type="radio" th:field="*{preferenciaContato}" th:value="${opcao}"><span th:text="${opcao.descricao}">Opção</span></label>
                     </div>
                     <p class="erro-publico" th:if="${#fields.hasErrors('preferenciaContato')}" th:errors="*{preferenciaContato}">Erro</p>
                 </fieldset>
@@ -68,8 +68,8 @@
 
             <fieldset class="bloco-formulario">
                 <legend><span class="bloco-numero" aria-hidden="true">3</span> Como podemos ajudar? <span class="opcional-publico">pode marcar mais de uma</span></legend>
-                <div class="opcoes-publicas opcoes-colunas">
-                    <label class="opcao-publica" th:each="area : ${areasApoio}"><input type="checkbox" th:field="*{areas}" th:value="${area}"><span th:text="${area.descricao}">Área</span></label>
+                <div class="opcoes-publicas">
+                    <label class="opcao-publica opcao-pilula" th:each="area : ${areasApoio}"><input type="checkbox" th:field="*{areas}" th:value="${area}"><span th:text="${area.descricao}">Área</span></label>
                 </div>
                 <div class="campo-publico">
                     <label for="mensagem">Quer contar alguma coisa? <span class="opcional-publico">opcional</span></label>

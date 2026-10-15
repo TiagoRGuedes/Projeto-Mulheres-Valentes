@@ -40,6 +40,8 @@ import java.util.List;
 @RequestMapping("/caixa")
 public class CaixaController {
 
+    private static final int LIMITE_TABELA_CAIXA = 15;
+
     private final LancamentoCaixaService lancamentoService;
     private final CategoriaFinanceiraService categoriaService;
     private final HistoricoOperacaoService historicoService;
@@ -66,9 +68,16 @@ public class CaixaController {
             @ModelAttribute("filtro") LancamentoCaixaFiltro filtro,
             Model model) {
         model.addAttribute("paginaAtual", "caixa");
-        model.addAttribute("ultimosLancamentos", lancamentoService.listarRecentes());
         model.addAttribute("categorias", categoriaService.listarAtivas());
-        adicionarResumoComTratamento(filtro, model);
+        LancamentoCaixaFiltro periodo = new LancamentoCaixaFiltro();
+        periodo.setDataInicial(filtro.getDataInicial());
+        periodo.setDataFinal(filtro.getDataFinal());
+        adicionarResumoComTratamento(periodo, model);
+        List<LancamentoCaixa> encontrados = model.containsAttribute("erroFiltro")
+                ? lancamentoService.listarRecentes()
+                : lancamentoService.pesquisar(filtro);
+        model.addAttribute("ultimosLancamentos", encontrados.stream().limit(LIMITE_TABELA_CAIXA).toList());
+        model.addAttribute("totalEncontrados", encontrados.size());
         return "caixa/index";
     }
 

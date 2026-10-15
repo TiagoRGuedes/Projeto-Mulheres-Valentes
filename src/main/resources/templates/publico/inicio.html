@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/publico :: head('ONG Mulheres Valentes — Ninguém precisa caminhar sozinho', 'A ONG Mulheres Valentes acolhe, orienta e fortalece mulheres, crianças, adolescentes e famílias em Pirituba, São Paulo, desde 2020.')}"></head>
+<head th:replace="~{fragments/publico :: head('ONG Mulheres Valentes — Ninguém precisa caminhar sozinha', 'A ONG Mulheres Valentes acolhe, orienta e fortalece mulheres, crianças, adolescentes e famílias em Pirituba, São Paulo, desde 2020.')}"></head>
 <body class="pagina-publica" th:classappend="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
 <div th:replace="~{fragments/publico :: topo}"></div>
 
@@ -8,13 +8,13 @@
     <section class="hero-publico" aria-labelledby="titulo-hero">
         <div class="hero-publico-texto">
             <p class="sobretitulo-publico">Desde 2020 em Pirituba, São Paulo</p>
-            <h1 id="titulo-hero">Ninguém precisa caminhar <em>sozinho.</em></h1>
+            <h1 id="titulo-hero">Ninguém precisa caminhar <em>sozinha.</em></h1>
             <p class="hero-publico-lead">A Mulheres Valentes acolhe, orienta e fortalece mulheres, crianças, adolescentes e famílias. Se você está passando por um momento difícil, a gente caminha ao seu lado.</p>
             <div class="hero-publico-acoes">
                 <a class="botao-publico botao-publico-destaque" th:href="@{/inscricao}">Quero participar da ONG</a>
                 <a class="botao-publico botao-publico-contorno" href="#historia">Conhecer nossa história</a>
             </div>
-            <p class="hero-publico-nota">A inscrição é gratuita, leva poucos minutos e você escolhe como prefere que a gente fale com você.</p>
+            <p class="hero-publico-nota"><span aria-hidden="true">✓</span> Inscrição gratuita, leva poucos minutos. Você escolhe como prefere ser contatada.</p>
         </div>
         <figure class="hero-publico-foto">
             <img th:src="@{/img/publico/acolhimento.jpg}" alt="Duas mulheres em um abraço apertado; uma delas sorri de olhos fechados." width="1000" height="679">
@@ -23,38 +23,45 @@
     </section>
 
     <section class="faixa-rede" aria-label="Força coletiva">
-        <img th:src="@{/img/publico/rede-de-mulheres.jpg}" alt="Ilustração de mulheres de todas as cores lado a lado, de braços dados." width="1127" height="371">
-        <p>Aqui, a coragem individual se transforma em <strong>força coletiva.</strong></p>
-    </section>
-
-    <section class="secao-publica historia" id="historia" aria-labelledby="titulo-historia">
-        <div class="historia-lateral">
-            <p class="sobretitulo-publico">Nossa história</p>
-            <h2 id="titulo-historia">Nasceu de uma experiência de dor e virou propósito.</h2>
-            <blockquote>
-                <p>“Eu não queria que outras mulheres passassem por aquilo sozinhas.”</p>
-                <footer>Karine, fundadora</footer>
-            </blockquote>
-        </div>
-        <div class="historia-texto">
-            <p>A história da ONG Mulheres Valentes começou em 2020, a partir de uma experiência que transformou a minha vida e despertou em mim um propósito.</p>
-            <p>Eu, Karine, vivi uma situação de violência doméstica e procurei uma delegacia para registrar um boletim de ocorrência. Foi naquele momento que percebi, de forma muito dolorosa, como ainda é difícil ser mulher em nosso país, principalmente quando enfrentamos uma situação de violência.</p>
-            <p>Percebi que muitas mulheres precisam enfrentar o medo, a insegurança, a falta de informação e diversos obstáculos para romper o silêncio e buscar ajuda.</p>
-            <p>Foi então que tomei uma decisão: eu não queria que outras mulheres passassem por aquilo sozinhas.</p>
-            <p>Assim nasceu a ONG Mulheres Valentes, com o propósito de acolher, orientar, fortalecer e caminhar ao lado de mulheres, crianças, adolescentes e famílias.</p>
-            <p>Hoje, desenvolvemos ações de enfrentamento à violência doméstica, grupos reflexivos com homens e grupos de acolhimento para mulheres, com escuta ativa e rodas de conversa que se tornaram espaços de troca, cuidado e fortalecimento. São encontros que muitas vezes aquecem o nosso coração. ❤️</p>
-            <p>Também acreditamos que a transformação acontece por meio da educação, da cultura e do acesso a novas oportunidades.</p>
-            <p>Por isso, desenvolvemos atividades culturais que valorizam a história, os talentos, a criatividade e a identidade da nossa comunidade. Acreditamos que a cultura é uma ferramenta poderosa de inclusão, expressão e fortalecimento de vínculos.</p>
-            <p>Por meio da cultura, queremos abrir espaços para que crianças, adolescentes, mulheres e famílias possam se expressar, descobrir talentos, conhecer suas raízes e enxergar novos caminhos para o futuro.</p>
-            <p>Na área da educação, realizamos reforço escolar aos sábados para crianças e adolescentes de 6 a 14 anos, contribuindo para o desenvolvimento e para novas oportunidades.</p>
-            <p>Também contamos com ações de cuidado e saúde emocional, oferecendo psicoterapia para nossas mulheres, terapia ocupacional e terapia infantil em grupo.</p>
-            <p>Desde 2020, seguimos construindo nossa história com coragem, amor e compromisso com a comunidade.</p>
-            <p>A Mulheres Valentes nasceu de uma experiência de dor, mas transformou essa experiência em propósito, acolhimento, educação, cultura e esperança.</p>
-            <p class="historia-missao">Nossa missão é mostrar que ninguém precisa caminhar sozinho.</p>
+        <div class="faixa-rede-conteudo">
+            <img th:src="@{/img/publico/rede-de-mulheres.jpg}" alt="Ilustração de mulheres de todas as cores lado a lado, de braços dados." width="1127" height="371">
+            <p>Aqui, a coragem individual se transforma em <strong>força coletiva.</strong></p>
         </div>
     </section>
 
-    <section class="secao-publica fundo-suave" id="o-que-fazemos" aria-labelledby="titulo-fazemos">
+    <section class="secao-publica fundo-suave" id="historia" aria-labelledby="titulo-historia">
+        <div class="historia">
+            <div class="historia-lateral">
+                <p class="sobretitulo-publico">Nossa história</p>
+                <h2 id="titulo-historia">Nasceu de uma experiência de dor e virou propósito.</h2>
+                <blockquote>
+                    <p>“Eu não queria que outras mulheres passassem por aquilo sozinhas.”</p>
+                    <footer>Karine, fundadora</footer>
+                </blockquote>
+            </div>
+            <div class="historia-texto">
+                <p>A história da ONG Mulheres Valentes começou em 2020, a partir de uma experiência que transformou a minha vida e despertou em mim um propósito.</p>
+                <p>Eu, Karine, vivi uma situação de violência doméstica e procurei uma delegacia para registrar um boletim de ocorrência. Foi naquele momento que percebi, de forma muito dolorosa, como ainda é difícil ser mulher em nosso país, principalmente quando enfrentamos uma situação de violência.</p>
+                <p>Percebi que muitas mulheres precisam enfrentar o medo, a insegurança, a falta de informação e diversos obstáculos para romper o silêncio e buscar ajuda.</p>
+                <p>Foi então que tomei uma decisão: eu não queria que outras mulheres passassem por aquilo sozinhas.</p>
+                <details class="historia-completa">
+                    <summary><span class="historia-ler">Ler a história completa</span><span class="historia-recolher">Mostrar menos</span></summary>
+                    <p>Assim nasceu a ONG Mulheres Valentes, com o propósito de acolher, orientar, fortalecer e caminhar ao lado de mulheres, crianças, adolescentes e famílias.</p>
+                    <p>Hoje, desenvolvemos ações de enfrentamento à violência doméstica, grupos reflexivos com homens e grupos de acolhimento para mulheres, com escuta ativa e rodas de conversa que se tornaram espaços de troca, cuidado e fortalecimento. São encontros que muitas vezes aquecem o nosso coração. ❤️</p>
+                    <p>Também acreditamos que a transformação acontece por meio da educação, da cultura e do acesso a novas oportunidades.</p>
+                    <p>Por isso, desenvolvemos atividades culturais que valorizam a história, os talentos, a criatividade e a identidade da nossa comunidade. Acreditamos que a cultura é uma ferramenta poderosa de inclusão, expressão e fortalecimento de vínculos.</p>
+                    <p>Por meio da cultura, queremos abrir espaços para que crianças, adolescentes, mulheres e famílias possam se expressar, descobrir talentos, conhecer suas raízes e enxergar novos caminhos para o futuro.</p>
+                    <p>Na área da educação, realizamos reforço escolar aos sábados para crianças e adolescentes de 6 a 14 anos, contribuindo para o desenvolvimento e para novas oportunidades.</p>
+                    <p>Também contamos com ações de cuidado e saúde emocional, oferecendo psicoterapia para nossas mulheres, terapia ocupacional e terapia infantil em grupo.</p>
+                    <p>Desde 2020, seguimos construindo nossa história com coragem, amor e compromisso com a comunidade.</p>
+                    <p>A Mulheres Valentes nasceu de uma experiência de dor, mas transformou essa experiência em propósito, acolhimento, educação, cultura e esperança.</p>
+                    <p class="historia-missao">Nossa missão é mostrar que ninguém precisa caminhar sozinho.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section class="secao-publica fundo-branco" id="o-que-fazemos" aria-labelledby="titulo-fazemos">
         <header class="cabecalho-publico">
             <p class="sobretitulo-publico">O que fazemos</p>
             <h2 id="titulo-fazemos">Cuidado, orientação e novos caminhos.</h2>
@@ -93,7 +100,7 @@
         </ul>
     </section>
 
-    <section class="secao-publica" th:unless="${#lists.isEmpty(galeria)}" aria-labelledby="titulo-galeria">
+    <section class="secao-publica fundo-branco" th:unless="${#lists.isEmpty(galeria)}" aria-labelledby="titulo-galeria">
         <header class="cabecalho-publico">
             <p class="sobretitulo-publico">Nossos encontros</p>
             <h2 id="titulo-galeria">Um pouco do que vivemos juntas.</h2>
@@ -103,7 +110,7 @@
         </ul>
     </section>
 
-    <section class="secao-publica como-participar" id="como-participar" aria-labelledby="titulo-participar">
+    <section class="secao-publica fundo-suave como-participar" id="como-participar" aria-labelledby="titulo-participar">
         <header class="cabecalho-publico">
             <p class="sobretitulo-publico">Como participar</p>
             <h2 id="titulo-participar">Três passos para chegar até nós.</h2>
