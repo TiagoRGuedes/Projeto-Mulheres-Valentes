@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/publico :: head('Inscrição recebida — ONG Mulheres Valentes', 'Recebemos a sua inscrição na ONG Mulheres Valentes.')}"></head>
+<body class="pagina-publica" th:classappend="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<div th:replace="~{fragments/publico :: topo}"></div>
+
+<main id="conteudo" tabindex="-1" class="pagina-recebida">
+    <section class="cartao-recebida" aria-labelledby="titulo-recebida">
+        <span class="recebida-icone" aria-hidden="true">✓</span>
+        <h1 id="titulo-recebida">Recebemos a sua inscrição.</h1>
+        <p class="recebida-lead">Que bom que você chegou até aqui. A partir de agora, você não está sozinha.</p>
+        <p>Nossa equipe vai falar com você do jeito e no horário que você indicou. Isso pode levar alguns dias.</p>
+        <div class="recebida-seguranca">
+            <p><strong>Se esta página for vista por outra pessoa</strong>, você pode usar o botão <strong>Sair rápido</strong>, no alto da tela.</p>
+            <p>Em perigo agora? Ligue <a href="tel:190">190</a> ou <a href="tel:180">180</a>.</p>
+        </div>
+        <a class="botao-publico botao-publico-contorno" th:href="@{/}">Voltar para a página inicial</a>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/publico :: rodape}"></footer>
+</body>
+</html>

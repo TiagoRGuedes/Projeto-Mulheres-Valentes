@@ -10,6 +10,9 @@ public class ParticipanteForm {
     @Size(max = 150, message = "O nome deve ter no máximo 150 caracteres.")
     private String nome;
 
+    @Size(max = 120, message = "O contato deve ter no máximo 120 caracteres.")
+    private String contato;
+
     @Size(max = 1000, message = "As observações devem ter no máximo 1000 caracteres.")
     private String observacoes;
 
@@ -19,6 +22,7 @@ public class ParticipanteForm {
     public static ParticipanteForm de(Participante participante) {
         ParticipanteForm form = new ParticipanteForm();
         form.setNome(participante.getNome());
+        form.setContato(participante.getContato());
         form.setObservacoes(participante.getObservacoes());
         return form;
     }
@@ -29,6 +33,14 @@ public class ParticipanteForm {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getContato() {
+        return contato;
+    }
+
+    public void setContato(String contato) {
+        this.contato = contato;
     }
 
     public String getObservacoes() {

@@ -42,6 +42,9 @@ public class PresencaService {
     private static final String MENSAGEM_DUPLICIDADE =
             "Já existe uma presença registrada para este participante nesse encontro.";
 
+    private static final String MENSAGEM_DUPLICIDADE_DATA =
+            "Já existe uma presença registrada para este participante nessa data.";
+
     private final PresencaRepository presencaRepository;
     private final ParticipanteRepository participanteRepository;
     private final ParticipanteService participanteService;
@@ -77,13 +80,14 @@ public class PresencaService {
         return presencaRepository.findAllComRelacionamentos().stream()
                 .filter(presenca -> participanteId == null
                         || presenca.getParticipante().getId().equals(participanteId))
-                .filter(presenca -> encontroId == null || presenca.getEncontro().getId().equals(encontroId))
+                .filter(presenca -> encontroId == null
+                        || (presenca.getEncontro() != null
+                            && presenca.getEncontro().getId().equals(encontroId)))
                 .filter(presenca -> atividadeId == null
-                        || presenca.getEncontro().getAtividade().getId().equals(atividadeId))
-                .filter(presenca -> dataInicial == null
-                        || !presenca.getEncontro().getData().isBefore(dataInicial))
-                .filter(presenca -> dataFinal == null
-                        || !presenca.getEncontro().getData().isAfter(dataFinal))
+                        || (presenca.getEncontro() != null
+                            && presenca.getEncontro().getAtividade().getId().equals(atividadeId)))
+                .filter(presenca -> dataInicial == null || !presenca.getData().isBefore(dataInicial))
+                .filter(presenca -> dataFinal == null || !presenca.getData().isAfter(dataFinal))
                 .filter(presenca -> status == null || presenca.getStatus() == status)
                 .filter(presenca -> termo == null
                         || presenca.getParticipante().getNome().toLowerCase(Locale.ROOT).contains(termo))
@@ -102,27 +106,49 @@ public class PresencaService {
     @Transactional
     public Presenca registrar(
             Long participanteId,
+            LocalDate data,
+            StatusPresenca status,
+            String observacoes
+    ) {
+        validarStatus(status);
+        validarData(data);
+        Participante participante = participanteAtivo(participanteId);
+        if (presencaRepository.existsByParticipanteIdAndDataAndEncontroIsNull(participanteId, data)) {
+            throw new RegistroDuplicadoException(MENSAGEM_DUPLICIDADE_DATA);
+        }
+        return salvarRegistroIndividual(
+                new Presenca(participante, data, status, limparTextoOpcional(observacoes)),
+                MENSAGEM_DUPLICIDADE_DATA);
+    }
+
+    @Transactional
+    public Presenca registrarNoEncontro(
+            Long participanteId,
             Long encontroId,
             StatusPresenca status,
             String observacoes
     ) {
         validarStatus(status);
-        Participante participante = participanteService.buscar(participanteId);
-        if (!participante.isAtivo()) {
-            throw new RegraNegocioException("Ative o participante antes de registrar uma nova presença.");
-        }
+        Participante participante = participanteAtivo(participanteId);
         Encontro encontro = encontroService.buscar(encontroId);
         if (presencaRepository.existsByParticipanteIdAndEncontroId(participanteId, encontroId)) {
             throw new RegistroDuplicadoException(MENSAGEM_DUPLICIDADE);
         }
+        return salvarRegistroIndividual(
+                new Presenca(participante, encontro, status, limparTextoOpcional(observacoes)),
+                MENSAGEM_DUPLICIDADE);
+    }
 
+    private Participante participanteAtivo(Long participanteId) {
+        Participante participante = participanteService.buscar(participanteId);
+        if (!participante.isAtivo()) {
+            throw new RegraNegocioException("Ative o participante antes de registrar uma nova presença.");
+        }
+        return participante;
+    }
+
+    private Presenca salvarRegistroIndividual(Presenca presenca, String mensagemDuplicidade) {
         try {
-            Presenca presenca = new Presenca(
-                    participante,
-                    encontro,
-                    status,
-                    limparTextoOpcional(observacoes)
-            );
             Presenca salva = presencaRepository.save(presenca);
             presencaRepository.flush();
             historicoService.registrar(
@@ -131,11 +157,12 @@ public class PresencaService {
                     salva.getId(),
                     salva.getParticipante().getNome(),
                     AcaoHistorico.REGISTRO,
-                    "Presença registrada em " + salva.getEncontro().getAtividade().getNome()
-                            + " como " + salva.getStatus().getDescricao().toLowerCase() + ".");
+                    "Presença registrada em " + salva.getContexto()
+                            + " (" + salva.getData() + ") como "
+                            + salva.getStatus().getDescricao().toLowerCase() + ".");
             return salva;
         } catch (DataIntegrityViolationException ex) {
-            throw new RegistroDuplicadoException(MENSAGEM_DUPLICIDADE);
+            throw new RegistroDuplicadoException(mensagemDuplicidade);
         }
     }
 
@@ -157,17 +184,26 @@ public class PresencaService {
                 salva.getId(),
                 salva.getParticipante().getNome(),
                 AcaoHistorico.CORRECAO,
-                "Presença corrigida em " + salva.getEncontro().getAtividade().getNome() + ".",
+                "Presença corrigida em " + salva.getContexto()
+                        + " (" + salva.getData() + ").",
                 "Situação: " + statusAnterior.getDescricao(),
                 "Situação: " + salva.getStatus().getDescricao());
         return salva;
     }
 
     @Transactional(readOnly = true)
-    public RegistroPresencaForm prepararRegistroColetivo(Long encontroId, String busca) {
-        encontroService.buscar(encontroId);
-        Map<Long, Presenca> existentes = presencaRepository.findByEncontroIdOrderByParticipanteNomeAsc(encontroId)
-                .stream()
+    public RegistroPresencaForm prepararRegistroColetivo(LocalDate data, Long encontroId, String busca) {
+        LocalDate dataDaChamada = data;
+        List<Presenca> jaRegistradas;
+        if (encontroId == null) {
+            validarData(dataDaChamada);
+            jaRegistradas = presencaRepository.findByDataAndEncontroIsNullOrderByParticipanteNomeAsc(dataDaChamada);
+        } else {
+            Encontro encontro = encontroService.buscar(encontroId);
+            dataDaChamada = encontro.getData();
+            jaRegistradas = presencaRepository.findByEncontroIdOrderByParticipanteNomeAsc(encontroId);
+        }
+        Map<Long, Presenca> existentes = jaRegistradas.stream()
                 .collect(Collectors.toMap(p -> p.getParticipante().getId(), Function.identity()));
 
         Map<Long, Participante> participantes = new LinkedHashMap<>();
@@ -192,15 +228,19 @@ public class PresencaService {
                     );
                 })
                 .toList();
-        return new RegistroPresencaForm(encontroId, itens);
+        return new RegistroPresencaForm(dataDaChamada, encontroId, itens);
     }
 
     @Transactional
     public ResumoRegistroPresencaDto salvarRegistroColetivo(RegistroPresencaForm form) {
-        if (form == null || form.getEncontroId() == null) {
-            throw new RegraNegocioException("Escolha o encontro.");
+        if (form == null) {
+            throw new RegraNegocioException("Informe os dados da chamada.");
         }
-        Encontro encontro = encontroService.buscar(form.getEncontroId());
+        Encontro encontro = form.getEncontroId() == null
+                ? null
+                : encontroService.buscar(form.getEncontroId());
+        LocalDate data = encontro == null ? form.getData() : encontro.getData();
+        validarData(data);
         List<ItemRegistroPresencaForm> itens = form.getItens();
         if (itens == null || itens.isEmpty()) {
             throw new RegraNegocioException("Não há participantes para registrar.");
@@ -223,9 +263,10 @@ public class PresencaService {
             throw new RecursoNaoEncontradoException("Um dos participantes não foi encontrado.");
         }
 
-        Map<Long, Presenca> existentes = presencaRepository
-                .findByEncontroIdOrderByParticipanteNomeAsc(encontro.getId())
-                .stream()
+        List<Presenca> jaRegistradas = encontro == null
+                ? presencaRepository.findByDataAndEncontroIsNullOrderByParticipanteNomeAsc(data)
+                : presencaRepository.findByEncontroIdOrderByParticipanteNomeAsc(encontro.getId());
+        Map<Long, Presenca> existentes = jaRegistradas.stream()
                 .collect(Collectors.toMap(p -> p.getParticipante().getId(), Function.identity()));
         List<Presenca> paraSalvar = new ArrayList<>(itens.size());
         int novos = 0;
@@ -241,12 +282,9 @@ public class PresencaService {
                             "O participante " + participante.getNome() + " está inativo e não pode receber um novo registro."
                     );
                 }
-                presenca = new Presenca(
-                        participante,
-                        encontro,
-                        item.getStatus(),
-                        observacaoLimpa
-                );
+                presenca = encontro == null
+                        ? new Presenca(participante, data, item.getStatus(), observacaoLimpa)
+                        : new Presenca(participante, encontro, item.getStatus(), observacaoLimpa);
                 paraSalvar.add(presenca);
                 novos++;
             } else {
@@ -266,15 +304,21 @@ public class PresencaService {
                 presencaRepository.flush();
             }
         } catch (DataIntegrityViolationException ex) {
-            throw new RegistroDuplicadoException(MENSAGEM_DUPLICIDADE);
+            throw new RegistroDuplicadoException(
+                    encontro == null ? MENSAGEM_DUPLICIDADE_DATA : MENSAGEM_DUPLICIDADE);
         }
-        String nomeEncontro = encontro.getAtividade().getNome() + " — " + encontro.getData();
+
+        String tipoEntidade = encontro == null ? "Chamada" : "Encontro";
+        Long entidadeId = encontro == null ? null : encontro.getId();
+        String nomeChamada = encontro == null
+                ? "Chamada de " + data
+                : encontro.getAtividade().getNome() + " — " + encontro.getData();
         if (novos > 0) {
             historicoService.registrar(
                     ModuloHistorico.PRESENCAS,
-                    "Encontro",
-                    encontro.getId(),
-                    nomeEncontro,
+                    tipoEntidade,
+                    entidadeId,
+                    nomeChamada,
                     AcaoHistorico.REGISTRO,
                     "Presenças registradas para " + novos
                             + (novos == 1 ? " participante." : " participantes."));
@@ -282,9 +326,9 @@ public class PresencaService {
         if (corrigidos > 0) {
             historicoService.registrar(
                     ModuloHistorico.PRESENCAS,
-                    "Encontro",
-                    encontro.getId(),
-                    nomeEncontro,
+                    tipoEntidade,
+                    entidadeId,
+                    nomeChamada,
                     AcaoHistorico.CORRECAO,
                     "Presenças corrigidas para " + corrigidos
                             + (corrigidos == 1 ? " participante." : " participantes."));
@@ -333,12 +377,12 @@ public class PresencaService {
         long presencas = lista.stream().mapToLong(FrequenciaParticipanteDto::presencas).sum();
         long ausencias = lista.stream().mapToLong(FrequenciaParticipanteDto::ausencias).sum();
         long justificadas = lista.stream().mapToLong(FrequenciaParticipanteDto::justificadas).sum();
-        long encontros = presencas + ausencias + justificadas;
-        BigDecimal media = encontros == 0
+        long registros = presencas + ausencias + justificadas;
+        BigDecimal media = registros == 0
                 ? BigDecimal.ZERO.setScale(1)
                 : BigDecimal.valueOf(presencas)
                         .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(encontros), 1, RoundingMode.HALF_UP);
+                        .divide(BigDecimal.valueOf(registros), 1, RoundingMode.HALF_UP);
         return new ResumoFrequenciaDTO(lista.size(), presencas, ausencias, justificadas, media);
     }
 
@@ -356,14 +400,14 @@ public class PresencaService {
         long presentes = contar(presencas, StatusPresenca.PRESENTE);
         long ausentes = contar(presencas, StatusPresenca.AUSENTE);
         long justificadas = contar(presencas, StatusPresenca.JUSTIFICADA);
-        long encontros = presencas.size();
-        BigDecimal percentual = encontros == 0
+        long registros = presencas.size();
+        BigDecimal percentual = registros == 0
                 ? BigDecimal.ZERO.setScale(1)
                 : BigDecimal.valueOf(presentes)
                         .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(encontros), 1, RoundingMode.HALF_UP);
+                        .divide(BigDecimal.valueOf(registros), 1, RoundingMode.HALF_UP);
         return new FrequenciaParticipanteDto(
-                participante.getId(), participante.getNome(), encontros,
+                participante.getId(), participante.getNome(), registros,
                 presentes, ausentes, justificadas, percentual
         );
     }
@@ -382,6 +426,15 @@ public class PresencaService {
     private void validarStatus(StatusPresenca status) {
         if (status == null) {
             throw new RegraNegocioException("Marque a situação de todos os participantes.");
+        }
+    }
+
+    private void validarData(LocalDate data) {
+        if (data == null) {
+            throw new RegraNegocioException("Informe a data da chamada.");
+        }
+        if (data.isAfter(LocalDate.now())) {
+            throw new RegraNegocioException("A data da presença não pode estar no futuro.");
         }
     }
 

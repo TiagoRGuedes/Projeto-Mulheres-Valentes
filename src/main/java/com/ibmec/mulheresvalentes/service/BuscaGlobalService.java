@@ -87,6 +87,9 @@ public class BuscaGlobalService {
         String descricao = participante.isAtivo()
                 ? "Disponível para novos registros de presença."
                 : "O histórico foi preservado, mas o cadastro está desativado.";
+        if (participante.getContato() != null) {
+            descricao = "Contato: " + participante.getContato() + " · " + descricao;
+        }
         return new ItemResultadoBuscaDTO(
                 "Participante", participante.getNome(), descricao, situacao,
                 "/participantes/" + participante.getId());
@@ -116,7 +119,9 @@ public class BuscaGlobalService {
                 lancamento.getDescricao(),
                 lancamento.getCategoria().getNome()
                         + " · " + formatador.data(lancamento.getData())
-                        + " · " + formatador.moeda(lancamento.getValor()),
+                        + " · " + (lancamento.isMonetario()
+                                ? formatador.moeda(lancamento.getValor())
+                                : lancamento.getNatureza().getDescricao()),
                 lancamento.getTipo().getRotuloAcessivel(),
                 "/caixa/movimentacoes/" + lancamento.getId());
     }

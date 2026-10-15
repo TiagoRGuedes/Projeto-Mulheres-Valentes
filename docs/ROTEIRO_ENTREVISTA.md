@@ -1,5 +1,12 @@
 # Roteiro de entrevista — ONG Mulheres Valentes
 
+> **Entrevista realizada.** Conduzida por Tiago Rossado Guedes e Bruno
+> Cappellette, com respostas recebidas por escrito. O registro da conversa e as
+> respostas estão no documento de escopo (AC1); as conclusões estão em
+> `docs/SABEMOS_SUPOMOS_NAO_SABEMOS.md` e `docs/PREMISSAS_E_DUVIDAS.md`.
+> Este roteiro fica como registro do que foi perguntado e como base para as
+> próximas conversas.
+
 ## Objetivo
 
 Compreender o trabalho real da ONG Mulheres Valentes antes de transformar hipóteses do protótipo em requisitos. As perguntas são abertas e procuram conhecer práticas, palavras, exceções, dificuldades e prioridades sem induzir uma solução.

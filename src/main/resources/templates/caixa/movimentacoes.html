@@ -7,7 +7,7 @@
     <aside th:replace="~{fragments/sidebar :: sidebar('movimentacoes')}"></aside>
     <main id="conteudo" class="conteudo-principal" tabindex="-1">
         <div th:replace="~{fragments/mensagens :: mensagens}"></div>
-        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa}">Livro Caixa</a><span aria-hidden="true">›</span><span aria-current="page">Movimentações</span></nav>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa}">Livro Caixa</a><span aria-hidden="true">›</span><span aria-current="page">Movimentações</span></nav>
         <header class="cabecalho-pagina com-acoes">
             <div><p class="sobretitulo">Consulte e corrija registros</p><h1>Movimentações do caixa</h1><p>Veja tudo que entrou e saiu. Use os filtros para encontrar uma informação.</p></div>
             <div class="grupo-botoes"><a class="botao botao-entrada" th:href="@{/caixa/entrada}">↑ Entrada</a><a class="botao botao-saida" th:href="@{/caixa/saida}">↓ Saída</a></div>
@@ -52,10 +52,10 @@
                     <tbody>
                     <tr th:each="lancamento : ${lancamentos}">
                         <td data-label="Data" th:text="${@formatador.data(lancamento.data)}">01/01/2026</td>
-                        <td data-label="Tipo"><span class="selo-status" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'selo-entrada' : 'selo-saida'" th:text="${lancamento.tipo.rotuloAcessivel}">↑ Entrada</span></td>
+                        <td data-label="Tipo"><span class="selo-status" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'selo-entrada' : 'selo-saida'" th:text="${lancamento.tipo.rotuloAcessivel}">↑ Entrada</span><small class="texto-secundario" th:unless="${lancamento.monetario}" th:text="${lancamento.natureza.descricao}">Doação de material</small></td>
                         <td data-label="Categoria" th:text="${lancamento.categoria.nome}">Categoria</td>
-                        <td data-label="Descrição"><span class="nome-principal" th:text="${lancamento.descricao}">Descrição</span><small class="texto-secundario" th:if="${lancamento.observacoes != null}" th:text="${lancamento.observacoes}">Observação</small></td>
-                        <td data-label="Valor" class="valor-monetario" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'valor-entrada' : 'valor-saida'" th:text="${(lancamento.tipo.name() == 'ENTRADA' ? '+ ' : '− ') + @formatador.moeda(lancamento.valor)}">R$ 0,00</td>
+                        <td data-label="Descrição"><span class="nome-principal" th:text="${lancamento.descricao}">Descrição</span><small class="texto-secundario" th:if="${lancamento.comprovante != null}" th:text="|Comprovante: ${lancamento.comprovante}|">Comprovante</small><small class="texto-secundario" th:if="${lancamento.observacoes != null}" th:text="${lancamento.observacoes}">Observação</small></td>
+                        <td data-label="Valor" class="valor-monetario" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'valor-entrada' : 'valor-saida'" th:text="${@formatador.valorComSinal(lancamento)}">R$ 0,00</td>
                         <td data-label="Ações">
                             <div class="acoes-tabela"><a class="botao botao-secundario botao-pequeno" th:href="@{/caixa/movimentacoes/{id}(id=${lancamento.id})}" th:aria-label="|Ver lançamento ${lancamento.descricao}|">Ver</a><a class="botao botao-discreto botao-pequeno" th:href="@{/caixa/movimentacoes/{id}/editar(id=${lancamento.id})}" th:aria-label="|Editar lançamento ${lancamento.descricao}|">Editar</a><a class="botao botao-discreto botao-pequeno acao-perigo" th:href="@{/caixa/movimentacoes/{id}/excluir(id=${lancamento.id})}" th:aria-label="|Cancelar lançamento ${lancamento.descricao}|">Cancelar</a></div>
                         </td>

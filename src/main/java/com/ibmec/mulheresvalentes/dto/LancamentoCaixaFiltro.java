@@ -1,5 +1,6 @@
 package com.ibmec.mulheresvalentes.dto;
 
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.TipoLancamento;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -15,6 +16,7 @@ public class LancamentoCaixaFiltro {
     private LocalDate dataFinal;
 
     private TipoLancamento tipo;
+    private NaturezaLancamento natureza;
     private Long categoriaId;
     private String descricao;
 
@@ -40,6 +42,14 @@ public class LancamentoCaixaFiltro {
 
     public void setTipo(TipoLancamento tipo) {
         this.tipo = tipo;
+    }
+
+    public NaturezaLancamento getNatureza() {
+        return natureza;
+    }
+
+    public void setNatureza(NaturezaLancamento natureza) {
+        this.natureza = natureza;
     }
 
     public Long getCategoriaId() {

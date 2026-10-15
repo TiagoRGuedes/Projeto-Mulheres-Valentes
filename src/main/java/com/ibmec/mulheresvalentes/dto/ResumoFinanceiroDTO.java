@@ -10,5 +10,6 @@ public record ResumoFinanceiroDTO(
         BigDecimal totalSaidas,
         BigDecimal saldoPeriodo,
         BigDecimal saldoAtual,
-        long quantidadeMovimentacoes) {
+        long quantidadeMovimentacoes,
+        long quantidadeDoacoesMaterial) {
 }

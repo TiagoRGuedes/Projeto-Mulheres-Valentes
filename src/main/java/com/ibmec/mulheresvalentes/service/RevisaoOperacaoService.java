@@ -18,7 +18,9 @@ import com.ibmec.mulheresvalentes.exception.RegraNegocioException;
 import com.ibmec.mulheresvalentes.model.Atividade;
 import com.ibmec.mulheresvalentes.model.CategoriaFinanceira;
 import com.ibmec.mulheresvalentes.model.Encontro;
+import com.ibmec.mulheresvalentes.model.Inscricao;
 import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.Participante;
 import com.ibmec.mulheresvalentes.model.Presenca;
 import com.ibmec.mulheresvalentes.model.TipoLancamento;
@@ -30,10 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Orquestra a Review Layer. Preparar uma revisão é uma operação somente de
- * leitura; apenas {@link #confirmar} consome o token e chama o serviço de domínio.
- */
 @Service
 public class RevisaoOperacaoService {
 
@@ -44,6 +42,7 @@ public class RevisaoOperacaoService {
     private final PresencaService presencaService;
     private final CategoriaFinanceiraService categoriaService;
     private final LancamentoCaixaService lancamentoService;
+    private final InscricaoService inscricaoService;
     private final FormatadorService formatador;
 
     public RevisaoOperacaoService(
@@ -54,6 +53,7 @@ public class RevisaoOperacaoService {
             PresencaService presencaService,
             CategoriaFinanceiraService categoriaService,
             LancamentoCaixaService lancamentoService,
+            InscricaoService inscricaoService,
             FormatadorService formatador) {
         this.confirmacaoService = confirmacaoService;
         this.participanteService = participanteService;
@@ -62,6 +62,7 @@ public class RevisaoOperacaoService {
         this.presencaService = presencaService;
         this.categoriaService = categoriaService;
         this.lancamentoService = lancamentoService;
+        this.inscricaoService = inscricaoService;
         this.formatador = formatador;
     }
 
@@ -158,6 +159,21 @@ public class RevisaoOperacaoService {
                 yield new ResultadoOperacaoDTO("/caixa/movimentacoes/" + id,
                         "Lançamento atualizado com sucesso.");
             }
+            case MARCAR_INSCRICAO_EM_CONTATO -> {
+                inscricaoService.marcarEmContato(id);
+                yield new ResultadoOperacaoDTO("/inscricoes/" + id,
+                        "Inscrição marcada como em contato.");
+            }
+            case ACEITAR_INSCRICAO -> {
+                Inscricao inscricao = inscricaoService.aceitar(id);
+                yield new ResultadoOperacaoDTO("/participantes/" + inscricao.getParticipante().getId(),
+                        "Inscrição aceita. " + inscricao.getNome() + " já aparece em Participantes.");
+            }
+            case ARQUIVAR_INSCRICAO -> {
+                inscricaoService.arquivar(id);
+                yield new ResultadoOperacaoDTO("/inscricoes",
+                        "Inscrição arquivada. Ela continua disponível para consulta.");
+            }
             case CANCELAR_LANCAMENTO -> {
                 lancamentoService.excluir(id);
                 yield new ResultadoOperacaoDTO("/caixa/movimentacoes",
@@ -167,7 +183,8 @@ public class RevisaoOperacaoService {
     }
 
     private ResultadoOperacaoDTO criarParticipante(ParticipanteForm form) {
-        Participante participante = participanteService.cadastrar(form.getNome(), form.getObservacoes());
+        Participante participante = participanteService.cadastrar(
+                form.getNome(), form.getContato(), form.getObservacoes());
         return new ResultadoOperacaoDTO(
                 "/participantes/" + participante.getId(),
                 "Participante cadastrado com sucesso.",
@@ -175,7 +192,7 @@ public class RevisaoOperacaoService {
     }
 
     private ResultadoOperacaoDTO editarParticipante(Long id, ParticipanteForm form) {
-        participanteService.atualizar(id, form.getNome(), form.getObservacoes());
+        participanteService.atualizar(id, form.getNome(), form.getContato(), form.getObservacoes());
         return new ResultadoOperacaoDTO("/participantes/" + id,
                 "Dados do participante atualizados com sucesso.");
     }
@@ -207,9 +224,14 @@ public class RevisaoOperacaoService {
 
     private ResultadoOperacaoDTO registrarPresencas(RegistroPresencaForm form) {
         ResumoRegistroPresencaDto resumo = presencaService.salvarRegistroColetivo(form);
-        Encontro encontro = encontroService.buscar(form.getEncontroId());
         String mensagem = "Presenças confirmadas: " + resumo.presentes() + " presente(s), "
                 + resumo.ausentes() + " ausente(s) e " + resumo.justificadas() + " justificada(s).";
+        if (form.getEncontroId() == null) {
+            return new ResultadoOperacaoDTO(
+                    "/presencas?dataInicial=" + form.getData() + "&dataFinal=" + form.getData(),
+                    mensagem);
+        }
+        Encontro encontro = encontroService.buscar(form.getEncontroId());
         return new ResultadoOperacaoDTO("/encontros/" + encontro.getId(), mensagem);
     }
 
@@ -255,6 +277,9 @@ public class RevisaoOperacaoService {
             case REGISTRAR_SAIDA -> visualLancamento(operacao, false, TipoLancamento.SAIDA);
             case EDITAR_LANCAMENTO -> visualLancamento(operacao, true, null);
             case CANCELAR_LANCAMENTO -> visualCancelarLancamento(operacao);
+            case MARCAR_INSCRICAO_EM_CONTATO -> visualInscricaoEmContato(operacao);
+            case ACEITAR_INSCRICAO -> visualAceitarInscricao(operacao);
+            case ARQUIVAR_INSCRICAO -> visualArquivarInscricao(operacao);
         };
     }
 
@@ -264,12 +289,14 @@ public class RevisaoOperacaoService {
         if (edicao) {
             Participante atual = participanteService.buscar(operacao.entidadeId());
             comparar(comparacoes, "Nome", atual.getNome(), form.getNome());
+            comparar(comparacoes, "Contato", atual.getContato(), form.getContato());
             comparar(comparacoes, "Observações", atual.getObservacoes(), form.getObservacoes());
         }
         return view("Pessoas · Review Layer", edicao ? "Confirmar alteração do participante" : "Confirmar novo participante",
                 edicao ? "Confira o que será alterado antes de atualizar o cadastro." : "Confira os dados antes de criar o cadastro.",
                 "P", "neutro", edicao ? "Confirmar alteração" : "Confirmar cadastro",
                 List.of(new LinhaRevisaoDTO("Nome", seguro(form.getNome()), true),
+                        new LinhaRevisaoDTO("Contato", opcional(form.getContato())),
                         new LinhaRevisaoDTO("Observações", opcional(form.getObservacoes()))),
                 comparacoes,
                 List.of("O cadastro, a busca e as listas serão atualizados.",
@@ -369,12 +396,17 @@ public class RevisaoOperacaoService {
 
     private RevisaoOperacaoViewDTO visualPresencas(OperacaoRevisaoDTO operacao) {
         RegistroPresencaForm form = dados(operacao, RegistroPresencaForm.class);
-        Encontro encontro = encontroService.buscar(form.getEncontroId());
+        Encontro encontro = form.getEncontroId() == null
+                ? null
+                : encontroService.buscar(form.getEncontroId());
         ResumoRegistroPresencaDto resumo = presencaService.resumirFormulario(form);
         return view("Presença · chamada coletiva", "Revisão da presença",
                 "Confira os totais. Nada foi gravado ainda.", "✓", "positivo", "Confirmar presença",
-                List.of(new LinhaRevisaoDTO("Atividade", encontro.getAtividade().getNome(), true),
-                        new LinhaRevisaoDTO("Data", formatador.data(encontro.getData())),
+                List.of(new LinhaRevisaoDTO("Atividade",
+                                encontro == null ? "Presença geral (sem atividade)"
+                                        : encontro.getAtividade().getNome(), true),
+                        new LinhaRevisaoDTO("Data", formatador.data(
+                                encontro == null ? form.getData() : encontro.getData())),
                         new LinhaRevisaoDTO("Participantes", Long.toString(resumo.total()), true),
                         new LinhaRevisaoDTO("Presentes", Long.toString(resumo.presentes())),
                         new LinhaRevisaoDTO("Ausentes", Long.toString(resumo.ausentes())),
@@ -394,8 +426,8 @@ public class RevisaoOperacaoService {
                 "A frequência e os relatórios serão recalculados após a confirmação.",
                 "✎", "atencao", "Confirmar correção",
                 List.of(new LinhaRevisaoDTO("Participante", atual.getParticipante().getNome(), true),
-                        new LinhaRevisaoDTO("Atividade", atual.getEncontro().getAtividade().getNome()),
-                        new LinhaRevisaoDTO("Data", formatador.data(atual.getEncontro().getData()))), comparacoes,
+                        new LinhaRevisaoDTO("Atividade", atual.getContexto()),
+                        new LinhaRevisaoDTO("Data", formatador.data(atual.getData()))), comparacoes,
                 List.of("A situação atual será substituída pela situação revisada.",
                         "O antes e depois ficarão registrados no Histórico do sistema."));
     }
@@ -437,37 +469,50 @@ public class RevisaoOperacaoService {
         LancamentoCaixaForm form = dados(operacao, LancamentoCaixaForm.class);
         LancamentoCaixa atual = edicao ? lancamentoService.buscarPorId(operacao.entidadeId()) : null;
         TipoLancamento tipo = edicao ? atual.getTipo() : tipoNovo;
+        NaturezaLancamento natureza = form.getNatureza() == null
+                ? NaturezaLancamento.MONETARIA : form.getNatureza();
         CategoriaFinanceira categoria = categoriaService.buscarPorId(form.getCategoriaId());
         BigDecimal saldoAtual = lancamentoService.calcularSaldoAtual();
-        BigDecimal saldoDepois;
+        BigDecimal valorNovo = natureza.isMonetaria() ? form.getValor() : null;
+        BigDecimal saldoDepois = saldoAtual;
         if (edicao) {
-            saldoDepois = saldoAtual.subtract(efeito(atual.getTipo(), atual.getValor()))
-                    .add(efeito(tipo, form.getValor()));
-        } else {
-            saldoDepois = saldoAtual.add(efeito(tipo, form.getValor()));
+            saldoDepois = saldoDepois.subtract(efeito(atual.getTipo(), atual));
         }
+        saldoDepois = saldoDepois.add(efeito(tipo, natureza, valorNovo));
+
         List<ComparacaoRevisaoDTO> comparacoes = new ArrayList<>();
         if (edicao) {
             comparar(comparacoes, "Data", formatador.data(atual.getData()), formatador.data(form.getData()));
+            comparar(comparacoes, "Natureza", atual.getNatureza().getDescricao(), natureza.getDescricao());
             comparar(comparacoes, "Categoria", atual.getCategoria().getNome(), categoria.getNome());
             comparar(comparacoes, "Descrição", atual.getDescricao(), form.getDescricao());
-            comparar(comparacoes, "Valor", formatador.moeda(atual.getValor()), formatador.moeda(form.getValor()));
+            comparar(comparacoes, "Valor", descreverValor(atual.getNatureza(), atual.getValor()),
+                    descreverValor(natureza, valorNovo));
+            comparar(comparacoes, "Comprovante", atual.getComprovante(), form.getComprovante());
             comparar(comparacoes, "Observações", atual.getObservacoes(), form.getObservacoes());
         }
         String titulo = edicao ? "Confirmar alteração do lançamento"
                 : tipo == TipoLancamento.ENTRADA ? "Confirmar entrada" : "Confirmar saída";
+        List<LinhaRevisaoDTO> campos = new ArrayList<>(List.of(
+                new LinhaRevisaoDTO("Tipo", tipo.getRotuloAcessivel()),
+                new LinhaRevisaoDTO("Natureza", natureza.getDescricao()),
+                new LinhaRevisaoDTO("Data", formatador.data(form.getData())),
+                new LinhaRevisaoDTO("Categoria", categoria.getNome()),
+                new LinhaRevisaoDTO("Descrição", seguro(form.getDescricao())),
+                new LinhaRevisaoDTO("Valor", descreverValor(natureza, valorNovo), true)));
+        if (!natureza.isMonetaria()) {
+            campos.add(new LinhaRevisaoDTO("Comprovante", seguro(form.getComprovante()), true));
+        }
+        campos.add(new LinhaRevisaoDTO("Saldo atual", formatador.moeda(saldoAtual)));
+        campos.add(new LinhaRevisaoDTO("Saldo após confirmação", formatador.moeda(saldoDepois), true));
         return view("Livro Caixa · Review Layer", titulo,
-                "Confira os dados e entenda o impacto no saldo antes de confirmar.",
+                natureza.isMonetaria()
+                        ? "Confira os dados e entenda o impacto no saldo antes de confirmar."
+                        : "Doações de material não têm valor e não alteram o saldo; o comprovante é o controle.",
                 tipo == TipoLancamento.ENTRADA ? "↑" : "↓",
                 tipo == TipoLancamento.ENTRADA ? "positivo" : "atencao",
                 edicao ? "Confirmar alteração" : tipo == TipoLancamento.ENTRADA ? "Confirmar entrada" : "Confirmar saída",
-                List.of(new LinhaRevisaoDTO("Tipo", tipo.getRotuloAcessivel()),
-                        new LinhaRevisaoDTO("Data", formatador.data(form.getData())),
-                        new LinhaRevisaoDTO("Categoria", categoria.getNome()),
-                        new LinhaRevisaoDTO("Descrição", seguro(form.getDescricao())),
-                        new LinhaRevisaoDTO("Valor", formatador.moeda(form.getValor()), true),
-                        new LinhaRevisaoDTO("Saldo atual", formatador.moeda(saldoAtual)),
-                        new LinhaRevisaoDTO("Saldo após confirmação", formatador.moeda(saldoDepois), true)), comparacoes,
+                List.copyOf(campos), comparacoes,
                 List.of("O saldo, o dashboard, as movimentações e o relatório serão atualizados.",
                         "A operação ficará registrada no Histórico do sistema."));
     }
@@ -475,7 +520,7 @@ public class RevisaoOperacaoService {
     private RevisaoOperacaoViewDTO visualCancelarLancamento(OperacaoRevisaoDTO operacao) {
         LancamentoCaixa lancamento = lancamentoService.buscarPorId(operacao.entidadeId());
         BigDecimal saldoAtual = lancamentoService.calcularSaldoAtual();
-        BigDecimal saldoDepois = saldoAtual.subtract(efeito(lancamento.getTipo(), lancamento.getValor()));
+        BigDecimal saldoDepois = saldoAtual.subtract(efeito(lancamento.getTipo(), lancamento));
         return view("Livro Caixa · ação rastreável", "Cancelar este lançamento?",
                 "O lançamento será retirado dos cálculos, mas continuará preservado para rastreabilidade.",
                 "!", "perigo", "Confirmar cancelamento",
@@ -483,12 +528,61 @@ public class RevisaoOperacaoService {
                         new LinhaRevisaoDTO("Descrição", lancamento.getDescricao(), true),
                         new LinhaRevisaoDTO("Categoria", lancamento.getCategoria().getNome()),
                         new LinhaRevisaoDTO("Data", formatador.data(lancamento.getData())),
-                        new LinhaRevisaoDTO("Valor", formatador.moeda(lancamento.getValor()), true),
+                        new LinhaRevisaoDTO("Valor",
+                                descreverValor(lancamento.getNatureza(), lancamento.getValor()), true),
                         new LinhaRevisaoDTO("Saldo atual", formatador.moeda(saldoAtual)),
                         new LinhaRevisaoDTO("Saldo após cancelamento", formatador.moeda(saldoDepois), true)), List.of(),
                 List.of("Deixará de compor o saldo e os relatórios ativos.",
                         "Continuará preservado no banco para rastreabilidade.",
                         "O cancelamento ficará registrado no Histórico do sistema."));
+    }
+
+    private RevisaoOperacaoViewDTO visualInscricaoEmContato(OperacaoRevisaoDTO operacao) {
+        Inscricao inscricao = inscricaoService.buscar(operacao.entidadeId());
+        return view("Inscrições · andamento", "Marcar que a equipe está em contato?",
+                "Use quando alguém da equipe já falou ou está tentando falar com ela.",
+                "☎", "neutro", "Confirmar",
+                List.of(new LinhaRevisaoDTO("Nome", inscricao.getNome(), true),
+                        new LinhaRevisaoDTO("Contato", inscricao.getContato()),
+                        new LinhaRevisaoDTO("Prefere", inscricao.getPreferenciaContato().getDescricao()),
+                        new LinhaRevisaoDTO("Como é seguro falar", opcional(inscricao.getContatoSeguro()))),
+                List.of(),
+                List.of("A inscrição sai da lista de novas e passa para em contato.",
+                        "A mudança ficará registrada no Histórico do sistema."));
+    }
+
+    private RevisaoOperacaoViewDTO visualAceitarInscricao(OperacaoRevisaoDTO operacao) {
+        Inscricao inscricao = inscricaoService.buscar(operacao.entidadeId());
+        Participante existente = inscricaoService.participanteComMesmoContato(inscricao).orElse(null);
+        List<String> impactos = existente == null
+                ? List.of("Um cadastro novo será criado em Participantes, com nome e contato.",
+                        "Ela passa a aparecer na chamada de presença.",
+                        "A mensagem enviada pelo site não é copiada para o cadastro.")
+                : List.of("Já existe uma participante com o mesmo contato: " + existente.getNome() + ".",
+                        "A inscrição será vinculada a esse cadastro, sem criar duplicado.",
+                        existente.isAtivo()
+                                ? "O cadastro existente continua ativo."
+                                : "O cadastro existente estava desativado e será reativado.");
+        return view("Inscrições · entrada na ONG", "Aceitar esta inscrição?",
+                "Confirme depois de conversar com ela e combinar a participação.",
+                "✓", "positivo", "Aceitar inscrição",
+                List.of(new LinhaRevisaoDTO("Nome", inscricao.getNome(), true),
+                        new LinhaRevisaoDTO("Contato", inscricao.getContato(), true),
+                        new LinhaRevisaoDTO("Recebida em", formatador.dataHora(inscricao.getRecebidaEm()))),
+                List.of(), impactos);
+    }
+
+    private RevisaoOperacaoViewDTO visualArquivarInscricao(OperacaoRevisaoDTO operacao) {
+        Inscricao inscricao = inscricaoService.buscar(operacao.entidadeId());
+        return view("Inscrições · encerramento", "Arquivar esta inscrição?",
+                "Use quando não for possível seguir com a inscrição, por exemplo depois de várias tentativas de contato.",
+                "—", "atencao", "Arquivar inscrição",
+                List.of(new LinhaRevisaoDTO("Nome", inscricao.getNome(), true),
+                        new LinhaRevisaoDTO("Situação atual", inscricao.getStatus().getDescricao())),
+                List.of(),
+                List.of("Nenhum cadastro de participante será criado.",
+                        "A inscrição continua guardada e pode ser consultada no filtro Arquivadas.",
+                        "A mudança ficará registrada no Histórico do sistema."));
     }
 
     private RevisaoOperacaoViewDTO view(
@@ -508,11 +602,24 @@ public class RevisaoOperacaoService {
         }
     }
 
-    private BigDecimal efeito(TipoLancamento tipo, BigDecimal valor) {
+    private BigDecimal efeito(TipoLancamento tipo, LancamentoCaixa lancamento) {
+        return efeito(tipo, lancamento.getNatureza(), lancamento.getValor());
+    }
+
+    private BigDecimal efeito(TipoLancamento tipo, NaturezaLancamento natureza, BigDecimal valor) {
+        if (!natureza.isMonetaria()) {
+            return BigDecimal.ZERO;
+        }
         if (valor == null) {
             throw new RegraNegocioException("Informe um valor maior que zero.");
         }
         return tipo == TipoLancamento.ENTRADA ? valor : valor.negate();
+    }
+
+    private String descreverValor(NaturezaLancamento natureza, BigDecimal valor) {
+        return natureza.isMonetaria()
+                ? formatador.moeda(valor)
+                : "Sem valor monetário (doação de material)";
     }
 
     private <T> T dados(OperacaoRevisaoDTO operacao, Class<T> tipo) {

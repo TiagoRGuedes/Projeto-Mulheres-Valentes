@@ -9,8 +9,8 @@
     </header>
 
     <div class="dica-contextual" role="note">
-        <strong>O que é categoria?</strong>
-        <p>Ajuda a organizar de onde veio ou para onde foi o dinheiro.</p>
+        <strong>Nem todo lançamento tem dinheiro</strong>
+        <p>Use <em>Valor em dinheiro</em> quando entrar ou sair dinheiro. Use <em>Doação de material</em> quando a ONG receber itens: nesse caso não há valor, apenas o comprovante.</p>
     </div>
 
     <form class="painel formulario formulario-financeiro secao-espacada" th:action="${urlAcao}" th:object="${lancamentoForm}" method="post" novalidate>
@@ -32,6 +32,17 @@
                     <small class="ajuda-campo" id="ajuda-data">Informe o dia em que o dinheiro entrou ou saiu.</small>
                     <p class="erro-campo" id="erro-data" th:if="${#fields.hasErrors('data')}" th:errors="*{data}">Informe a data.</p>
                 </div>
+                <div class="campo campo-largo">
+                    <fieldset>
+                        <legend class="rotulo-campo">Este lançamento tem valor em dinheiro? <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></legend>
+                        <div class="grupo-radio duas-colunas">
+                            <label class="radio-botao"><input type="radio" th:field="*{natureza}" value="MONETARIA"><span>Sim, valor em dinheiro</span></label>
+                            <label class="radio-botao"><input type="radio" th:field="*{natureza}" value="DOACAO_MATERIAL"><span>Não, doação de material</span></label>
+                        </div>
+                        <small class="ajuda-campo">Doações de material não entram no saldo; o comprovante é o controle delas.</small>
+                        <p class="erro-campo" th:if="${#fields.hasErrors('natureza')}" th:errors="*{natureza}">Escolha uma opção.</p>
+                    </fieldset>
+                </div>
                 <div class="campo">
                     <label for="categoriaId">Categoria <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label>
                     <select id="categoriaId" th:field="*{categoriaId}" th:attr="aria-invalid=${#fields.hasErrors('categoriaId')},aria-describedby=${#fields.hasErrors('categoriaId') ? 'erro-categoria ajuda-categoria' : 'ajuda-categoria'}">
@@ -48,10 +59,16 @@
                     <p class="erro-campo" id="erro-descricao" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}">Informe uma descrição.</p>
                 </div>
                 <div class="campo campo-valor-financeiro">
-                    <label for="valor">Valor em reais <span class="obrigatorio" aria-hidden="true">*</span><span class="sr-only">obrigatório</span></label>
+                    <label for="valor">Valor em reais <span class="opcional" th:unless="${lancamentoForm.monetario}">não se aplica</span><span class="obrigatorio" aria-hidden="true" th:if="${lancamentoForm.monetario}">*</span><span class="sr-only" th:if="${lancamentoForm.monetario}">obrigatório</span></label>
                     <div class="entrada-monetaria"><span aria-hidden="true">R$</span><input id="valor" type="number" th:field="*{valor}" min="0.01" max="99999999.99" step="0.01" inputmode="decimal" placeholder="0,00" th:attr="aria-invalid=${#fields.hasErrors('valor')},aria-describedby=${#fields.hasErrors('valor') ? 'erro-valor ajuda-valor' : 'ajuda-valor'}"></div>
-                    <small class="ajuda-campo" id="ajuda-valor">Digite somente um valor maior que zero. Exemplo: 125,50.</small>
+                    <small class="ajuda-campo" id="ajuda-valor" th:text="${lancamentoForm.monetario ? 'Digite somente um valor maior que zero. Exemplo: 125,50.' : 'Doações de material não têm valor: deixe este campo vazio.'}">Digite somente um valor maior que zero. Exemplo: 125,50.</small>
                     <p class="erro-campo" id="erro-valor" th:if="${#fields.hasErrors('valor')}" th:errors="*{valor}">Informe um valor maior que zero.</p>
+                </div>
+                <div class="campo campo-largo">
+                    <label for="comprovante">Comprovante <span class="obrigatorio" aria-hidden="true" th:unless="${lancamentoForm.monetario}">*</span><span class="sr-only" th:unless="${lancamentoForm.monetario}">obrigatório</span><span class="opcional" th:if="${lancamentoForm.monetario}">opcional</span></label>
+                    <input id="comprovante" type="text" th:field="*{comprovante}" maxlength="200" placeholder="Ex.: recibo 012/2026, lista de itens assinada" th:attr="aria-invalid=${#fields.hasErrors('comprovante')},aria-describedby=${#fields.hasErrors('comprovante') ? 'erro-comprovante ajuda-comprovante' : 'ajuda-comprovante'}">
+                    <small class="ajuda-campo" id="ajuda-comprovante" th:text="${lancamentoForm.monetario ? 'Se existir um recibo, escreva aqui a referência dele.' : 'Descreva o comprovante guardado pela ONG. Ele é o único controle da doação.'}">Descreva o comprovante.</small>
+                    <p class="erro-campo" id="erro-comprovante" th:if="${#fields.hasErrors('comprovante')}" th:errors="*{comprovante}">Revise o comprovante.</p>
                 </div>
                 <div class="campo campo-largo">
                     <label for="observacoes">Observação <span class="opcional">opcional</span></label>

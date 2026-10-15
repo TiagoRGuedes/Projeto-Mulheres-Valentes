@@ -6,7 +6,7 @@
 <div class="estrutura-app">
     <aside th:replace="~{fragments/sidebar :: sidebar('ajuda')}"></aside>
     <main id="conteudo" class="conteudo-principal" tabindex="-1">
-        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Primeiros passos</span></nav>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Primeiros passos</span></nav>
         <header class="cabecalho-pagina ajuda-hero">
             <div>
                 <p class="sobretitulo">Central de ajuda</p>
@@ -34,7 +34,7 @@
         </nav>
 
         <section class="grade-guias-iniciais" aria-label="Guias completos para começar">
-            <article class="painel guia-inicial" id="guia-presenca"><p class="etiqueta">Caminho da presença</p><h2>Começar controle de presença</h2><ol><li><span>1</span><p>Cadastre uma participante.</p></li><li><span>2</span><p>Cadastre uma atividade.</p></li><li><span>3</span><p>Crie um encontro para a data.</p></li><li><span>4</span><p>Registre quem participou.</p></li><li><span>5</span><p>Consulte a frequência.</p></li></ol><a class="botao botao-primario" th:href="@{/participantes/novo}">Começar cadastrando participante</a></article>
+            <article class="painel guia-inicial" id="guia-presenca"><p class="etiqueta">Caminho da presença</p><h2>Começar controle de presença</h2><ol><li><span>1</span><p>Cadastre uma participante.</p></li><li><span>2</span><p>Registre quem participou, na data da chamada.</p></li><li><span>3</span><p>Consulte a frequência.</p></li></ol><p class="ajuda-campo">Atividades e encontros são opcionais: use só se quiser separar a chamada por programa.</p><a class="botao botao-primario" th:href="@{/participantes/novo}">Começar cadastrando participante</a></article>
             <article class="painel guia-inicial" id="guia-caixa"><p class="etiqueta">Caminho do caixa</p><h2>Começar Livro Caixa</h2><ol><li><span>1</span><p>Confira ou configure as categorias.</p></li><li><span>2</span><p>Registre uma entrada.</p></li><li><span>3</span><p>Registre uma saída.</p></li><li><span>4</span><p>Consulte as movimentações.</p></li><li><span>5</span><p>Veja o saldo.</p></li><li><span>6</span><p>Gere o relatório.</p></li></ol><a class="botao botao-primario" th:href="@{/caixa}">Abrir o Livro Caixa</a></article>
         </section>
 
@@ -42,12 +42,12 @@
             <article class="painel passo-a-passo" id="registrar-presenca">
                 <header><span class="numero-tarefa" aria-hidden="true">✓</span><div><p class="etiqueta">Presença</p><h2>Como registrar presença</h2></div></header>
                 <ol>
-                    <li><span>1</span><p>Entre em <strong>“Registrar presença”</strong>.</p></li>
-                    <li><span>2</span><p>Escolha a atividade.</p></li>
-                    <li><span>3</span><p>Escolha o encontro e a data.</p></li>
-                    <li><span>4</span><p>Marque quem compareceu e a situação das demais pessoas.</p></li>
-                    <li><span>5</span><p>Clique em <strong>“Salvar presença”</strong>.</p></li>
+                    <li><span>1</span><p>Entre em <strong>“Registrar presença”</strong>. A tela já abre com a data de hoje.</p></li>
+                    <li><span>2</span><p>Se a chamada for de outro dia, troque a data e clique em <strong>“Atualizar lista”</strong>.</p></li>
+                    <li><span>3</span><p>Marque quem compareceu e a situação das demais pessoas.</p></li>
+                    <li><span>4</span><p>Clique em <strong>“Salvar presença”</strong> e confirme.</p></li>
                 </ol>
+                <p class="ajuda-campo">Escolher atividade e encontro é opcional: use somente se quiser separar a chamada por programa.</p>
                 <a class="botao botao-secundario" th:href="@{/presencas/registrar}">Ir para registrar presença</a>
             </article>
 
@@ -56,10 +56,26 @@
                 <ol>
                     <li><span>1</span><p>Entre em <strong>“Registrar entrada”</strong>.</p></li>
                     <li><span>2</span><p>Escolha a data.</p></li>
-                    <li><span>3</span><p>Escolha a categoria que melhor organiza a entrada.</p></li>
-                    <li><span>4</span><p>Informe a descrição e o valor.</p></li>
-                    <li><span>5</span><p>Clique em <strong>“Salvar entrada”</strong>.</p></li>
+                    <li><span>3</span><p>Responda se o lançamento tem <strong>valor em dinheiro</strong>.</p></li>
+                    <li><span>4</span><p>Escolha a categoria que melhor organiza a entrada.</p></li>
+                    <li><span>5</span><p>Informe a descrição e o valor.</p></li>
+                    <li><span>6</span><p>Clique em <strong>“Salvar entrada”</strong>.</p></li>
                 </ol>
+                <p class="ajuda-campo">Recebeu itens, e não dinheiro? Veja <strong>Como registrar uma doação de material</strong>, abaixo.</p>
+                <a class="botao botao-secundario" th:href="@{/caixa/entrada}">Ir para registrar entrada</a>
+            </article>
+
+            <article class="painel passo-a-passo" id="registrar-doacao-material">
+                <header><span class="numero-tarefa" aria-hidden="true">▣</span><div><p class="etiqueta">Livro Caixa</p><h2>Como registrar uma doação de material</h2></div></header>
+                <ol>
+                    <li><span>1</span><p>Entre em <strong>“Registrar entrada”</strong>.</p></li>
+                    <li><span>2</span><p>Escolha a data em que os itens chegaram.</p></li>
+                    <li><span>3</span><p>Em <strong>“Este lançamento tem valor em dinheiro?”</strong>, escolha <strong>“Não, doação de material”</strong>.</p></li>
+                    <li><span>4</span><p>Escreva o que foi recebido na descrição.</p></li>
+                    <li><span>5</span><p>Informe o <strong>comprovante</strong> guardado pela ONG. Esse campo é obrigatório.</p></li>
+                    <li><span>6</span><p>Não preencha o valor: doação de material não tem valor em dinheiro.</p></li>
+                </ol>
+                <p class="ajuda-campo">A doação aparece nas movimentações e no extrato, mas não altera o saldo, porque nenhum dinheiro entrou.</p>
                 <a class="botao botao-secundario" th:href="@{/caixa/entrada}">Ir para registrar entrada</a>
             </article>
 

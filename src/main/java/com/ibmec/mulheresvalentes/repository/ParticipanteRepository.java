@@ -15,12 +15,20 @@ public interface ParticipanteRepository extends JpaRepository<Participante, Long
 
     List<Participante> findByAtivoTrueOrderByNomeAsc();
 
-    List<Participante> findByNomeContainingIgnoreCaseOrderByNomeAsc(String nome);
+    @Query("""
+            select p
+             from Participante p
+             where lower(p.nome) like concat('%', lower(:termo), '%')
+                or lower(p.contato) like concat('%', lower(:termo), '%')
+             order by p.nome asc, p.id asc
+            """)
+    List<Participante> pesquisar(@Param("termo") String termo);
 
     @Query("""
             select p
              from Participante p
              where lower(p.nome) like concat('%', lower(:termo), '%')
+                or lower(p.contato) like concat('%', lower(:termo), '%')
              order by p.nome asc, p.id asc
             """)
     List<Participante> buscarGlobal(@Param("termo") String termo, Pageable limite);

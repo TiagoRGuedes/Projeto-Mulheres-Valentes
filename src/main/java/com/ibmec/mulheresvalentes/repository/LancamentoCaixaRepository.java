@@ -1,6 +1,7 @@
 package com.ibmec.mulheresvalentes.repository;
 
 import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.TipoLancamento;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -35,6 +36,7 @@ public interface LancamentoCaixaRepository extends JpaRepository<LancamentoCaixa
                and (:dataFinal is null or l.data <= :dataFinal)
                and l.cancelado = false
                and (:tipo is null or l.tipo = :tipo)
+               and (:natureza is null or l.natureza = :natureza)
                and (:categoriaId is null or l.categoria.id = :categoriaId)
                and (:descricao is null or lower(l.descricao) like concat('%', :descricao, '%'))
              order by l.data desc, l.id desc
@@ -43,6 +45,7 @@ public interface LancamentoCaixaRepository extends JpaRepository<LancamentoCaixa
             @Param("dataInicial") LocalDate dataInicial,
             @Param("dataFinal") LocalDate dataFinal,
             @Param("tipo") TipoLancamento tipo,
+            @Param("natureza") NaturezaLancamento natureza,
             @Param("categoriaId") Long categoriaId,
             @Param("descricao") String descricao);
 
@@ -50,6 +53,7 @@ public interface LancamentoCaixaRepository extends JpaRepository<LancamentoCaixa
             select coalesce(sum(l.valor), 0)
               from LancamentoCaixa l
              where l.cancelado = false
+               and l.natureza = com.ibmec.mulheresvalentes.model.NaturezaLancamento.MONETARIA
                and l.tipo = :tipo
                and (:dataInicial is null or l.data >= :dataInicial)
                and (:dataFinal is null or l.data <= :dataFinal)
@@ -60,6 +64,8 @@ public interface LancamentoCaixaRepository extends JpaRepository<LancamentoCaixa
             @Param("dataFinal") LocalDate dataFinal);
 
     long countByCanceladoFalseAndDataBetween(LocalDate dataInicial, LocalDate dataFinal);
+
+    long countByCanceladoFalseAndNatureza(NaturezaLancamento natureza);
 
     @EntityGraph(attributePaths = "categoria")
     @Query("""

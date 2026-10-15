@@ -10,6 +10,7 @@ import com.ibmec.mulheresvalentes.model.CategoriaFinanceira;
 import com.ibmec.mulheresvalentes.model.Encontro;
 import com.ibmec.mulheresvalentes.model.HistoricoOperacao;
 import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.ModuloHistorico;
 import com.ibmec.mulheresvalentes.model.Participante;
 import com.ibmec.mulheresvalentes.model.Presenca;
@@ -63,9 +64,9 @@ class HistoricoOperacaoServiceIntegrationTest {
     @Test
     void deveRegistrarCriacaoEdicaoEDesativacaoDeParticipante() {
         Participante participante = participanteService.cadastrar(
-                "Participante Fictícia do Histórico", "Observação de teste");
+                "Participante Fictícia do Histórico", "(11) 90000-0000", "Observação de teste");
         participanteService.atualizar(
-                participante.getId(), "Participante Fictícia Atualizada", null);
+                participante.getId(), "Participante Fictícia Atualizada", "(11) 90000-0001", null);
         participanteService.desativar(participante.getId());
 
         List<HistoricoOperacao> historico = historicoService.listarPorEntidade(
@@ -124,14 +125,13 @@ class HistoricoOperacaoServiceIntegrationTest {
 
     @Test
     void deveRegistrarPresencaECorrecaoComSituacoesAnteriorENova() {
-        Participante participante = participanteService.cadastrar(
-                "Participante Fictícia da Presença", null);
+        Participante participante = participanteService.cadastrar("Participante Fictícia da Presença", null, null);
         Atividade atividade = atividadeService.cadastrar(
                 "Oficina Fictícia da Presença", null);
         Encontro encontro = encontroService.cadastrar(
                 atividade.getId(), LocalDate.of(2026, 8, 22), null);
 
-        Presenca presenca = presencaService.registrar(
+        Presenca presenca = presencaService.registrarNoEncontro(
                 participante.getId(), encontro.getId(), StatusPresenca.AUSENTE, null);
         presencaService.corrigir(
                 presenca.getId(), StatusPresenca.JUSTIFICADA, "Justificativa fictícia");
@@ -179,9 +179,11 @@ class HistoricoOperacaoServiceIntegrationTest {
         LancamentoCaixaRequest alteracao = new LancamentoCaixaRequest(
                 LocalDate.of(2026, 8, 25),
                 TipoLancamento.ENTRADA,
+                NaturezaLancamento.MONETARIA,
                 categoriaEntrada.getId(),
                 "Doação fictícia corrigida",
                 new BigDecimal("125.50"),
+                null,
                 null);
         lancamentoService.atualizar(entrada.getId(), alteracao);
         lancamentoService.excluir(saida.getId());
@@ -220,7 +222,7 @@ class HistoricoOperacaoServiceIntegrationTest {
 
     @Test
     void historicoDeveSerPesquisavelSemGuardarUsuarioFicticio() {
-        participanteService.cadastrar("Pessoa Fictícia Pesquisável", null);
+        participanteService.cadastrar("Pessoa Fictícia Pesquisável", null, null);
 
         var pagina = historicoService.pesquisar(
                 LocalDate.now(), LocalDate.now(), ModuloHistorico.PARTICIPANTES,
@@ -236,8 +238,7 @@ class HistoricoOperacaoServiceIntegrationTest {
 
     @Test
     void devePreservarHistoricoDepoisDeExclusoesSeguras() {
-        Participante participante = participanteService.cadastrar(
-                "Pessoa Fictícia Sem Presença", null);
+        Participante participante = participanteService.cadastrar("Pessoa Fictícia Sem Presença", null, null);
         Long participanteId = participante.getId();
         participanteService.excluir(participanteId);
 
@@ -267,13 +268,12 @@ class HistoricoOperacaoServiceIntegrationTest {
 
     @Test
     void deveBloquearExclusaoQuandoHaHistoricoRelacionado() {
-        Participante participante = participanteService.cadastrar(
-                "Pessoa Fictícia Protegida", null);
+        Participante participante = participanteService.cadastrar("Pessoa Fictícia Protegida", null, null);
         Atividade atividade = atividadeService.cadastrar(
                 "Atividade Fictícia Protegida", null);
         Encontro encontro = encontroService.cadastrar(
                 atividade.getId(), LocalDate.of(2026, 8, 27), null);
-        presencaService.registrar(
+        presencaService.registrarNoEncontro(
                 participante.getId(), encontro.getId(), StatusPresenca.PRESENTE, null);
 
         assertThatThrownBy(() -> participanteService.excluir(participante.getId()))

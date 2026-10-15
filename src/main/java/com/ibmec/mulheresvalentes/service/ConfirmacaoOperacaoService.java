@@ -14,11 +14,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * Mantém confirmações curtas no servidor para proteger operações sensíveis contra
- * reenvio acidental. O token só é aceito para a mesma sessão e a mesma operação
- * informadas no momento da geração.
- */
 @Service
 public class ConfirmacaoOperacaoService {
 
@@ -52,13 +47,6 @@ public class ConfirmacaoOperacaoService {
                 geradorAleatorio, "O gerador aleatório é obrigatório.");
     }
 
-    /**
-     * Gera uma confirmação de uso único vinculada à sessão e à operação.
-     *
-     * @param sessaoId identificador da sessão HTTP atual
-     * @param operacao chave estável da operação, por exemplo {@code EXCLUIR_LANCAMENTO:15}
-     * @return token opaco que pode ser enviado como campo oculto do formulário
-     */
     public String gerarToken(String sessaoId, String operacao) {
         return gerarToken(sessaoId, operacao, null);
     }
@@ -67,10 +55,6 @@ public class ConfirmacaoOperacaoService {
         return gerarToken(exigirSessao(sessao).getId(), operacao, null);
     }
 
-    /**
-     * Gera uma confirmação que também preserva, somente no servidor, os dados
-     * apresentados na revisão. Prefira DTOs imutáveis como payload.
-     */
     public <T> String gerarToken(HttpSession sessao, String operacao, T payload) {
         return gerarToken(exigirSessao(sessao).getId(), operacao, payload);
     }
@@ -95,10 +79,6 @@ public class ConfirmacaoOperacaoService {
         }
     }
 
-    /**
-     * Verifica a confirmação sem consumi-la. Pode ser usada para montar uma tela
-     * intermediária; a operação definitiva ainda deve chamar {@link #consumirToken}.
-     */
     public void validarToken(String token, String sessaoId, String operacao) {
         String tokenNormalizado = normalizarToken(token);
         obterConfirmacaoValida(tokenNormalizado, sessaoId, operacao);
@@ -108,9 +88,6 @@ public class ConfirmacaoOperacaoService {
         validarToken(token, exigirSessao(sessao).getId(), operacao);
     }
 
-    /**
-     * Valida sem consumir e devolve o payload guardado no servidor.
-     */
     public <T> T obterPayloadSemConsumir(
             String token,
             HttpSession sessao,
@@ -122,10 +99,6 @@ public class ConfirmacaoOperacaoService {
         return converterPayload(confirmacao, tipoPayload);
     }
 
-    /**
-     * Valida e consome a confirmação de modo atômico. Somente uma chamada pode
-     * concluir com sucesso, inclusive quando há dois POSTs concorrentes.
-     */
     public void consumirToken(String token, String sessaoId, String operacao) {
         String tokenNormalizado = normalizarToken(token);
         consumirConfirmacao(tokenNormalizado, sessaoId, operacao, null);
@@ -135,10 +108,6 @@ public class ConfirmacaoOperacaoService {
         consumirToken(token, exigirSessao(sessao).getId(), operacao);
     }
 
-    /**
-     * Consome a confirmação e devolve seu payload. A checagem do tipo acontece
-     * antes do consumo, evitando perder um token por erro de integração.
-     */
     public <T> T consumirToken(
             String token,
             HttpSession sessao,

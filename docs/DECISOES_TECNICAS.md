@@ -129,15 +129,23 @@ Filtros de período usam limites inclusivos. BigDecimal é usado do início ao f
 
 **Questão:** saldo inicial, múltiplos caixas, transferências e fechamento não foram confirmados.
 
-## DT09 — Presença única por participante e encontro
+## DT09 — Presença única por participante e por chamada
 
 **Status:** provisória.
 
-Uma restrição única protege participante + encontro, acompanhada de validação no service.
+Uma restrição única de banco protege participante + encontro. Para a presença
+avulsa, o encontro é nulo e, em SQL, colunas nulas não colidem em índice único —
+então a regra "uma presença por participante por data" é verificada no service,
+por `existsByParticipanteIdAndDataAndEncontroIsNull`.
 
-**Motivo:** impedir contagem duplicada inclusive em requisições concorrentes.
+**Motivo:** impedir contagem duplicada inclusive em requisições concorrentes, no
+caminho em que o banco consegue garantir isso.
 
-**Consequência:** se houver turno, sessão ou outra dimensão, o modelo precisará ser revisto.
+**Consequência:** duas requisições simultâneas para a mesma pessoa e data avulsa
+ainda poderiam passar pela verificação do service. O risco é baixo no uso real
+descrito pela ONG (duas pessoas operando o sistema) e a chamada coletiva, que é
+o caminho normal, atualiza em vez de duplicar. Se o uso crescer, o caminho é um
+índice parcial ou uma coluna sentinela no lugar do nulo.
 
 ## DT10 — Categorias configuráveis
 
@@ -467,3 +475,68 @@ a interface não oferece edição nem novo cancelamento.
 
 **Motivo:** cumprir a rastreabilidade do Livro Caixa sem recolocar o lançamento
 nos fluxos operacionais nem criar uma arquitetura contábil mais complexa.
+
+## DT31 — Presença por data, com encontro opcional
+
+**Status:** implementada.
+
+A entrevista confirmou que o controle de presença da ONG é único e não é
+vinculado a uma atividade específica. A entidade `Presenca` passou a ter uma
+coluna própria `data_presenca`, obrigatória, e o vínculo com `Encontro` passou a
+ser opcional.
+
+**Motivo:** o modelo do escopo é `presenca(participante_id, data_presenca)`.
+Exigir atividade e encontro obrigava a ONG a inventar uma estrutura que ela não
+usa, o que contraria o RF02 e o RNF02.
+
+**Alternativa descartada:** remover `Atividade` e `Encontro`. Isso alinharia o
+modelo ao documento de escopo ao pé da letra, mas destruiria telas, relatórios e
+o dashboard que já funcionam, sem que a ONG tenha pedido essa remoção — ela
+disse que não separa a presença por atividade, não que separar seja indesejado.
+
+**Consequência:** consultas de presença passaram a filtrar por `p.data` em vez
+de `p.encontro.data`, e todo código que lia `presenca.getEncontro()` precisa
+tratar o nulo. O método `Presenca.getContexto()` concentra esse tratamento para
+as telas, devolvendo "Presença geral" quando não há atividade. O filtro por
+atividade, por definição, não alcança as presenças avulsas.
+
+## DT32 — Natureza do lançamento separada do tipo
+
+**Status:** implementada.
+
+`LancamentoCaixa` ganhou o enum `NaturezaLancamento` (`MONETARIA` ou
+`DOACAO_MATERIAL`). Em doação de material, `valor` é nulo, `comprovante` é
+obrigatório e o lançamento não entra no saldo nem nos totais — apenas na
+contagem `quantidadeDoacoesMaterial`.
+
+**Motivo:** a entrevista mostrou que a ONG movimenta um único valor monetário
+recorrente e que as doações de material não são dinheiro: chegam fisicamente e
+são controladas por comprovante (RF04, RF05, RF06, PR05). Somar R$ 0,00 por elas
+daria a impressão errada de um lançamento financeiro sem valor.
+
+**Alternativa descartada:** usar um único campo `tipo` com os valores
+`'ALUGUEL_PATROCINIO'` e `'DOACAO_MATERIAL'`, como no modelo do escopo. Entrada
+e saída continuam sendo necessárias para calcular o saldo, e Aluguel/Patrocínio
+é uma categoria entre outras possíveis — misturar as duas coisas em um campo só
+obrigaria a recriar a distinção entrada/saída em outro lugar.
+
+**Consequência:** `valor` deixou de ser `NOT NULL` no banco. Todo cálculo
+financeiro filtra por natureza monetária antes de somar, e as telas usam
+`FormatadorService.valorLancamento` / `valorComSinal` para nunca exibir
+"R$ 0,00" onde não existe valor. Integrações que não enviarem `natureza`
+continuam funcionando: o campo ausente vale como `MONETARIA`.
+
+## DT33 — Contato da participante
+
+**Status:** implementada.
+
+`Participante` ganhou o campo opcional `contato` (até 120 caracteres), exibido no
+cadastro, nos detalhes e na lista, e incluído na pesquisa.
+
+**Motivo:** o RF01 pede nome **e** contato. A versão anterior do modelo excluía
+telefone e e-mail deliberadamente, por não haver requisito confirmado; agora há.
+
+**Consequência:** o sistema passa a guardar um dado pessoal a mais. O campo é
+opcional, a interface pede consentimento explicitamente e os dados de
+demonstração usam o domínio reservado `.invalid`. A discussão de privacidade,
+retenção e quem pode consultar continua aberta e é anterior a qualquer uso real.

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Inscrição')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('inscricoes')}"></aside><main id="conteudo" class="conteudo-principal" tabindex="-1">
+    <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><a th:href="@{/inscricoes}">Inscrições</a><span aria-hidden="true">›</span><span aria-current="page">Detalhes</span></nav>
+    <header class="cabecalho-pagina com-acoes"><div><p class="sobretitulo" th:text="|Recebida em ${@formatador.dataHora(inscricao.recebidaEm)}|">Recebida em</p><h1 th:text="${inscricao.nome}">Nome</h1><p th:text="${inscricao.status.explicacao}">Explicação da situação</p></div><span class="selo-status" th:classappend="|selo-inscricao-${#strings.toLowerCase(inscricao.status.name())}|" th:text="${inscricao.status.descricao}">Nova</span></header>
+
+    <div class="alerta alerta-aviso" role="note" th:if="${participanteExistente != null}"><span class="alerta-icone" aria-hidden="true">i</span><div><strong>Já existe uma participante com este contato</strong><p>O contato desta inscrição é o mesmo de <a th:href="@{/participantes/{id}(id=${participanteExistente.id})}" th:text="${participanteExistente.nome}">participante</a><span th:unless="${participanteExistente.ativo}"> (cadastro desativado)</span>. Ao aceitar, a inscrição é vinculada a esse cadastro e nenhum duplicado é criado.</p></div></div>
+
+    <section class="painel painel-conteudo" aria-labelledby="como-falar"><div class="cabecalho-secao compacto"><div><p class="etiqueta">Antes de ligar ou mandar mensagem</p><h2 id="como-falar">Como falar com ela</h2></div></div>
+        <dl class="lista-detalhes">
+            <div><dt>Contato</dt><dd th:text="${inscricao.contato}">Contato</dd></div>
+            <div><dt>Prefere</dt><dd th:text="${inscricao.preferenciaContato.descricao}">Preferência</dd></div>
+            <div class="detalhe-largo"><dt>Como e quando é seguro falar</dt><dd th:text="${inscricao.contatoSeguro != null ? inscricao.contatoSeguro : 'Ela não deixou orientação. Comece pela forma preferida e seja discreta.'}">Orientação</dd></div>
+        </dl>
+    </section>
+
+    <section class="painel painel-conteudo secao-espacada" aria-labelledby="sobre-ela"><div class="cabecalho-secao compacto"><div><p class="etiqueta">O que ela contou</p><h2 id="sobre-ela">Inscrição</h2></div></div>
+        <dl class="lista-detalhes">
+            <div><dt>Bairro</dt><dd th:text="${inscricao.bairro != null ? inscricao.bairro : 'Não informado'}">Bairro</dd></div>
+            <div><dt>Interesse</dt><dd><span th:if="${#sets.isEmpty(inscricao.areas)}">Não informado</span><ul class="lista-etiquetas" th:unless="${#sets.isEmpty(inscricao.areas)}"><li th:each="area : ${inscricao.areas}" th:text="${area.descricao}">Área</li></ul></dd></div>
+            <div class="detalhe-largo"><dt>Mensagem</dt><dd class="texto-preservado" th:text="${inscricao.mensagem != null ? inscricao.mensagem : 'Nenhuma mensagem.'}">Mensagem</dd></div>
+            <div th:if="${inscricao.participante != null}"><dt>Cadastro de participante</dt><dd><a th:href="@{/participantes/{id}(id=${inscricao.participante.id})}" th:text="${inscricao.participante.nome}">Participante</a></dd></div>
+        </dl>
+    </section>
+
+    <section class="painel painel-conteudo secao-espacada" aria-labelledby="proximo-passo" th:if="${inscricao.status.aberta}"><h2 id="proximo-passo">Próximo passo</h2><p>Depois de conversar com ela, aceite a inscrição para cadastrá-la como participante. Cada botão abre uma revisão antes de gravar.</p>
+        <div class="acoes-formulario">
+            <form th:action="@{/inscricoes/{id}/aceitar(id=${inscricao.id})}" method="post"><button class="botao botao-primario" type="submit">Aceitar e cadastrar como participante</button></form>
+            <form th:if="${inscricao.status.name() == 'NOVA'}" th:action="@{/inscricoes/{id}/em-contato(id=${inscricao.id})}" method="post"><button class="botao botao-secundario" type="submit">Marcar que estamos em contato</button></form>
+            <form th:action="@{/inscricoes/{id}/arquivar(id=${inscricao.id})}" method="post"><button class="botao botao-discreto acao-perigo" type="submit">Arquivar</button></form>
+        </div>
+    </section>
+
+    <div class="acoes-formulario"><a class="botao botao-secundario" th:href="@{/inscricoes}">Voltar às inscrições</a></div>
+
+    <section class="secao-espacada" aria-labelledby="historico-inscricao"><div class="cabecalho-secao compacto"><div><p class="etiqueta">Rastreabilidade</p><h2 id="historico-inscricao">Histórico desta inscrição</h2></div></div><div th:replace="~{fragments/timeline-historico :: timeline(${historicoEntidade}, null, false)}"></div></section>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

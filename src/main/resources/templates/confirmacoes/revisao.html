@@ -5,7 +5,7 @@
 <header th:replace="~{fragments/header :: header}"></header>
 <div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('confirmacao')}"></aside>
 <main id="conteudo" class="conteudo-principal conteudo-revisao" tabindex="-1">
-    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Visão geral</a><span aria-hidden="true">›</span><span aria-current="page">Revisar operação</span></nav>
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Visão geral</a><span aria-hidden="true">›</span><span aria-current="page">Revisar operação</span></nav>
     <header class="cabecalho-pagina cabecalho-nexus"><p class="sobretitulo" th:text="${revisao.contexto}">Review Layer</p><h1 th:text="${revisao.titulo}">Revisar operação</h1><span class="nexus-assinatura" aria-hidden="true"></span><p th:text="${revisao.descricao}">Confira antes de confirmar.</p></header>
 
     <section class="review-layer" th:classappend="|review-${revisao.tom}|" aria-labelledby="titulo-preview">

@@ -26,6 +26,10 @@ public class Participante {
     @Column(nullable = false, length = 150)
     private String nome;
 
+    @Size(max = 120, message = "O contato deve ter no máximo 120 caracteres.")
+    @Column(length = 120)
+    private String contato;
+
     @Column(nullable = false)
     private boolean ativo = true;
 
@@ -42,8 +46,9 @@ public class Participante {
     protected Participante() {
     }
 
-    public Participante(String nome, String observacoes) {
+    public Participante(String nome, String contato, String observacoes) {
         this.nome = nome;
+        this.contato = contato;
         this.observacoes = observacoes;
     }
 
@@ -59,8 +64,9 @@ public class Participante {
         dataAtualizacao = LocalDateTime.now();
     }
 
-    public void atualizarDados(String nome, String observacoes) {
+    public void atualizarDados(String nome, String contato, String observacoes) {
         this.nome = nome;
+        this.contato = contato;
         this.observacoes = observacoes;
     }
 
@@ -82,6 +88,14 @@ public class Participante {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getContato() {
+        return contato;
+    }
+
+    public void setContato(String contato) {
+        this.contato = contato;
     }
 
     public boolean isAtivo() {

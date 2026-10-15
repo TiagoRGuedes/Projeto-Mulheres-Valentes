@@ -1,9 +1,11 @@
 package com.ibmec.mulheresvalentes.controller.api;
 
+import com.ibmec.mulheresvalentes.dto.ExtratoCaixaDTO;
 import com.ibmec.mulheresvalentes.dto.LancamentoCaixaFiltro;
 import com.ibmec.mulheresvalentes.dto.LancamentoCaixaRequest;
 import com.ibmec.mulheresvalentes.dto.LancamentoCaixaResponse;
 import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
+import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.TipoLancamento;
 import com.ibmec.mulheresvalentes.service.LancamentoCaixaService;
 import jakarta.validation.Valid;
@@ -20,12 +22,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/lancamentos")
+@RequestMapping("/api/caixa")
 public class CaixaRestController {
 
     private final LancamentoCaixaService lancamentoService;
@@ -41,10 +45,33 @@ public class CaixaRestController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFinal,
             @RequestParam(required = false) TipoLancamento tipo,
+            @RequestParam(required = false) NaturezaLancamento natureza,
             @RequestParam(required = false) Long categoriaId,
             @RequestParam(required = false) String descricao) {
         return lancamentoService.pesquisarRespostas(
-                filtro(dataInicial, dataFinal, tipo, categoriaId, descricao));
+                filtro(dataInicial, dataFinal, tipo, natureza, categoriaId, descricao));
+    }
+
+    @GetMapping("/saldo")
+    public Map<String, BigDecimal> saldo() {
+        return Map.of("saldoAtual", lancamentoService.calcularSaldoAtual());
+    }
+
+    @GetMapping("/extrato")
+    public ExtratoCaixaDTO extrato(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFinal,
+            @RequestParam(required = false) TipoLancamento tipo,
+            @RequestParam(required = false) NaturezaLancamento natureza,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) String descricao) {
+        LancamentoCaixaFiltro filtro =
+                filtro(dataInicial, dataFinal, tipo, natureza, categoriaId, descricao);
+        return new ExtratoCaixaDTO(
+                lancamentoService.calcularResumo(filtro),
+                lancamentoService.pesquisarRespostas(filtro));
     }
 
     @PostMapping
@@ -80,12 +107,14 @@ public class CaixaRestController {
             LocalDate dataInicial,
             LocalDate dataFinal,
             TipoLancamento tipo,
+            NaturezaLancamento natureza,
             Long categoriaId,
             String descricao) {
         LancamentoCaixaFiltro filtro = new LancamentoCaixaFiltro();
         filtro.setDataInicial(dataInicial);
         filtro.setDataFinal(dataFinal);
         filtro.setTipo(tipo);
+        filtro.setNatureza(natureza);
         filtro.setCategoriaId(categoriaId);
         filtro.setDescricao(descricao);
         return filtro;

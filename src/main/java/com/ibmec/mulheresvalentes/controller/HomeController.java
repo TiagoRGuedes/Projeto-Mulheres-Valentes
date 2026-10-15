@@ -14,7 +14,7 @@ public class HomeController {
         this.dashboardService = dashboardService;
     }
 
-    @GetMapping("/")
+    @GetMapping("/painel")
     public String home(Model model) {
         model.addAttribute("dashboard", dashboardService.carregar());
         return "index";

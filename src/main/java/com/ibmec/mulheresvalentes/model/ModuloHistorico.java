@@ -6,7 +6,8 @@ public enum ModuloHistorico {
     ENCONTROS("Encontros"),
     PRESENCAS("Presenças"),
     LIVRO_CAIXA("Livro Caixa"),
-    CATEGORIAS("Categorias");
+    CATEGORIAS("Categorias"),
+    INSCRICOES("Inscrições");
 
     private final String descricao;
 

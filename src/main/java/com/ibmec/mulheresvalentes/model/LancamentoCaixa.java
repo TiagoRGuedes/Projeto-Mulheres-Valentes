@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
         indexes = {
             @Index(name = "idx_lancamento_caixa_data", columnList = "data"),
             @Index(name = "idx_lancamento_caixa_tipo", columnList = "tipo"),
+            @Index(name = "idx_lancamento_caixa_natureza", columnList = "natureza"),
             @Index(name = "idx_lancamento_caixa_categoria", columnList = "categoria_id")
         })
 public class LancamentoCaixa {
@@ -47,6 +48,11 @@ public class LancamentoCaixa {
     @Column(nullable = false, length = 10)
     private TipoLancamento tipo;
 
+    @NotNull(message = "Informe se o lançamento tem valor em dinheiro ou é uma doação de material.")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private NaturezaLancamento natureza = NaturezaLancamento.MONETARIA;
+
     @NotNull(message = "Escolha uma categoria.")
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "categoria_id", nullable = false)
@@ -57,11 +63,14 @@ public class LancamentoCaixa {
     @Column(nullable = false, length = 160)
     private String descricao;
 
-    @NotNull(message = "Informe o valor.")
     @DecimalMin(value = "0.00", inclusive = false, message = "Informe um valor maior que zero.")
     @Digits(integer = 8, fraction = 2, message = "Informe um valor com até 8 dígitos e 2 casas decimais.")
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(precision = 10, scale = 2)
     private BigDecimal valor;
+
+    @Size(max = 200, message = "O comprovante deve ter no máximo 200 caracteres.")
+    @Column(length = 200)
+    private String comprovante;
 
     @Size(max = 500, message = "A observação deve ter no máximo 500 caracteres.")
     @Column(length = 500)
@@ -88,11 +97,25 @@ public class LancamentoCaixa {
             String descricao,
             BigDecimal valor,
             String observacoes) {
+        this(data, tipo, NaturezaLancamento.MONETARIA, categoria, descricao, valor, null, observacoes);
+    }
+
+    public LancamentoCaixa(
+            LocalDate data,
+            TipoLancamento tipo,
+            NaturezaLancamento natureza,
+            CategoriaFinanceira categoria,
+            String descricao,
+            BigDecimal valor,
+            String comprovante,
+            String observacoes) {
         this.data = data;
         this.tipo = tipo;
+        this.natureza = natureza;
         this.categoria = categoria;
         this.descricao = normalizarTexto(descricao);
         this.valor = valor;
+        this.comprovante = normalizarTextoOpcional(comprovante);
         this.observacoes = normalizarTextoOpcional(observacoes);
     }
 
@@ -128,6 +151,18 @@ public class LancamentoCaixa {
         this.tipo = tipo;
     }
 
+    public NaturezaLancamento getNatureza() {
+        return natureza;
+    }
+
+    public void setNatureza(NaturezaLancamento natureza) {
+        this.natureza = natureza;
+    }
+
+    public boolean isMonetario() {
+        return natureza != null && natureza.isMonetaria();
+    }
+
     public CategoriaFinanceira getCategoria() {
         return categoria;
     }
@@ -150,6 +185,14 @@ public class LancamentoCaixa {
 
     public void setValor(BigDecimal valor) {
         this.valor = valor;
+    }
+
+    public String getComprovante() {
+        return comprovante;
+    }
+
+    public void setComprovante(String comprovante) {
+        this.comprovante = normalizarTextoOpcional(comprovante);
     }
 
     public String getObservacoes() {

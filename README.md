@@ -9,17 +9,44 @@ Projeto acadêmico da disciplina **IBM4024 — Projeto em Ciência de Dados II �
 
 Este repositório contém uma aplicação web independente para apoiar o controle de presença e o livro caixa da ONG Mulheres Valentes. Ele não compartilha banco de dados, configuração, dependências, código ou documentação com o projeto da ONG Remo Meu Rumo.
 
-> **Importante:** este é um escopo preliminar. A entrevista com a ONG ainda será realizada. Somente cinco fatos sobre a realidade da organização são tratados como confirmados: há controle de presença; há livro caixa; ambos são feitos manualmente; existe interesse em digitalizá-los; e existe necessidade de facilidade de uso e orientação. Os demais fluxos são premissas ou sugestões que deverão ser validadas.
+> **Importante:** a entrevista com a ONG foi realizada e está registrada no documento de escopo (AC1). O protótipo foi ajustado ao que ela confirmou — ver **Requisitos do escopo** logo abaixo. O que a ONG não confirmou continua marcado como premissa em `docs/PREMISSAS_E_DUVIDAS.md`, e a autenticação (RNF04) ainda não foi implementada.
+
+## Requisitos do escopo (AC1)
+
+| Código | Requisito | Onde está no sistema |
+|---|---|---|
+| RF01 | Cadastrar uma participante com nome e contato | `/participantes/novo` · `POST /api/participantes` |
+| RF02 | Registrar a presença de uma participante em uma data | `/presencas/registrar` · `POST /api/presencas` |
+| RF03 | Consultar a listagem de presença por período | `/presencas` · `/frequencia` · `GET /api/participantes/{id}/presencas` |
+| RF04 | Registrar um lançamento no caixa, com valor obrigatório apenas nos monetários | `/caixa/entrada` · `/caixa/saida` · `POST /api/caixa` |
+| RF05 | Categorizar o lançamento como aluguel/patrocínio ou doação de material | campo **Natureza** no formulário; enum `NaturezaLancamento` |
+| RF06 | Registrar o comprovante de uma doação de material | campo **Comprovante**, obrigatório quando é doação de material |
+| RF07 | Consultar o saldo atual do caixa | `/caixa` · `GET /api/caixa/saldo` |
+| RF08 | Gerar um extrato do caixa por período | `/caixa/movimentacoes` · `/caixa/relatorio.csv` · `GET /api/caixa/extrato` |
+| RF09 | Editar ou excluir um lançamento feito por engano | `/caixa/movimentacoes/{id}/editar` e cancelamento rastreável |
+| RNF01 | Valores em decimal, nunca em ponto flutuante | `BigDecimal` no domínio, `DECIMAL(10,2)` no banco |
+| RNF02 | Interface simples para quem tem familiaridade digital média | textos de ajuda, fluxo Preencher → Revisar → Confirmar, Central de Ajuda |
+| RNF03 | Funcionar em celular | CSS próprio responsivo, tabelas adaptáveis |
+| RNF04 | Acesso com login | **não implementado** — ver "Limites antes do uso real" |
+
+### O que a entrevista mudou no protótipo
+
+- **A presença é um controle único por data.** A ONG não separa a chamada por atividade. A tela de registro abre na data de hoje, sem exigir atividade nem encontro; o vínculo com uma atividade continua disponível, mas é opcional.
+- **Nem todo lançamento do caixa é dinheiro.** O único valor monetário recorrente é o aluguel/patrocínio de R$ 1.200 por mês. Doações de material chegam fisicamente, não têm valor e são controladas por comprovante — então elas são registradas sem valor e não entram no saldo.
+- **A participante tem contato.** O cadastro passou a guardar telefone, WhatsApp ou e-mail, opcionalmente e com consentimento; a busca também encontra pela pessoa pelo contato.
+- **A prioridade é o caixa, não a presença.** Isso não muda o código, mas orienta o que demonstrar e o que aprimorar primeiro.
 
 ## O que o projeto oferece
 
-- cadastro, pesquisa, edição, ativação e desativação de participantes;
+- cadastro, pesquisa por nome ou contato, edição, ativação e desativação de participantes;
 - exclusão segura de cadastros ainda sem histórico relacionado;
-- cadastro de atividades e encontros;
+- registro de presença por data, no controle único descrito pela ONG;
+- cadastro opcional de atividades e encontros, para quem quiser separar a chamada;
 - registro conjunto de presença, ausência ou justificativa;
 - histórico e cálculo de frequência em Java;
 - registro de entradas e saídas com valores em BigDecimal;
-- consulta de movimentações, filtros por período e resumo de saldo;
+- registro de doações de material, sem valor monetário e com comprovante obrigatório;
+- consulta de movimentações, filtros por período e resumo de saldo, que soma apenas o que é dinheiro;
 - Dashboard administrativo com indicadores de presença, caixa e atividade recente;
 - Histórico do sistema, somente leitura, para criações, alterações, desativações e cancelamentos;
 - cancelamento lógico de lançamentos financeiros, preservando a rastreabilidade sem afetar o saldo;
@@ -150,7 +177,8 @@ No Windows PowerShell, também funciona:
 
 Na primeira execução, o Maven Wrapper baixa o Maven 3.9.11. Aguarde a mensagem de que a aplicação foi iniciada. Depois, abra:
 
-- Home: http://localhost:8080/
+- Página pública da ONG: http://localhost:8080/
+- Painel da equipe: http://localhost:8080/painel
 - Console H2: http://localhost:8080/h2-console
 
 Nunca é necessário instalar o Maven para usar o Wrapper.
@@ -211,10 +239,15 @@ Se o PowerShell perguntar se deseja finalizar o trabalho, confirme.
 
 | Área | Endereço |
 |---|---|
-| Home | http://localhost:8080/ |
+| Página pública da ONG | http://localhost:8080/ |
+| Inscrição pública | http://localhost:8080/inscricao |
+| Painel da equipe | http://localhost:8080/painel |
+| Inscrições recebidas | http://localhost:8080/inscricoes |
 | Participantes | http://localhost:8080/participantes |
 | Atividades | http://localhost:8080/atividades |
 | Registro de presença | http://localhost:8080/presencas/registrar |
+| Saldo do caixa (API) | http://localhost:8080/api/caixa/saldo |
+| Extrato do caixa (API) | http://localhost:8080/api/caixa/extrato |
 | Frequência | http://localhost:8080/frequencia |
 | Livro Caixa | http://localhost:8080/caixa |
 | Movimentações | http://localhost:8080/caixa/movimentacoes |
@@ -226,30 +259,79 @@ Se o PowerShell perguntar se deseja finalizar o trabalho, confirme.
 
 Consulte docs/ENDPOINTS.md para o contrato preliminar completo das páginas e APIs.
 
+## Página pública e inscrições
+
+A raiz do sistema (`/`) é a página de apresentação da ONG, pensada para as
+mulheres que podem participar dela. O conteúdo vem de fontes da própria ONG: a
+seção **Nossa história** reproduz na íntegra o texto enviado pela Karine, e
+endereço, telefone, e-mail e projetos vêm do site oficial.
+
+Pelo botão **Quero participar**, a mulher preenche uma inscrição curta: nome,
+contato, como prefere ser contatada, como e quando é seguro falar com ela,
+áreas de interesse e uma mensagem opcional. O envio exige consentimento.
+
+Antes de enviar, ela passa por uma tela de **conferência** com tudo o que
+escreveu e o contato em destaque, e escolhe entre **Corrigir meus dados** e
+**Está tudo certo, enviar inscrição**. Nada é gravado antes disso. O contato
+também é verificado: telefone precisa ter DDD e número completos, e-mail
+precisa estar no formato nome@exemplo.com, e a forma preferida precisa combinar
+com o contato (e-mail com e-mail, ligação ou WhatsApp com telefone). Telefones
+são guardados sempre no mesmo formato, por exemplo (11) 91234-5678, e um clique
+duplo no botão de envio não cria inscrição repetida.
+
+Como a ONG atua no enfrentamento à violência doméstica, as páginas públicas
+têm um botão **Sair rápido** no topo e mostram os telefones 190 e 180.
+
+Do lado da equipe:
+
+- o menu **Inscrições** mostra quantas inscrições novas estão esperando;
+- o painel exibe um aviso quando há inscrições novas;
+- em cada inscrição, a equipe pode marcar que está em contato, aceitar ou arquivar,
+  sempre passando pela tela de revisão;
+- ao aceitar, a inscrita vira participante com nome e contato. Se já existir uma
+  participante com o mesmo contato, a inscrição é vinculada a ela, sem criar
+  duplicado, e o cadastro é reativado se estiver desativado.
+
+### Fotos da página
+
+Coloque fotos em `src/main/resources/static/img/publico/galeria/` (jpg, png ou
+webp) e reinicie a aplicação: elas aparecem na seção **Nossos encontros**. O
+texto alternativo vem do nome do arquivo, então `roda-de-conversa.jpg` vira
+"Roda de conversa". Sem fotos na pasta, a seção não aparece. Use apenas fotos
+com autorização das pessoas retratadas, principalmente quando houver crianças.
+
+As duas imagens atuais (`acolhimento.jpg` e `rede-de-mulheres.jpg`) vieram do
+site oficial da ONG e são ilustrações, não fotos das atividades.
+
 ## Uso rápido
 
 ### Cadastrar uma pessoa
 
 1. Na Home, escolha **Cadastrar participante**.
-2. Informe o nome e, se necessário, uma observação.
+2. Informe o nome e, se a pessoa autorizar, um contato. A observação é opcional.
 3. Selecione **Revisar cadastro**.
 4. Confira o resumo e selecione **Confirmar cadastro**.
 5. Confira a mensagem de sucesso.
 
 ### Registrar presença
 
-1. Na Home, escolha **Registrar presença**.
-2. Selecione a atividade e o encontro.
+1. Na Home, escolha **Registrar presença**. A tela já abre com a data de hoje.
+2. Se a chamada for de outro dia, troque a data e selecione **Atualizar lista**.
 3. Marque a situação de cada participante.
 4. Selecione **Salvar presença** e revise os totais.
 5. Se tudo estiver correto, selecione **Confirmar presença**.
 
+Vincular a chamada a uma atividade é opcional: escolha a atividade e o encontro
+somente se quiser separar o registro por programa.
+
 ### Registrar entrada ou saída
 
 1. Na Home, escolha **Registrar entrada** ou **Registrar saída**.
-2. Informe data, categoria, descrição e valor.
-3. Selecione o botão para revisar e confira o tipo, o valor e o saldo previsto.
-4. Confirme a operação e confira a mensagem de sucesso.
+2. Informe a data e responda se o lançamento tem valor em dinheiro.
+3. Se tiver, informe categoria, descrição e valor.
+4. Se for uma doação de material, informe categoria, descrição e o **comprovante**: não há valor a preencher.
+5. Selecione o botão para revisar e confira o tipo, o valor e o saldo previsto.
+6. Confirme a operação e confira a mensagem de sucesso.
 
 ### Consultar alterações administrativas
 
@@ -266,10 +348,13 @@ O carregador de dados pode criar registros fictícios para facilitar a apresenta
 
 A configuração app.dados-demonstracao=true controla o carregamento no ambiente de desenvolvimento. Antes de usar com dados reais, é necessário revisar privacidade, acesso, backup, segurança e consentimento com a ONG.
 
-Em uma base vazia, a versão atual cria uma demonstração ampla e coerente: 36
-participantes, 6 atividades, 24 encontros, 864 registros de presença, 11
-categorias e 50 movimentações financeiras. A carga acontece somente uma vez e
-jamais apaga ou completa automaticamente um banco já preenchido.
+Em uma base vazia, a versão atual cria uma demonstração que segue a realidade
+descrita na entrevista: 36 participantes, 6 atividades, 24 encontros, 972
+registros de presença (864 por encontro e 108 do controle único por data), 13
+categorias e 30 movimentações financeiras — 12 aluguéis mensais de R$ 1.200, 8
+doações de material com comprovante e sem valor, e 10 saídas. A carga acontece
+somente uma vez e jamais apaga ou completa automaticamente um banco já
+preenchido.
 
 ## Revisar antes de confirmar
 
@@ -345,7 +430,19 @@ Leia o primeiro erro em target/surefire-reports/. Confirme que Java 25 está ati
 
 ## Limites antes do uso real
 
-Autenticação, perfis de acesso, identificação do responsável por cada ação, política organizacional de correção/estorno, backup, hospedagem, privacidade, volume de dados e regras de prestação de contas ainda precisam ser discutidos. A trilha administrativa já existe no protótipo, mas não substitui uma política formal de auditoria. Este projeto não deve ser colocado em produção nem receber dados pessoais reais antes dessas definições e de uma avaliação de segurança.
+**Antes de publicar a página pública na internet, o login (RNF04) é obrigatório.**
+A página pública e o painel da equipe estão na mesma aplicação, e o painel não
+pede senha: qualquer pessoa que descubra `/painel` ou `/inscricoes` vê os dados
+das mulheres inscritas — inclusive como e quando é seguro falar com elas. Com o
+formulário público, esse risco deixa de ser teórico.
+
+**O RNF04 do escopo exige login e o protótipo ainda não tem autenticação.** Essa é a
+lacuna conhecida mais importante: a PR03 indica que pelo menos duas contas
+serão necessárias (Karine e Isabelle). Enquanto isso não existir, qualquer pessoa
+com acesso ao endereço pode alterar lançamentos financeiros, e o sistema não
+deve receber dados reais.
+
+Perfis de acesso, identificação do responsável por cada ação, política organizacional de correção/estorno, backup, hospedagem, privacidade, volume de dados e regras de prestação de contas também ainda precisam ser discutidos. A trilha administrativa já existe no protótipo, mas não substitui uma política formal de auditoria. Este projeto não deve ser colocado em produção nem receber dados pessoais reais antes dessas definições e de uma avaliação de segurança.
 
 ## Licença e uso
 

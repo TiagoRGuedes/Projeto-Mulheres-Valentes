@@ -8,6 +8,12 @@
     <main id="conteudo" class="conteudo-principal" tabindex="-1">
         <div th:replace="~{fragments/mensagens :: mensagens}"></div>
 
+        <a class="aviso-inscricoes" th:if="${inscricoesNovas > 0}" th:href="@{/inscricoes(status='NOVA')}">
+            <span class="aviso-inscricoes-numero" th:text="${inscricoesNovas}">0</span>
+            <span><strong th:text="${inscricoesNovas == 1 ? 'Nova inscrição pelo site' : 'Novas inscrições pelo site'}">Novas inscrições pelo site</strong><small>Mulheres que pediram para entrar na ONG e aguardam o primeiro contato.</small></span>
+            <span class="aviso-inscricoes-seta" aria-hidden="true">→</span>
+        </a>
+
         <section class="boas-vindas dashboard-hero" aria-labelledby="titulo-home">
             <div class="hero-grade">
                 <div class="hero-conteudo">
@@ -62,7 +68,7 @@
         <section class="secao-dashboard secao-financeira-editorial" aria-labelledby="dashboard-caixa">
             <div class="cabecalho-secao"><div><p class="etiqueta">Livro Caixa</p><h2 id="dashboard-caixa">Resumo financeiro</h2></div><a class="link-seta" th:href="@{/caixa}">Abrir Livro Caixa <span aria-hidden="true">→</span></a></div>
             <div class="painel painel-financeiro-home"><div class="saldo-home"><span>Saldo atual</span><strong th:text="${@formatador.moeda(dashboard.financeiro.saldoAtual)}">R$ 0,00</strong><small>É a diferença entre tudo que entrou e tudo que saiu.</small></div><dl class="resumo-financeiro-mes"><div class="entrada"><dt>↑ Entradas neste mês</dt><dd th:text="${@formatador.moeda(dashboard.financeiro.entradasNoMes)}">R$ 0,00</dd></div><div class="saida"><dt>↓ Saídas neste mês</dt><dd th:text="${@formatador.moeda(dashboard.financeiro.saidasNoMes)}">R$ 0,00</dd></div><div><dt>Movimentações no mês</dt><dd th:text="${dashboard.financeiro.movimentacoesNoMes}">0</dd></div></dl></div>
-            <div class="painel lista-recente" th:if="${!#lists.isEmpty(dashboard.movimentacoesRecentes)}"><div class="lista-recente-cabecalho"><h3>Movimentações recentes</h3><a th:href="@{/caixa/movimentacoes}">Ver todas as movimentações</a></div><ul class="lista-administrativa lista-movimentacoes"><li th:each="lancamento : ${dashboard.movimentacoesRecentes}"><span class="tipo-movimento" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'entrada' : 'saida'" th:text="${lancamento.tipo.rotuloAcessivel}">Tipo</span><span class="descricao-movimento"><strong th:text="${lancamento.descricao}">Descrição</strong><small th:text="${@formatador.data(lancamento.data) + ' · ' + lancamento.categoria.nome}">Data · Categoria</small></span><strong class="valor-movimento" th:text="${@formatador.moeda(lancamento.valor)}">R$ 0,00</strong><a class="botao botao-secundario botao-pequeno" th:href="@{/caixa/movimentacoes/{id}(id=${lancamento.id})}">Ver</a></li></ul></div>
+            <div class="painel lista-recente" th:if="${!#lists.isEmpty(dashboard.movimentacoesRecentes)}"><div class="lista-recente-cabecalho"><h3>Movimentações recentes</h3><a th:href="@{/caixa/movimentacoes}">Ver todas as movimentações</a></div><ul class="lista-administrativa lista-movimentacoes"><li th:each="lancamento : ${dashboard.movimentacoesRecentes}"><span class="tipo-movimento" th:classappend="${lancamento.tipo.name() == 'ENTRADA'} ? 'entrada' : 'saida'" th:text="${lancamento.tipo.rotuloAcessivel}">Tipo</span><span class="descricao-movimento"><strong th:text="${lancamento.descricao}">Descrição</strong><small th:text="${@formatador.data(lancamento.data) + ' · ' + lancamento.categoria.nome}">Data · Categoria</small></span><strong class="valor-movimento" th:text="${@formatador.valorLancamento(lancamento)}">R$ 0,00</strong><a class="botao botao-secundario botao-pequeno" th:href="@{/caixa/movimentacoes/{id}(id=${lancamento.id})}">Ver</a></li></ul></div>
             <div class="estado-vazio estado-vazio-compacto" th:if="${#lists.isEmpty(dashboard.movimentacoesRecentes)}"><h3>Ainda não há movimentações</h3><p>Registre uma entrada ou saída para começar.</p><div class="grupo-botoes"><a class="botao botao-entrada" th:href="@{/caixa/entrada}">Registrar entrada</a><a class="botao botao-saida" th:href="@{/caixa/saida}">Registrar saída</a></div></div>
         </section>
 

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/publico :: head('Quero participar — ONG Mulheres Valentes', 'Faça sua inscrição para participar da ONG Mulheres Valentes.')}"></head>
+<body class="pagina-publica" th:classappend="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<div th:replace="~{fragments/publico :: topo}"></div>
+
+<main id="conteudo" tabindex="-1" class="pagina-inscricao">
+    <header class="cabecalho-inscricao">
+        <p class="sobretitulo-publico">Inscrição</p>
+        <h1>Quero participar da Mulheres Valentes</h1>
+        <p>Conte só o necessário. Depois a nossa equipe fala com você do jeito que for mais seguro.</p>
+        <ol class="etapas-publicas" aria-label="Etapas da inscrição">
+            <li class="atual" aria-current="step"><span>1</span> Preencher</li>
+            <li><span>2</span> Conferir</li>
+            <li><span>3</span> Enviar</li>
+        </ol>
+    </header>
+
+    <div class="inscricao-grade">
+        <form class="formulario-publico" th:action="@{/inscricao}" th:object="${inscricaoForm}" method="post" novalidate>
+            <div class="alerta-publico" role="alert" th:if="${#fields.hasAnyErrors()}">
+                <strong>Faltou alguma informação.</strong>
+                <p>Confira os campos marcados abaixo e envie de novo.</p>
+                <ul th:if="${#fields.hasGlobalErrors()}"><li th:each="erro : ${#fields.globalErrors()}" th:text="${erro}">Erro</li></ul>
+            </div>
+
+            <div class="campo-armadilha" aria-hidden="true">
+                <label for="site">Não preencha este campo</label>
+                <input id="site" type="text" th:field="*{site}" tabindex="-1" autocomplete="off">
+            </div>
+
+            <fieldset class="bloco-formulario">
+                <legend><span class="bloco-numero" aria-hidden="true">1</span> Sobre você</legend>
+                <div class="campo-publico">
+                    <label for="nome">Seu nome <span class="obrigatorio-publico">obrigatório</span></label>
+                    <small id="ajuda-nome">Pode ser o nome pelo qual você gosta de ser chamada.</small>
+                    <input id="nome" type="text" th:field="*{nome}" maxlength="150" autocomplete="name" th:attr="aria-invalid=${#fields.hasErrors('nome')},aria-describedby=${#fields.hasErrors('nome') ? 'erro-nome ajuda-nome' : 'ajuda-nome'}">
+                    <p class="erro-publico" id="erro-nome" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">Erro</p>
+                </div>
+                <div class="campo-publico">
+                    <label for="bairro">Bairro onde mora <span class="opcional-publico">opcional</span></label>
+                    <input id="bairro" type="text" th:field="*{bairro}" maxlength="100" autocomplete="address-level3" th:attr="aria-invalid=${#fields.hasErrors('bairro')}">
+                    <p class="erro-publico" th:if="${#fields.hasErrors('bairro')}" th:errors="*{bairro}">Erro</p>
+                </div>
+            </fieldset>
+
+            <fieldset class="bloco-formulario">
+                <legend><span class="bloco-numero" aria-hidden="true">2</span> Como falar com você</legend>
+                <div class="campo-publico">
+                    <label for="contato">Telefone, WhatsApp ou e-mail <span class="obrigatorio-publico">obrigatório</span></label>
+                    <input id="contato" type="text" th:field="*{contato}" maxlength="120" autocomplete="tel" inputmode="tel" th:attr="aria-invalid=${#fields.hasErrors('contato')},aria-describedby=${#fields.hasErrors('contato') ? 'erro-contato' : null}">
+                    <p class="erro-publico" id="erro-contato" th:if="${#fields.hasErrors('contato')}" th:errors="*{contato}">Erro</p>
+                </div>
+                <fieldset class="grupo-opcoes">
+                    <legend>Como prefere que a gente fale com você? <span class="obrigatorio-publico">obrigatório</span></legend>
+                    <div class="opcoes-publicas">
+                        <label class="opcao-publica" th:each="opcao : ${preferenciasContato}"><input type="radio" th:field="*{preferenciaContato}" th:value="${opcao}"><span th:text="${opcao.descricao}">Opção</span></label>
+                    </div>
+                    <p class="erro-publico" th:if="${#fields.hasErrors('preferenciaContato')}" th:errors="*{preferenciaContato}">Erro</p>
+                </fieldset>
+                <div class="campo-publico">
+                    <label for="contatoSeguro">Como e quando é seguro falarmos com você? <span class="opcional-publico">opcional</span></label>
+                    <small id="ajuda-seguro">Exemplos: “só depois das 18h”, “não deixar recado”, “mandar mensagem antes de ligar”.</small>
+                    <textarea id="contatoSeguro" th:field="*{contatoSeguro}" maxlength="200" rows="2" aria-describedby="ajuda-seguro"></textarea>
+                    <p class="erro-publico" th:if="${#fields.hasErrors('contatoSeguro')}" th:errors="*{contatoSeguro}">Erro</p>
+                </div>
+            </fieldset>
+
+            <fieldset class="bloco-formulario">
+                <legend><span class="bloco-numero" aria-hidden="true">3</span> Como podemos ajudar? <span class="opcional-publico">pode marcar mais de uma</span></legend>
+                <div class="opcoes-publicas opcoes-colunas">
+                    <label class="opcao-publica" th:each="area : ${areasApoio}"><input type="checkbox" th:field="*{areas}" th:value="${area}"><span th:text="${area.descricao}">Área</span></label>
+                </div>
+                <div class="campo-publico">
+                    <label for="mensagem">Quer contar alguma coisa? <span class="opcional-publico">opcional</span></label>
+                    <small id="ajuda-mensagem">Escreva só o que você se sentir à vontade para contar agora.</small>
+                    <textarea id="mensagem" th:field="*{mensagem}" maxlength="1000" rows="4" aria-describedby="ajuda-mensagem"></textarea>
+                    <p class="erro-publico" th:if="${#fields.hasErrors('mensagem')}" th:errors="*{mensagem}">Erro</p>
+                </div>
+            </fieldset>
+
+            <div class="consentimento-publico">
+                <label class="opcao-publica opcao-consentimento"><input type="checkbox" th:field="*{consentimento}"><span>Autorizo a ONG Mulheres Valentes a guardar estes dados e a entrar em contato comigo. Eles são usados só pela equipe da ONG.</span></label>
+                <p class="erro-publico" th:if="${#fields.hasErrors('consentimento')}" th:errors="*{consentimento}">Erro</p>
+            </div>
+
+            <button class="botao-publico botao-publico-destaque botao-publico-grande" type="submit">Conferir meus dados</button>
+            <p class="nota-envio">Na próxima tela você vê tudo o que escreveu e pode corrigir antes de enviar.</p>
+        </form>
+
+        <aside class="inscricao-lateral" aria-label="Informações importantes">
+            <section class="cartao-lateral">
+                <h2>O que acontece depois</h2>
+                <ol>
+                    <li>A equipe recebe a sua inscrição.</li>
+                    <li>Alguém da ONG fala com você do jeito que você escolheu.</li>
+                    <li>Vocês combinam juntas os próximos passos.</li>
+                </ol>
+            </section>
+            <section class="cartao-lateral cartao-seguranca">
+                <h2>Sua segurança</h2>
+                <p>Se alguém mexe no seu celular ou computador, prefira uma aba anônima e use o botão <strong>Sair rápido</strong>, no alto da página, se precisar.</p>
+                <p><strong>Em perigo agora?</strong> Ligue <a href="tel:190">190</a>. Para orientação sobre violência contra a mulher, ligue <a href="tel:180">180</a>: é gratuito, sigiloso e funciona 24 horas.</p>
+            </section>
+            <section class="cartao-lateral">
+                <h2>Prefere falar antes?</h2>
+                <p><a href="tel:+5511962108652">(11) 96210-8652</a><br><a href="mailto:contato@mulheresvalentes.org.br">contato@mulheresvalentes.org.br</a></p>
+            </section>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/publico :: rodape}"></footer>
+</body>
+</html>

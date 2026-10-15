@@ -6,7 +6,7 @@
 <div class="estrutura-app">
     <aside th:replace="~{fragments/sidebar :: sidebar('movimentacoes')}"></aside>
     <main id="conteudo" class="conteudo-principal conteudo-estreito" tabindex="-1">
-        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa/movimentacoes}">Movimentações</a><span aria-hidden="true">›</span><span aria-current="page">Corrigir lançamento</span></nav>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa/movimentacoes}">Movimentações</a><span aria-hidden="true">›</span><span aria-current="page">Corrigir lançamento</span></nav>
         <section th:replace="~{caixa/formulario :: formulario('Corrigir lançamento', 'Revise os campos e salve a informação corrigida.', '/caixa/movimentacoes/' + ${lancamentoId} + '/editar', 'Salvar correção', 'botao-primario')}"></section>
     </main>
 </div>

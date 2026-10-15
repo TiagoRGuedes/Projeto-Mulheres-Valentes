@@ -35,7 +35,7 @@ public class ParticipanteService {
         if (busca == null || busca.isBlank()) {
             return participanteRepository.findAllByOrderByNomeAsc();
         }
-        return participanteRepository.findByNomeContainingIgnoreCaseOrderByNomeAsc(busca.trim());
+        return participanteRepository.pesquisar(busca.trim());
     }
 
     @Transactional(readOnly = true)
@@ -53,8 +53,9 @@ public class ParticipanteService {
     }
 
     @Transactional
-    public Participante cadastrar(String nome, String observacoes) {
-        Participante participante = new Participante(validarNome(nome), limparTextoOpcional(observacoes));
+    public Participante cadastrar(String nome, String contato, String observacoes) {
+        Participante participante = new Participante(
+                validarNome(nome), validarContato(contato), limparTextoOpcional(observacoes));
         Participante salvo = participanteRepository.save(participante);
         historicoService.registrar(
                 ModuloHistorico.PARTICIPANTES, "Participante", salvo.getId(), salvo.getNome(),
@@ -63,15 +64,16 @@ public class ParticipanteService {
     }
 
     @Transactional
-    public Participante atualizar(Long id, String nome, String observacoes) {
+    public Participante atualizar(Long id, String nome, String contato, String observacoes) {
         Participante participante = buscar(id);
-        String anterior = "Nome: " + participante.getNome();
-        participante.atualizarDados(validarNome(nome), limparTextoOpcional(observacoes));
+        String anterior = resumo(participante);
+        participante.atualizarDados(
+                validarNome(nome), validarContato(contato), limparTextoOpcional(observacoes));
         Participante salvo = participanteRepository.save(participante);
         historicoService.registrar(
                 ModuloHistorico.PARTICIPANTES, "Participante", salvo.getId(), salvo.getNome(),
                 AcaoHistorico.EDICAO, "Cadastro do participante atualizado.",
-                anterior, "Nome: " + salvo.getNome());
+                anterior, resumo(salvo));
         return salvo;
     }
 
@@ -144,6 +146,20 @@ public class ParticipanteService {
             throw new RegraNegocioException("O nome deve ter no máximo 150 caracteres.");
         }
         return nomeLimpo;
+    }
+
+    private String validarContato(String contato) {
+        String contatoLimpo = limparTextoOpcional(contato);
+        if (contatoLimpo != null && contatoLimpo.length() > 120) {
+            throw new RegraNegocioException("O contato deve ter no máximo 120 caracteres.");
+        }
+        return contatoLimpo;
+    }
+
+    private String resumo(Participante participante) {
+        return "Nome: " + participante.getNome()
+                + "; contato: " + (participante.getContato() == null
+                        ? "não informado" : participante.getContato());
     }
 
     private String limparTextoOpcional(String texto) {

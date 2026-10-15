@@ -3,12 +3,12 @@ package com.ibmec.mulheresvalentes.service;
 import com.ibmec.mulheresvalentes.model.HistoricoOperacao;
 import com.ibmec.mulheresvalentes.repository.AtividadeRepository;
 import com.ibmec.mulheresvalentes.repository.EncontroRepository;
+import com.ibmec.mulheresvalentes.repository.InscricaoRepository;
 import com.ibmec.mulheresvalentes.repository.LancamentoCaixaRepository;
 import com.ibmec.mulheresvalentes.repository.ParticipanteRepository;
 import com.ibmec.mulheresvalentes.repository.PresencaRepository;
 import org.springframework.stereotype.Component;
 
-/** Resolve links seguros da timeline apenas quando o registro ainda pode ser aberto. */
 @Component("historicoLink")
 public class HistoricoLinkService {
 
@@ -17,18 +17,21 @@ public class HistoricoLinkService {
     private final EncontroRepository encontroRepository;
     private final PresencaRepository presencaRepository;
     private final LancamentoCaixaRepository lancamentoRepository;
+    private final InscricaoRepository inscricaoRepository;
 
     public HistoricoLinkService(
             ParticipanteRepository participanteRepository,
             AtividadeRepository atividadeRepository,
             EncontroRepository encontroRepository,
             PresencaRepository presencaRepository,
-            LancamentoCaixaRepository lancamentoRepository) {
+            LancamentoCaixaRepository lancamentoRepository,
+            InscricaoRepository inscricaoRepository) {
         this.participanteRepository = participanteRepository;
         this.atividadeRepository = atividadeRepository;
         this.encontroRepository = encontroRepository;
         this.presencaRepository = presencaRepository;
         this.lancamentoRepository = lancamentoRepository;
+        this.inscricaoRepository = inscricaoRepository;
     }
 
     public String url(HistoricoOperacao operacao) {
@@ -43,6 +46,7 @@ public class HistoricoLinkService {
             case "Presenca" -> presencaRepository.existsById(id) ? "/presencas/" + id + "/corrigir" : null;
             case "LancamentoCaixa" -> lancamentoRepository.existsById(id)
                     ? "/caixa/movimentacoes/" + id : null;
+            case "Inscricao" -> inscricaoRepository.existsById(id) ? "/inscricoes/" + id : null;
             default -> null;
         };
     }
@@ -57,6 +61,7 @@ public class HistoricoLinkService {
             case "Encontro" -> "Ver encontro";
             case "Presenca" -> "Ver presença";
             case "LancamentoCaixa" -> "Ver lançamento";
+            case "Inscricao" -> "Ver inscrição";
             default -> "Ver registro";
         };
     }

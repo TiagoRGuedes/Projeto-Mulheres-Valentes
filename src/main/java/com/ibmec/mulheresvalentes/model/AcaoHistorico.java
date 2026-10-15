@@ -1,8 +1,5 @@
 package com.ibmec.mulheresvalentes.model;
 
-/**
- * Ações administrativas que podem aparecer no Histórico do Sistema.
- */
 public enum AcaoHistorico {
     CRIACAO("Criação", "+"),
     EDICAO("Edição", "✎"),

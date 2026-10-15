@@ -8,11 +8,15 @@
 - **Período:** 2026.2
 - **Natureza:** projeto acadêmico independente
 
-Este documento define uma proposta inicial para orientar prototipação e entrevista. Ele não substitui a validação com a ONG.
+Este documento define a proposta inicial que orientou a prototipação e a
+entrevista. **O escopo vigente é o documento AC1**, entregue depois da conversa
+com a ONG; o que está aqui foi mantido como registro do raciocínio anterior.
+Os requisitos confirmados e o estado de cada um estão no README, em
+"Requisitos do escopo (AC1)".
 
-## Base confirmada
+## Base confirmada antes da entrevista
 
-Até a entrevista, somente estes cinco fatos sobre a realidade da ONG são considerados confirmados:
+Antes da entrevista, somente estes cinco fatos sobre a realidade da ONG eram considerados confirmados:
 
 1. há controle de presença;
 2. há livro caixa;

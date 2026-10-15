@@ -4,7 +4,6 @@ import com.ibmec.mulheresvalentes.model.Presenca;
 
 import java.util.List;
 
-/** Resumo da chamada ligada a um encontro específico. */
 public record EncontroConectadoDTO(
         ResumoPresencasDto resumo,
         List<Presenca> registros

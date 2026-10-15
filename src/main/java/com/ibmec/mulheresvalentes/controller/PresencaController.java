@@ -89,14 +89,15 @@ public class PresencaController {
 
     @GetMapping("/presencas/registrar")
     public String registrar(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
             @RequestParam(required = false) Long atividadeId,
             @RequestParam(required = false) Long encontroId,
             @RequestParam(required = false) String busca,
             Model model
     ) {
-        RegistroPresencaForm form = encontroId == null
-                ? new RegistroPresencaForm()
-                : presencaService.prepararRegistroColetivo(encontroId, busca);
+        LocalDate dataDaChamada = data == null ? LocalDate.now() : data;
+        RegistroPresencaForm form =
+                presencaService.prepararRegistroColetivo(dataDaChamada, encontroId, busca);
         prepararTelaRegistro(model, form, atividadeId, busca);
         return "presencas/registrar";
     }
@@ -187,6 +188,10 @@ public class PresencaController {
         if (form.getEncontroId() != null) {
             encontro = encontroService.buscar(form.getEncontroId());
             atividadeId = encontro.getAtividade().getId();
+            form.setData(encontro.getData());
+        }
+        if (form.getData() == null) {
+            form.setData(LocalDate.now());
         }
         model.addAttribute("registroPresencaForm", form);
         model.addAttribute("atividades", atividadeService.listarAtivas());
@@ -198,6 +203,8 @@ public class PresencaController {
         model.addAttribute("encontroSelecionado", encontro);
         model.addAttribute("statusPresenca", StatusPresenca.values());
         model.addAttribute("resumoRegistro", presencaService.resumirFormulario(form));
+        model.addAttribute("dataChamada", form.getData());
+        model.addAttribute("hoje", LocalDate.now());
         model.addAttribute("busca", busca);
     }
 

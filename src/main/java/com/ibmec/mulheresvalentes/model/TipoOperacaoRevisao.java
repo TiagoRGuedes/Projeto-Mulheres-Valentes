@@ -1,6 +1,5 @@
 package com.ibmec.mulheresvalentes.model;
 
-/** Operações web que passam pela camada universal de revisão. */
 public enum TipoOperacaoRevisao {
     CRIAR_PARTICIPANTE,
     EDITAR_PARTICIPANTE,
@@ -23,5 +22,8 @@ public enum TipoOperacaoRevisao {
     REGISTRAR_ENTRADA,
     REGISTRAR_SAIDA,
     EDITAR_LANCAMENTO,
-    CANCELAR_LANCAMENTO
+    CANCELAR_LANCAMENTO,
+    MARCAR_INSCRICAO_EM_CONTATO,
+    ACEITAR_INSCRICAO,
+    ARQUIVAR_INSCRICAO
 }

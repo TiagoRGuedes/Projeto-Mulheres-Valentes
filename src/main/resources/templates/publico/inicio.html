@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/publico :: head('ONG Mulheres Valentes — Ninguém precisa caminhar sozinho', 'A ONG Mulheres Valentes acolhe, orienta e fortalece mulheres, crianças, adolescentes e famílias em Pirituba, São Paulo, desde 2020.')}"></head>
+<body class="pagina-publica" th:classappend="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<div th:replace="~{fragments/publico :: topo}"></div>
+
+<main id="conteudo" tabindex="-1">
+    <section class="hero-publico" aria-labelledby="titulo-hero">
+        <div class="hero-publico-texto">
+            <p class="sobretitulo-publico">Desde 2020 em Pirituba, São Paulo</p>
+            <h1 id="titulo-hero">Ninguém precisa caminhar <em>sozinho.</em></h1>
+            <p class="hero-publico-lead">A Mulheres Valentes acolhe, orienta e fortalece mulheres, crianças, adolescentes e famílias. Se você está passando por um momento difícil, a gente caminha ao seu lado.</p>
+            <div class="hero-publico-acoes">
+                <a class="botao-publico botao-publico-destaque" th:href="@{/inscricao}">Quero participar da ONG</a>
+                <a class="botao-publico botao-publico-contorno" href="#historia">Conhecer nossa história</a>
+            </div>
+            <p class="hero-publico-nota">A inscrição é gratuita, leva poucos minutos e você escolhe como prefere que a gente fale com você.</p>
+        </div>
+        <figure class="hero-publico-foto">
+            <img th:src="@{/img/publico/acolhimento.jpg}" alt="Duas mulheres em um abraço apertado; uma delas sorri de olhos fechados." width="1000" height="679">
+            <figcaption>Acolher, fortalecer, educar, valorizar a cultura e transformar vidas.</figcaption>
+        </figure>
+    </section>
+
+    <section class="faixa-rede" aria-label="Força coletiva">
+        <img th:src="@{/img/publico/rede-de-mulheres.jpg}" alt="Ilustração de mulheres de todas as cores lado a lado, de braços dados." width="1127" height="371">
+        <p>Aqui, a coragem individual se transforma em <strong>força coletiva.</strong></p>
+    </section>
+
+    <section class="secao-publica historia" id="historia" aria-labelledby="titulo-historia">
+        <div class="historia-lateral">
+            <p class="sobretitulo-publico">Nossa história</p>
+            <h2 id="titulo-historia">Nasceu de uma experiência de dor e virou propósito.</h2>
+            <blockquote>
+                <p>“Eu não queria que outras mulheres passassem por aquilo sozinhas.”</p>
+                <footer>Karine, fundadora</footer>
+            </blockquote>
+        </div>
+        <div class="historia-texto">
+            <p>A história da ONG Mulheres Valentes começou em 2020, a partir de uma experiência que transformou a minha vida e despertou em mim um propósito.</p>
+            <p>Eu, Karine, vivi uma situação de violência doméstica e procurei uma delegacia para registrar um boletim de ocorrência. Foi naquele momento que percebi, de forma muito dolorosa, como ainda é difícil ser mulher em nosso país, principalmente quando enfrentamos uma situação de violência.</p>
+            <p>Percebi que muitas mulheres precisam enfrentar o medo, a insegurança, a falta de informação e diversos obstáculos para romper o silêncio e buscar ajuda.</p>
+            <p>Foi então que tomei uma decisão: eu não queria que outras mulheres passassem por aquilo sozinhas.</p>
+            <p>Assim nasceu a ONG Mulheres Valentes, com o propósito de acolher, orientar, fortalecer e caminhar ao lado de mulheres, crianças, adolescentes e famílias.</p>
+            <p>Hoje, desenvolvemos ações de enfrentamento à violência doméstica, grupos reflexivos com homens e grupos de acolhimento para mulheres, com escuta ativa e rodas de conversa que se tornaram espaços de troca, cuidado e fortalecimento. São encontros que muitas vezes aquecem o nosso coração. ❤️</p>
+            <p>Também acreditamos que a transformação acontece por meio da educação, da cultura e do acesso a novas oportunidades.</p>
+            <p>Por isso, desenvolvemos atividades culturais que valorizam a história, os talentos, a criatividade e a identidade da nossa comunidade. Acreditamos que a cultura é uma ferramenta poderosa de inclusão, expressão e fortalecimento de vínculos.</p>
+            <p>Por meio da cultura, queremos abrir espaços para que crianças, adolescentes, mulheres e famílias possam se expressar, descobrir talentos, conhecer suas raízes e enxergar novos caminhos para o futuro.</p>
+            <p>Na área da educação, realizamos reforço escolar aos sábados para crianças e adolescentes de 6 a 14 anos, contribuindo para o desenvolvimento e para novas oportunidades.</p>
+            <p>Também contamos com ações de cuidado e saúde emocional, oferecendo psicoterapia para nossas mulheres, terapia ocupacional e terapia infantil em grupo.</p>
+            <p>Desde 2020, seguimos construindo nossa história com coragem, amor e compromisso com a comunidade.</p>
+            <p>A Mulheres Valentes nasceu de uma experiência de dor, mas transformou essa experiência em propósito, acolhimento, educação, cultura e esperança.</p>
+            <p class="historia-missao">Nossa missão é mostrar que ninguém precisa caminhar sozinho.</p>
+        </div>
+    </section>
+
+    <section class="secao-publica fundo-suave" id="o-que-fazemos" aria-labelledby="titulo-fazemos">
+        <header class="cabecalho-publico">
+            <p class="sobretitulo-publico">O que fazemos</p>
+            <h2 id="titulo-fazemos">Cuidado, orientação e novos caminhos.</h2>
+        </header>
+        <ul class="cartoes-servico">
+            <li class="cartao-servico">
+                <span class="cartao-servico-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span>
+                <h3>Acolhimento e rodas de conversa</h3>
+                <p>Grupos de acolhimento para mulheres, com escuta ativa, e ações de enfrentamento à violência doméstica. Também realizamos grupos reflexivos com homens.</p>
+            </li>
+            <li class="cartao-servico">
+                <span class="cartao-servico-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+                <h3>Saúde emocional</h3>
+                <p>Psicoterapia para nossas mulheres, terapia ocupacional e terapia infantil em grupo.</p>
+            </li>
+            <li class="cartao-servico">
+                <span class="cartao-servico-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M5 7l-3 7h6zM19 7l-3 7h6zM8 21h8"/></svg></span>
+                <h3>Orientação jurídica</h3>
+                <p>Apoio para entender e defender os seus direitos.</p>
+            </li>
+            <li class="cartao-servico">
+                <span class="cartao-servico-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><rect x="5" y="5" width="14" height="14" rx="3"/></svg></span>
+                <h3>Prevenção e saúde</h3>
+                <p>Exames de ISTs e orientações médicas para o bem-estar das mulheres.</p>
+            </li>
+            <li class="cartao-servico">
+                <span class="cartao-servico-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2 8l10-5 10 5-10 5zM6 10v5c0 2 3 4 6 4s6-2 6-4v-5"/></svg></span>
+                <h3>Educação e cultura</h3>
+                <p>Reforço escolar aos sábados para crianças e adolescentes de 6 a 14 anos, e atividades culturais para toda a comunidade.</p>
+            </li>
+            <li class="cartao-servico">
+                <span class="cartao-servico-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+                <h3>Cursos e geração de renda</h3>
+                <p>Capacitação e projetos para conquistar a independência financeira.</p>
+            </li>
+        </ul>
+    </section>
+
+    <section class="secao-publica" th:unless="${#lists.isEmpty(galeria)}" aria-labelledby="titulo-galeria">
+        <header class="cabecalho-publico">
+            <p class="sobretitulo-publico">Nossos encontros</p>
+            <h2 id="titulo-galeria">Um pouco do que vivemos juntas.</h2>
+        </header>
+        <ul class="galeria-publica">
+            <li th:each="foto : ${galeria}"><img th:src="@{${foto.caminho}}" th:alt="${foto.descricao}" loading="lazy"></li>
+        </ul>
+    </section>
+
+    <section class="secao-publica como-participar" id="como-participar" aria-labelledby="titulo-participar">
+        <header class="cabecalho-publico">
+            <p class="sobretitulo-publico">Como participar</p>
+            <h2 id="titulo-participar">Três passos para chegar até nós.</h2>
+        </header>
+        <ol class="passos-publicos">
+            <li><span class="passo-numero" aria-hidden="true">1</span><h3>Faça sua inscrição</h3><p>Preencha o formulário com seu nome e uma forma de contato. Leva poucos minutos.</p></li>
+            <li><span class="passo-numero" aria-hidden="true">2</span><h3>A gente fala com você</h3><p>A equipe entra em contato do jeito e no horário que você indicar como seguros.</p></li>
+            <li><span class="passo-numero" aria-hidden="true">3</span><h3>Você conhece a ONG</h3><p>Combinamos juntas o que faz sentido para você e você começa a participar.</p></li>
+        </ol>
+        <div class="chamada-inscricao">
+            <div>
+                <h3>Sua segurança vem primeiro.</h3>
+                <p>Você decide como e quando podemos falar com você. Se outra pessoa usa o seu celular, conte isso na inscrição e escolha a forma mais segura.</p>
+            </div>
+            <a class="botao-publico botao-publico-destaque" th:href="@{/inscricao}">Fazer minha inscrição</a>
+        </div>
+    </section>
+
+    <section class="secao-publica fundo-escuro" id="contato" aria-labelledby="titulo-contato">
+        <div class="contato-publico">
+            <div>
+                <p class="sobretitulo-publico">Contato</p>
+                <h2 id="titulo-contato">Venha nos conhecer.</h2>
+                <p>Se preferir, fale com a gente antes de se inscrever.</p>
+            </div>
+            <dl class="contato-lista">
+                <div><dt>Endereço</dt><dd>Rua Odilon Azevedo, 247 — Pirituba, São Paulo – SP<br><a href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Odilon+Azevedo%2C+247%2C+Pirituba%2C+S%C3%A3o+Paulo" target="_blank" rel="noopener noreferrer">Ver no mapa<span class="sr-only"> (abre em nova aba)</span></a></dd></div>
+                <div><dt>Telefone</dt><dd><a href="tel:+5511962108652">(11) 96210-8652</a></dd></div>
+                <div><dt>E-mail</dt><dd><a href="mailto:contato@mulheresvalentes.org.br">contato@mulheresvalentes.org.br</a></dd></div>
+                <div><dt>Instagram</dt><dd><a href="https://www.instagram.com/valentesmulheres/" target="_blank" rel="noopener noreferrer">@valentesmulheres<span class="sr-only"> (abre em nova aba)</span></a></dd></div>
+            </dl>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/publico :: rodape}"></footer>
+</body>
+</html>

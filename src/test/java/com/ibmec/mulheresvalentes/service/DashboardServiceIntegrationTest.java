@@ -74,10 +74,10 @@ class DashboardServiceIntegrationTest {
         LocalDate hoje = LocalDate.now();
         LocalDate mesAnterior = hoje.minusMonths(1).withDayOfMonth(1);
 
-        Participante presente = participanteService.cadastrar("Pessoa Presente Fictícia", null);
-        Participante ausente = participanteService.cadastrar("Pessoa Ausente Fictícia", null);
-        Participante justificada = participanteService.cadastrar("Pessoa Justificada Fictícia", null);
-        Participante inativa = participanteService.cadastrar("Pessoa Inativa Fictícia", null);
+        Participante presente = participanteService.cadastrar("Pessoa Presente Fictícia", null, null);
+        Participante ausente = participanteService.cadastrar("Pessoa Ausente Fictícia", null, null);
+        Participante justificada = participanteService.cadastrar("Pessoa Justificada Fictícia", null, null);
+        Participante inativa = participanteService.cadastrar("Pessoa Inativa Fictícia", null, null);
         participanteService.desativar(inativa.getId());
 
         Atividade atividadeAtual = atividadeService.cadastrar("Atividade Atual Fictícia", null);
@@ -89,13 +89,13 @@ class DashboardServiceIntegrationTest {
         Encontro encontroAtual = encontroService.cadastrar(
                 atividadeAtual.getId(), hoje, null);
 
-        presencaService.registrar(
+        presencaService.registrarNoEncontro(
                 presente.getId(), encontroAntigo.getId(), StatusPresenca.PRESENTE, null);
-        presencaService.registrar(
+        presencaService.registrarNoEncontro(
                 presente.getId(), encontroAtual.getId(), StatusPresenca.PRESENTE, null);
-        presencaService.registrar(
+        presencaService.registrarNoEncontro(
                 ausente.getId(), encontroAtual.getId(), StatusPresenca.AUSENTE, null);
-        presencaService.registrar(
+        presencaService.registrarNoEncontro(
                 justificada.getId(), encontroAtual.getId(), StatusPresenca.JUSTIFICADA, null);
 
         CategoriaFinanceira categoriaEntrada = categoriaService.cadastrar(
