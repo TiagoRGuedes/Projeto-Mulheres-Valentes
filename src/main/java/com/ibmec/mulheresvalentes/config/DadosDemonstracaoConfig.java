@@ -1,14 +1,17 @@
 package com.ibmec.mulheresvalentes.config;
 
 import com.ibmec.mulheresvalentes.model.AcaoHistorico;
+import com.ibmec.mulheresvalentes.model.AreaApoio;
 import com.ibmec.mulheresvalentes.model.Atividade;
 import com.ibmec.mulheresvalentes.model.CategoriaFinanceira;
 import com.ibmec.mulheresvalentes.model.Encontro;
 import com.ibmec.mulheresvalentes.model.HistoricoOperacao;
+import com.ibmec.mulheresvalentes.model.Inscricao;
 import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
 import com.ibmec.mulheresvalentes.model.ModuloHistorico;
 import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.Participante;
+import com.ibmec.mulheresvalentes.model.PreferenciaContato;
 import com.ibmec.mulheresvalentes.model.Presenca;
 import com.ibmec.mulheresvalentes.model.StatusPresenca;
 import com.ibmec.mulheresvalentes.model.TipoLancamento;
@@ -16,6 +19,7 @@ import com.ibmec.mulheresvalentes.repository.AtividadeRepository;
 import com.ibmec.mulheresvalentes.repository.CategoriaFinanceiraRepository;
 import com.ibmec.mulheresvalentes.repository.EncontroRepository;
 import com.ibmec.mulheresvalentes.repository.HistoricoOperacaoRepository;
+import com.ibmec.mulheresvalentes.repository.InscricaoRepository;
 import com.ibmec.mulheresvalentes.repository.LancamentoCaixaRepository;
 import com.ibmec.mulheresvalentes.repository.ParticipanteRepository;
 import com.ibmec.mulheresvalentes.repository.PresencaRepository;
@@ -29,6 +33,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @ConditionalOnProperty(name = "app.dados-demonstracao", havingValue = "true")
@@ -110,6 +115,7 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
     private final CategoriaFinanceiraRepository categoriaRepository;
     private final LancamentoCaixaRepository lancamentoRepository;
     private final HistoricoOperacaoRepository historicoRepository;
+    private final InscricaoRepository inscricaoRepository;
 
     public DadosDemonstracaoConfig(
             ParticipanteRepository participanteRepository,
@@ -118,7 +124,8 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
             PresencaRepository presencaRepository,
             CategoriaFinanceiraRepository categoriaRepository,
             LancamentoCaixaRepository lancamentoRepository,
-            HistoricoOperacaoRepository historicoRepository) {
+            HistoricoOperacaoRepository historicoRepository,
+            InscricaoRepository inscricaoRepository) {
         this.participanteRepository = participanteRepository;
         this.atividadeRepository = atividadeRepository;
         this.encontroRepository = encontroRepository;
@@ -126,6 +133,7 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
         this.categoriaRepository = categoriaRepository;
         this.lancamentoRepository = lancamentoRepository;
         this.historicoRepository = historicoRepository;
+        this.inscricaoRepository = inscricaoRepository;
     }
 
     @Override
@@ -133,6 +141,38 @@ public class DadosDemonstracaoConfig implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         carregarPresencasSeBancoNovo();
         carregarCaixaSeBancoNovo();
+        carregarInscricoesSeBancoNovo();
+    }
+
+    private void carregarInscricoesSeBancoNovo() {
+        if (inscricaoRepository.count() != 0) {
+            return;
+        }
+        Inscricao emContato = new Inscricao(
+                "Rita Demonstração", "(11) 90000-0101", PreferenciaContato.WHATSAPP,
+                "Somente mensagem, depois das 18h.", "Pirituba",
+                Set.of(AreaApoio.ACOLHIMENTO, AreaApoio.SAUDE_EMOCIONAL),
+                "Cadastro fictício para demonstração.", true);
+        emContato.marcarEmContato();
+        Inscricao arquivada = new Inscricao(
+                "Sônia Exemplo", "sonia@demonstracao.invalid", PreferenciaContato.EMAIL,
+                null, null, Set.of(AreaApoio.QUERO_CONVERSAR), null, true);
+        arquivada.arquivar();
+        inscricaoRepository.saveAll(List.of(
+                new Inscricao(
+                        "Tereza Modelo", "(11) 90000-0102", PreferenciaContato.WHATSAPP,
+                        "Não deixar recado de voz.", "Jaraguá",
+                        Set.of(AreaApoio.ORIENTACAO_JURIDICA, AreaApoio.ACOLHIMENTO),
+                        "Inscrição inteiramente fictícia.", true),
+                new Inscricao(
+                        "Vera Demonstração", "(11) 90000-0103", PreferenciaContato.LIGACAO,
+                        "Pela manhã.", "Pirituba",
+                        Set.of(AreaApoio.REFORCO_ESCOLAR, AreaApoio.CURSOS_RENDA), null, true),
+                new Inscricao(
+                        "Zilda Exemplo", "(11) 90000-0104", PreferenciaContato.WHATSAPP,
+                        null, null, Set.of(AreaApoio.CULTURA), null, true),
+                emContato,
+                arquivada));
     }
 
     private void carregarPresencasSeBancoNovo() {

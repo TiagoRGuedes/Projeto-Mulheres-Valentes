@@ -8,6 +8,12 @@
     <main id="conteudo" class="conteudo-principal" tabindex="-1">
         <div th:replace="~{fragments/mensagens :: mensagens}"></div>
 
+        <a class="aviso-inscricoes" th:if="${inscricoesNovas > 0}" th:href="@{/inscricoes(status='NOVA')}">
+            <span class="aviso-inscricoes-numero" th:text="${inscricoesNovas}">0</span>
+            <span><strong th:text="${inscricoesNovas == 1 ? 'Nova inscrição pelo site' : 'Novas inscrições pelo site'}">Novas inscrições pelo site</strong><small>Mulheres que pediram para entrar na ONG e aguardam o primeiro contato.</small></span>
+            <span class="aviso-inscricoes-seta" aria-hidden="true">→</span>
+        </a>
+
         <section class="boas-vindas dashboard-hero" aria-labelledby="titulo-home">
             <div class="hero-grade">
                 <div class="hero-conteudo">

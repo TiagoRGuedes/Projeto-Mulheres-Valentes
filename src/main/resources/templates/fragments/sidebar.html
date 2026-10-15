@@ -5,8 +5,11 @@
     <nav aria-label="Navegação principal">
         <p class="menu-titulo">Navegação</p>
         <ul class="menu-lista">
-            <li><a th:href="@{/}" th:classappend="${secao == 'home'} ? 'ativo'" th:attr="aria-current=${secao == 'home'} ? 'page' : null">
+            <li><a th:href="@{/painel}" th:classappend="${secao == 'home'} ? 'ativo'" th:attr="aria-current=${secao == 'home'} ? 'page' : null">
                 <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg></span><span>Visão geral</span>
+            </a></li>
+            <li><a th:href="@{/inscricoes}" th:classappend="${secao == 'inscricoes'} ? 'ativo'" th:attr="aria-current=${secao == 'inscricoes'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg></span><span>Inscrições</span><span class="menu-contador" th:if="${inscricoesNovas > 0}" th:text="${inscricoesNovas}" th:attr="aria-label=|${inscricoesNovas} nova(s)|">0</span>
             </a></li>
 
             <li class="menu-separador"><span>Presença</span></li>
@@ -60,6 +63,9 @@
             </a></li>
             <li><a th:href="@{/acessibilidade}" th:classappend="${secao == 'acessibilidade'} ? 'ativo'" th:attr="aria-current=${secao == 'acessibilidade'} ? 'page' : null">
                 <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 8.5h14M12 8.5v11M8 20l4-6 4 6"/></svg></span><span>Acessibilidade</span>
+            </a></li>
+            <li><a th:href="@{/}" target="_blank" rel="noopener">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span>Ver página pública</span><span class="sr-only"> (abre em nova aba)</span>
             </a></li>
         </ul>
     </nav>

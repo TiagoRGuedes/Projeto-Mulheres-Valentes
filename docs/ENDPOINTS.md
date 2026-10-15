@@ -48,11 +48,36 @@ http://localhost:8080
 
 ## Rotas web
 
-### Geral
+### Página pública
 
 | Método | Rota | Finalidade |
 |---|---|---|
-| GET | / | Dashboard com ações, visão geral, presença, caixa e atividade recente |
+| GET | / | Página de apresentação da ONG |
+| GET | /inscricao | Formulário de inscrição |
+| POST | /inscricao | Recebe a inscrição e redireciona |
+| GET | /inscricao/recebida | Confirmação para quem se inscreveu |
+
+O formulário tem um campo escondido (`site`) que pessoas não preenchem. Se ele
+chegar preenchido, o envio é tratado como robô: a resposta é a mesma página de
+confirmação, mas nada é gravado.
+
+### Inscrições (equipe)
+
+| Método | Rota | Finalidade |
+|---|---|---|
+| GET | /inscricoes | Lista, com filtro por `status` (NOVA, EM_CONTATO, ACEITA, ARQUIVADA) |
+| GET | /inscricoes/{id} | Detalhes, contato seguro e histórico |
+| POST | /inscricoes/{id}/em-contato | Abre a revisão para marcar contato |
+| POST | /inscricoes/{id}/aceitar | Abre a revisão para aceitar e cadastrar como participante |
+| POST | /inscricoes/{id}/arquivar | Abre a revisão para arquivar |
+
+### Geral
+
+O painel da equipe, que antes ficava em `/`, agora fica em `/painel`.
+
+| Método | Rota | Finalidade |
+|---|---|---|
+| GET | /painel | Dashboard com ações, visão geral, presença, caixa e atividade recente |
 | GET | /historico | Histórico administrativo paginado, com filtros |
 | GET | /ajuda | Central de Ajuda e primeiros passos |
 | GET | /acessibilidade | Preferências de leitura |

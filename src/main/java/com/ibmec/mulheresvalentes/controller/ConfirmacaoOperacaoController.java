@@ -123,6 +123,8 @@ public class ConfirmacaoOperacaoController {
             case EXCLUIR_ENCONTRO -> "redirect:/encontros/" + id;
             case ALTERNAR_CATEGORIA -> "redirect:/caixa/categorias";
             case CANCELAR_LANCAMENTO -> "redirect:/caixa/movimentacoes/" + id;
+            case MARCAR_INSCRICAO_EM_CONTATO, ACEITAR_INSCRICAO, ARQUIVAR_INSCRICAO ->
+                    "redirect:/inscricoes/" + id;
         };
     }
 

@@ -7,7 +7,7 @@
     <aside th:replace="~{fragments/sidebar :: sidebar('busca')}"></aside>
     <main id="conteudo" class="conteudo-principal" tabindex="-1">
         <nav class="migalhas" aria-label="Caminho da página">
-            <a th:href="@{/}">Visão geral</a>
+            <a th:href="@{/painel}">Visão geral</a>
             <span aria-hidden="true">›</span>
             <span aria-current="page">Busca no sistema</span>
         </nav>
@@ -84,7 +84,7 @@
             <p>Você pode digitar apenas uma parte do nome. Por exemplo, “oficina” pode encontrar uma atividade, seus encontros e movimentações que usem essa palavra.</p>
         </aside>
 
-        <a class="link-voltar" th:href="@{/}">← Voltar para a Visão geral</a>
+        <a class="link-voltar" th:href="@{/painel}">← Voltar para a Visão geral</a>
     </main>
 </div>
 <footer th:replace="~{fragments/footer :: footer}"></footer>

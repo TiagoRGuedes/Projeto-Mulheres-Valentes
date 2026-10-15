@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Inscrições')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('inscricoes')}"></aside><main id="conteudo" class="conteudo-principal" tabindex="-1">
+    <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Inscrições</span></nav>
+    <header class="cabecalho-pagina com-acoes"><div><p class="sobretitulo">Página pública</p><h1>Inscrições</h1><p>Mulheres que se inscreveram pelo site para entrar na ONG. Fale com cada uma e depois aceite ou arquive a inscrição.</p></div><a class="botao botao-secundario" th:href="@{/inscricao}" target="_blank" rel="noopener">Ver o formulário público<span class="sr-only"> (abre em nova aba)</span></a></header>
+
+    <section class="grade-indicadores indicadores-compactos" aria-label="Resumo das inscrições">
+        <a class="indicador indicador-clicavel" th:href="@{/inscricoes(status='NOVA')}"><span class="indicador-titulo">Novas</span><strong class="indicador-valor" th:text="${resumoInscricoes.novas}">0</strong></a>
+        <a class="indicador neutro indicador-clicavel" th:href="@{/inscricoes(status='EM_CONTATO')}"><span class="indicador-titulo">Em contato</span><strong class="indicador-valor" th:text="${resumoInscricoes.emContato}">0</strong></a>
+        <a class="indicador entrada indicador-clicavel" th:href="@{/inscricoes(status='ACEITA')}"><span class="indicador-titulo">Aceitas</span><strong class="indicador-valor" th:text="${resumoInscricoes.aceitas}">0</strong></a>
+        <a class="indicador saida indicador-clicavel" th:href="@{/inscricoes(status='ARQUIVADA')}"><span class="indicador-titulo">Arquivadas</span><strong class="indicador-valor" th:text="${resumoInscricoes.arquivadas}">0</strong></a>
+    </section>
+
+    <form class="painel filtros" th:action="@{/inscricoes}" method="get" aria-labelledby="filtro-inscricoes">
+        <header class="filtros-cabecalho"><h2 id="filtro-inscricoes">Filtrar inscrições</h2><p>Escolha uma situação para ver só essas inscrições.</p></header>
+        <div class="grade-formulario"><div class="campo"><label for="status">Situação</label><select id="status" name="status"><option value="">Todas</option><option th:each="opcao : ${statusInscricao}" th:value="${opcao}" th:text="${opcao.descricao}" th:selected="${opcao == statusSelecionado}">Situação</option></select></div></div>
+        <div class="acoes-formulario"><button class="botao botao-primario" type="submit">Filtrar</button><a class="botao botao-secundario" th:href="@{/inscricoes}">Ver todas</a></div>
+    </form>
+
+    <section aria-labelledby="lista-inscricoes">
+        <div class="cabecalho-secao compacto"><div><p class="etiqueta" th:text="|${#lists.size(inscricoes)} inscrição(ões)|">Inscrições</p><h2 id="lista-inscricoes" th:text="${statusSelecionado != null ? 'Inscrições: ' + statusSelecionado.descricao : 'Todas as inscrições'}">Todas as inscrições</h2></div></div>
+        <div class="estado-vazio" th:if="${#lists.isEmpty(inscricoes)}"><span class="estado-vazio-icone" aria-hidden="true">✉</span><h2>Nenhuma inscrição aqui</h2><p th:text="${statusSelecionado != null ? 'Não há inscrições com esta situação.' : 'Quando alguém se inscrever pela página pública, a inscrição aparece aqui.'}">Quando alguém se inscrever, a inscrição aparece aqui.</p><a class="botao botao-secundario" th:if="${statusSelecionado != null}" th:href="@{/inscricoes}">Ver todas</a></div>
+        <div class="tabela-responsiva" th:unless="${#lists.isEmpty(inscricoes)}"><table class="tabela-adaptavel"><caption>Inscrições recebidas pela página pública, das mais recentes para as mais antigas</caption><thead><tr><th scope="col">Recebida em</th><th scope="col">Nome</th><th scope="col">Contato</th><th scope="col">Interesse</th><th scope="col">Situação</th><th scope="col">Ação</th></tr></thead><tbody>
+            <tr th:each="inscricao : ${inscricoes}">
+                <td data-label="Recebida em" th:text="${@formatador.dataHora(inscricao.recebidaEm)}">Data</td>
+                <td data-label="Nome"><span class="nome-principal" th:text="${inscricao.nome}">Nome</span><small class="texto-secundario" th:if="${inscricao.bairro != null}" th:text="${inscricao.bairro}">Bairro</small></td>
+                <td data-label="Contato"><span th:text="${inscricao.contato}">Contato</span><small class="texto-secundario" th:text="${inscricao.preferenciaContato.descricao}">Preferência</small></td>
+                <td data-label="Interesse"><span th:if="${#sets.isEmpty(inscricao.areas)}" class="texto-secundario">Não informado</span><ul class="lista-etiquetas" th:unless="${#sets.isEmpty(inscricao.areas)}"><li th:each="area : ${inscricao.areas}" th:text="${area.descricao}">Área</li></ul></td>
+                <td data-label="Situação"><span class="selo-status" th:classappend="|selo-inscricao-${#strings.toLowerCase(inscricao.status.name())}|" th:text="${inscricao.status.descricao}">Nova</span></td>
+                <td data-label="Ação"><a class="botao botao-secundario botao-pequeno" th:href="@{/inscricoes/{id}(id=${inscricao.id})}" th:aria-label="|Abrir inscrição de ${inscricao.nome}|">Abrir</a></td>
+            </tr>
+        </tbody></table></div>
+    </section>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

@@ -7,7 +7,7 @@
     <aside th:replace="~{fragments/sidebar :: sidebar('categorias')}"></aside>
     <main id="conteudo" class="conteudo-principal" tabindex="-1">
         <div th:replace="~{fragments/mensagens :: mensagens}"></div>
-        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa}">Livro Caixa</a><span aria-hidden="true">›</span><span aria-current="page">Categorias</span></nav>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa}">Livro Caixa</a><span aria-hidden="true">›</span><span aria-current="page">Categorias</span></nav>
         <header class="cabecalho-pagina"><p class="sobretitulo">Organização configurável</p><h1>Categorias financeiras</h1><p>Crie nomes que ajudem a identificar de onde o dinheiro veio ou para onde foi. Os exemplos atuais são apenas demonstrativos.</p></header>
         <aside class="alerta alerta-aviso"><span class="alerta-icone" aria-hidden="true">i</span><div><strong>Categorias não confirmadas</strong><p>Os exemplos são fictícios e podem ser editados ou desativados após a entrevista com a ONG.</p></div></aside>
 

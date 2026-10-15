@@ -7,7 +7,7 @@
     <aside th:replace="~{fragments/sidebar :: sidebar('acessibilidade')}"></aside>
     <main id="conteudo" class="conteudo-principal conteudo-estreito" tabindex="-1">
         <div th:replace="~{fragments/mensagens :: mensagens}"></div>
-        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Acessibilidade</span></nav>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Acessibilidade</span></nav>
         <header class="cabecalho-pagina">
             <p class="sobretitulo">Preferências de leitura</p>
             <h1>Acessibilidade</h1>
@@ -54,7 +54,7 @@
 
             <div class="acoes-formulario">
                 <button class="botao botao-primario" type="submit">Salvar preferências</button>
-                <a class="botao botao-secundario" th:href="@{/}">Voltar ao início</a>
+                <a class="botao botao-secundario" th:href="@{/painel}">Voltar ao início</a>
             </div>
         </form>
         <form th:action="@{/acessibilidade/restaurar}" method="post" class="acao-restaurar">

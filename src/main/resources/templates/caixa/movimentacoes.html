@@ -7,7 +7,7 @@
     <aside th:replace="~{fragments/sidebar :: sidebar('movimentacoes')}"></aside>
     <main id="conteudo" class="conteudo-principal" tabindex="-1">
         <div th:replace="~{fragments/mensagens :: mensagens}"></div>
-        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa}">Livro Caixa</a><span aria-hidden="true">›</span><span aria-current="page">Movimentações</span></nav>
+        <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><a th:href="@{/caixa}">Livro Caixa</a><span aria-hidden="true">›</span><span aria-current="page">Movimentações</span></nav>
         <header class="cabecalho-pagina com-acoes">
             <div><p class="sobretitulo">Consulte e corrija registros</p><h1>Movimentações do caixa</h1><p>Veja tudo que entrou e saiu. Use os filtros para encontrar uma informação.</p></div>
             <div class="grupo-botoes"><a class="botao botao-entrada" th:href="@{/caixa/entrada}">↑ Entrada</a><a class="botao botao-saida" th:href="@{/caixa/saida}">↓ Saída</a></div>

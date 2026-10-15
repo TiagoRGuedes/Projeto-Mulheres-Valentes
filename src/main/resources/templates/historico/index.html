@@ -4,7 +4,7 @@
 <body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
 <header th:replace="~{fragments/header :: header}"></header>
 <div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('historico')}"></aside><main id="conteudo" class="conteudo-principal" tabindex="-1">
-    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Visão geral</a><span aria-hidden="true">›</span><span aria-current="page">Histórico do sistema</span></nav>
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Visão geral</a><span aria-hidden="true">›</span><span aria-current="page">Histórico do sistema</span></nav>
     <header class="cabecalho-pagina"><p class="sobretitulo">Rastreabilidade administrativa</p><h1>Histórico do sistema</h1><p>Veja as alterações realizadas no sistema, como cadastros, edições, correções, desativações e cancelamentos.</p></header>
     <aside class="dica-contextual"><strong>Este histórico é diferente dos outros</strong><p>O Histórico de presença mostra quem compareceu. As Movimentações mostram dinheiro. Esta página mostra o que foi alterado na administração do sistema.</p></aside>
 
@@ -33,7 +33,7 @@
             <a class="botao botao-secundario" th:if="${pagina.hasNext()}" th:href="@{/historico(pagina=${pagina.number + 1},dataInicial=${dataInicial},dataFinal=${dataFinal},modulo=${moduloSelecionado},acao=${acaoSelecionada},busca=${busca})}">Próxima página →</a>
         </nav>
     </section>
-    <a class="link-voltar" th:href="@{/}">← Voltar para a Visão geral</a>
+    <a class="link-voltar" th:href="@{/painel}">← Voltar para a Visão geral</a>
 </main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

@@ -18,6 +18,7 @@ import com.ibmec.mulheresvalentes.exception.RegraNegocioException;
 import com.ibmec.mulheresvalentes.model.Atividade;
 import com.ibmec.mulheresvalentes.model.CategoriaFinanceira;
 import com.ibmec.mulheresvalentes.model.Encontro;
+import com.ibmec.mulheresvalentes.model.Inscricao;
 import com.ibmec.mulheresvalentes.model.LancamentoCaixa;
 import com.ibmec.mulheresvalentes.model.NaturezaLancamento;
 import com.ibmec.mulheresvalentes.model.Participante;
@@ -41,6 +42,7 @@ public class RevisaoOperacaoService {
     private final PresencaService presencaService;
     private final CategoriaFinanceiraService categoriaService;
     private final LancamentoCaixaService lancamentoService;
+    private final InscricaoService inscricaoService;
     private final FormatadorService formatador;
 
     public RevisaoOperacaoService(
@@ -51,6 +53,7 @@ public class RevisaoOperacaoService {
             PresencaService presencaService,
             CategoriaFinanceiraService categoriaService,
             LancamentoCaixaService lancamentoService,
+            InscricaoService inscricaoService,
             FormatadorService formatador) {
         this.confirmacaoService = confirmacaoService;
         this.participanteService = participanteService;
@@ -59,6 +62,7 @@ public class RevisaoOperacaoService {
         this.presencaService = presencaService;
         this.categoriaService = categoriaService;
         this.lancamentoService = lancamentoService;
+        this.inscricaoService = inscricaoService;
         this.formatador = formatador;
     }
 
@@ -154,6 +158,21 @@ public class RevisaoOperacaoService {
                 lancamentoService.atualizar(id, dados(operacao, LancamentoCaixaForm.class));
                 yield new ResultadoOperacaoDTO("/caixa/movimentacoes/" + id,
                         "Lançamento atualizado com sucesso.");
+            }
+            case MARCAR_INSCRICAO_EM_CONTATO -> {
+                inscricaoService.marcarEmContato(id);
+                yield new ResultadoOperacaoDTO("/inscricoes/" + id,
+                        "Inscrição marcada como em contato.");
+            }
+            case ACEITAR_INSCRICAO -> {
+                Inscricao inscricao = inscricaoService.aceitar(id);
+                yield new ResultadoOperacaoDTO("/participantes/" + inscricao.getParticipante().getId(),
+                        "Inscrição aceita. " + inscricao.getNome() + " já aparece em Participantes.");
+            }
+            case ARQUIVAR_INSCRICAO -> {
+                inscricaoService.arquivar(id);
+                yield new ResultadoOperacaoDTO("/inscricoes",
+                        "Inscrição arquivada. Ela continua disponível para consulta.");
             }
             case CANCELAR_LANCAMENTO -> {
                 lancamentoService.excluir(id);
@@ -258,6 +277,9 @@ public class RevisaoOperacaoService {
             case REGISTRAR_SAIDA -> visualLancamento(operacao, false, TipoLancamento.SAIDA);
             case EDITAR_LANCAMENTO -> visualLancamento(operacao, true, null);
             case CANCELAR_LANCAMENTO -> visualCancelarLancamento(operacao);
+            case MARCAR_INSCRICAO_EM_CONTATO -> visualInscricaoEmContato(operacao);
+            case ACEITAR_INSCRICAO -> visualAceitarInscricao(operacao);
+            case ARQUIVAR_INSCRICAO -> visualArquivarInscricao(operacao);
         };
     }
 
@@ -513,6 +535,54 @@ public class RevisaoOperacaoService {
                 List.of("Deixará de compor o saldo e os relatórios ativos.",
                         "Continuará preservado no banco para rastreabilidade.",
                         "O cancelamento ficará registrado no Histórico do sistema."));
+    }
+
+    private RevisaoOperacaoViewDTO visualInscricaoEmContato(OperacaoRevisaoDTO operacao) {
+        Inscricao inscricao = inscricaoService.buscar(operacao.entidadeId());
+        return view("Inscrições · andamento", "Marcar que a equipe está em contato?",
+                "Use quando alguém da equipe já falou ou está tentando falar com ela.",
+                "☎", "neutro", "Confirmar",
+                List.of(new LinhaRevisaoDTO("Nome", inscricao.getNome(), true),
+                        new LinhaRevisaoDTO("Contato", inscricao.getContato()),
+                        new LinhaRevisaoDTO("Prefere", inscricao.getPreferenciaContato().getDescricao()),
+                        new LinhaRevisaoDTO("Como é seguro falar", opcional(inscricao.getContatoSeguro()))),
+                List.of(),
+                List.of("A inscrição sai da lista de novas e passa para em contato.",
+                        "A mudança ficará registrada no Histórico do sistema."));
+    }
+
+    private RevisaoOperacaoViewDTO visualAceitarInscricao(OperacaoRevisaoDTO operacao) {
+        Inscricao inscricao = inscricaoService.buscar(operacao.entidadeId());
+        Participante existente = inscricaoService.participanteComMesmoContato(inscricao).orElse(null);
+        List<String> impactos = existente == null
+                ? List.of("Um cadastro novo será criado em Participantes, com nome e contato.",
+                        "Ela passa a aparecer na chamada de presença.",
+                        "A mensagem enviada pelo site não é copiada para o cadastro.")
+                : List.of("Já existe uma participante com o mesmo contato: " + existente.getNome() + ".",
+                        "A inscrição será vinculada a esse cadastro, sem criar duplicado.",
+                        existente.isAtivo()
+                                ? "O cadastro existente continua ativo."
+                                : "O cadastro existente estava desativado e será reativado.");
+        return view("Inscrições · entrada na ONG", "Aceitar esta inscrição?",
+                "Confirme depois de conversar com ela e combinar a participação.",
+                "✓", "positivo", "Aceitar inscrição",
+                List.of(new LinhaRevisaoDTO("Nome", inscricao.getNome(), true),
+                        new LinhaRevisaoDTO("Contato", inscricao.getContato(), true),
+                        new LinhaRevisaoDTO("Recebida em", formatador.dataHora(inscricao.getRecebidaEm()))),
+                List.of(), impactos);
+    }
+
+    private RevisaoOperacaoViewDTO visualArquivarInscricao(OperacaoRevisaoDTO operacao) {
+        Inscricao inscricao = inscricaoService.buscar(operacao.entidadeId());
+        return view("Inscrições · encerramento", "Arquivar esta inscrição?",
+                "Use quando não for possível seguir com a inscrição, por exemplo depois de várias tentativas de contato.",
+                "—", "atencao", "Arquivar inscrição",
+                List.of(new LinhaRevisaoDTO("Nome", inscricao.getNome(), true),
+                        new LinhaRevisaoDTO("Situação atual", inscricao.getStatus().getDescricao())),
+                List.of(),
+                List.of("Nenhum cadastro de participante será criado.",
+                        "A inscrição continua guardada e pode ser consultada no filtro Arquivadas.",
+                        "A mudança ficará registrada no Histórico do sistema."));
     }
 
     private RevisaoOperacaoViewDTO view(

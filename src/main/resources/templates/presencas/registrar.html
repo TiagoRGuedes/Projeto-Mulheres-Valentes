@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/head :: head('Registrar presença')}"></head>
 <body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
 <header th:replace="~{fragments/header :: header}"></header><div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('registrar-presenca')}"></aside><main id="conteudo" class="conteudo-principal" tabindex="-1">
-    <div th:replace="~{fragments/mensagens :: mensagens}"></div><nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Registrar presença</span></nav>
+    <div th:replace="~{fragments/mensagens :: mensagens}"></div><nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Registrar presença</span></nav>
     <header class="cabecalho-pagina"><p class="sobretitulo">Registro rápido</p><h1>Registrar presença</h1><p>Confira a data, marque quem participou e salve. Vincular a uma atividade é opcional.</p></header>
     <p class="progresso-etapas" aria-live="polite" th:text="|Você está registrando a chamada de ${@formatador.diaRelativo(dataChamada)}. Marque as participantes e depois confirme.|">Você está no passo 2 de 3.</p>
     <ol class="etapas" aria-label="Etapas para registrar presença"><li class="concluida"><span>1</span> Escolher a data</li><li class="atual" aria-current="step"><span>2</span> Marcar participantes</li><li><span>3</span> Salvar presença</li></ol>

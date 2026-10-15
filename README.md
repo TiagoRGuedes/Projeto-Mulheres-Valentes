@@ -177,7 +177,8 @@ No Windows PowerShell, também funciona:
 
 Na primeira execução, o Maven Wrapper baixa o Maven 3.9.11. Aguarde a mensagem de que a aplicação foi iniciada. Depois, abra:
 
-- Home: http://localhost:8080/
+- Página pública da ONG: http://localhost:8080/
+- Painel da equipe: http://localhost:8080/painel
 - Console H2: http://localhost:8080/h2-console
 
 Nunca é necessário instalar o Maven para usar o Wrapper.
@@ -238,7 +239,10 @@ Se o PowerShell perguntar se deseja finalizar o trabalho, confirme.
 
 | Área | Endereço |
 |---|---|
-| Home | http://localhost:8080/ |
+| Página pública da ONG | http://localhost:8080/ |
+| Inscrição pública | http://localhost:8080/inscricao |
+| Painel da equipe | http://localhost:8080/painel |
+| Inscrições recebidas | http://localhost:8080/inscricoes |
 | Participantes | http://localhost:8080/participantes |
 | Atividades | http://localhost:8080/atividades |
 | Registro de presença | http://localhost:8080/presencas/registrar |
@@ -254,6 +258,41 @@ Se o PowerShell perguntar se deseja finalizar o trabalho, confirme.
 | Console H2 | http://localhost:8080/h2-console |
 
 Consulte docs/ENDPOINTS.md para o contrato preliminar completo das páginas e APIs.
+
+## Página pública e inscrições
+
+A raiz do sistema (`/`) é a página de apresentação da ONG, pensada para as
+mulheres que podem participar dela. O conteúdo vem de fontes da própria ONG: a
+seção **Nossa história** reproduz na íntegra o texto enviado pela Karine, e
+endereço, telefone, e-mail e projetos vêm do site oficial.
+
+Pelo botão **Quero participar**, a mulher preenche uma inscrição curta: nome,
+contato, como prefere ser contatada, como e quando é seguro falar com ela,
+áreas de interesse e uma mensagem opcional. O envio exige consentimento.
+
+Como a ONG atua no enfrentamento à violência doméstica, as páginas públicas
+têm um botão **Sair rápido** no topo e mostram os telefones 190 e 180.
+
+Do lado da equipe:
+
+- o menu **Inscrições** mostra quantas inscrições novas estão esperando;
+- o painel exibe um aviso quando há inscrições novas;
+- em cada inscrição, a equipe pode marcar que está em contato, aceitar ou arquivar,
+  sempre passando pela tela de revisão;
+- ao aceitar, a inscrita vira participante com nome e contato. Se já existir uma
+  participante com o mesmo contato, a inscrição é vinculada a ela, sem criar
+  duplicado, e o cadastro é reativado se estiver desativado.
+
+### Fotos da página
+
+Coloque fotos em `src/main/resources/static/img/publico/galeria/` (jpg, png ou
+webp) e reinicie a aplicação: elas aparecem na seção **Nossos encontros**. O
+texto alternativo vem do nome do arquivo, então `roda-de-conversa.jpg` vira
+"Roda de conversa". Sem fotos na pasta, a seção não aparece. Use apenas fotos
+com autorização das pessoas retratadas, principalmente quando houver crianças.
+
+As duas imagens atuais (`acolhimento.jpg` e `rede-de-mulheres.jpg`) vieram do
+site oficial da ONG e são ilustrações, não fotos das atividades.
 
 ## Uso rápido
 
@@ -381,6 +420,12 @@ Leia o primeiro erro em target/surefire-reports/. Confirme que Java 25 está ati
 - docs/IDENTIDADE_VISUAL.md — origem dos assets, paleta, tipografia, componentes e validação do redesign.
 
 ## Limites antes do uso real
+
+**Antes de publicar a página pública na internet, o login (RNF04) é obrigatório.**
+A página pública e o painel da equipe estão na mesma aplicação, e o painel não
+pede senha: qualquer pessoa que descubra `/painel` ou `/inscricoes` vê os dados
+das mulheres inscritas — inclusive como e quando é seguro falar com elas. Com o
+formulário público, esse risco deixa de ser teórico.
 
 **O RNF04 do escopo exige login e o protótipo ainda não tem autenticação.** Essa é a
 lacuna conhecida mais importante: a PR03 indica que pelo menos duas contas

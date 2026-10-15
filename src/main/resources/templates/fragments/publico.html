@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo, descricao)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" th:content="${descricao}">
+    <meta name="theme-color" content="#144047">
+    <meta name="referrer" content="no-referrer">
+    <title th:text="${titulo}">ONG Mulheres Valentes</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20261015-1')}">
+</head>
+<body>
+<div th:fragment="topo">
+    <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo principal</a>
+    <div class="faixa-seguranca">
+        <p><strong>Em perigo agora?</strong> Ligue <a href="tel:190">190</a>. Violência contra a mulher: <a href="tel:180">180</a>, gratuito e 24 horas.</p>
+        <a class="saida-rapida" href="https://www.google.com.br/" rel="noreferrer" aria-label="Sair rapidamente desta página e abrir o Google">Sair rápido <span aria-hidden="true">✕</span></a>
+    </div>
+    <header class="topo-publico">
+        <div class="topo-publico-conteudo">
+            <a class="marca-publica" th:href="@{/}" aria-label="ONG Mulheres Valentes — página inicial">
+                <img th:src="@{/img/brand/logo-mulheres-valentes.png}" alt="" width="292" height="368">
+                <span>Mulheres<br>Valentes</span>
+            </a>
+            <nav class="nav-publica" aria-label="Seções da página">
+                <a th:href="@{/} + '#historia'">Nossa história</a>
+                <a th:href="@{/} + '#o-que-fazemos'">O que fazemos</a>
+                <a th:href="@{/} + '#como-participar'">Como participar</a>
+                <a th:href="@{/} + '#contato'">Contato</a>
+            </nav>
+            <a class="botao-publico botao-publico-destaque" th:href="@{/inscricao}">Quero participar</a>
+        </div>
+    </header>
+</div>
+
+<footer class="rodape-publico" th:fragment="rodape">
+    <div class="rodape-publico-conteudo">
+        <div class="rodape-publico-marca">
+            <img th:src="@{/img/brand/logo-mulheres-valentes.png}" alt="" width="292" height="368">
+            <div>
+                <strong>ONG Mulheres Valentes</strong>
+                <p>Acolher, fortalecer, educar, valorizar a cultura e transformar vidas.</p>
+            </div>
+        </div>
+        <div>
+            <h2>Onde estamos</h2>
+            <p>Rua Odilon Azevedo, 247<br>Pirituba, São Paulo – SP</p>
+        </div>
+        <div>
+            <h2>Fale com a gente</h2>
+            <p><a href="tel:+5511962108652">(11) 96210-8652</a><br><a href="mailto:contato@mulheresvalentes.org.br">contato@mulheresvalentes.org.br</a><br><a href="https://www.instagram.com/valentesmulheres/" target="_blank" rel="noopener noreferrer">Instagram @valentesmulheres<span class="sr-only"> (abre em nova aba)</span></a></p>
+        </div>
+    </div>
+    <div class="rodape-publico-base">
+        <p>Desde 2020 em Pirituba, São Paulo.</p>
+        <a th:href="@{/painel}">Área da equipe</a>
+    </div>
+</footer>
+</body>
+</html>
