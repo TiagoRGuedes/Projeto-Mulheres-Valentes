@@ -22,7 +22,7 @@ demonstração.
 | #7 | Gerar extrato do caixa por período | 5 | Implementada em tela, CSV e `GET /api/caixa/extrato` (RF08) |
 | #8 | Corrigir um lançamento feito por engano | 2 | Implementada com edição e cancelamento rastreável (RF09) |
 
-Pendente do escopo: **RNF04 — acesso com login**. Não implementado.
+**RNF04 — acesso com login**: implementado com Spring Security, perfis ADMIN e OPERADOR e tela de usuários para a administração (`/usuarios`).
 
 ## Histórias anteriores do protótipo
 

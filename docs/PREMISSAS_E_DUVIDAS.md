@@ -35,7 +35,7 @@ registrada no documento de escopo (AC1). A coluna **Classificação** usa:
 |---|---|---|---|
 | PR01 | Presença e livro caixa são controles independentes. | A confirmar | Os dois módulos continuam separados; nada liga presença a lançamento. |
 | PR02 | O caixa não precisa de conciliação bancária. | Confirmado — realidade ainda mais simples | Modelo enxuto: entradas, saídas e doações sem valor. |
-| PR03 | Duas pessoas, com nível médio de familiaridade digital, operam o sistema. | Confirmado — ajustado de uma para duas | **Ainda não atendido:** o protótipo não tem login (RNF04). Ver "Limites antes do uso real" no README. |
+| PR03 | Duas pessoas, com nível médio de familiaridade digital, operam o sistema. | Confirmado — ajustado de uma para duas | Atendido: login com contas individuais (RNF04); a administração cadastra as contas em `/usuarios`. |
 | PR04 | O treinamento pode ser atendido com um manual de uso simples. | A confirmar | `docs/GUIA_USUARIO.md` e a Central de Ajuda dentro do sistema. |
 | PR05 | Aluguel/patrocínio é o único valor fixo; doações de material não têm valor. | Confirmado — entrevista | `NaturezaLancamento`: valor nulo e comprovante obrigatório na doação de material. |
 

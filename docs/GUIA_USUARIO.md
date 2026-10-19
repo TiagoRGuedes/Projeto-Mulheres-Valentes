@@ -19,6 +19,29 @@ Peça à pessoa responsável pela instalação para deixar o sistema iniciado. D
 
 O protótipo não pede usuário e senha. Isso deverá mudar antes de qualquer uso real.
 
+## Entrar no sistema
+
+1. Abra o endereço do sistema e clique em **Área da equipe**, no rodapé da página pública (ou abra `/login`).
+2. Digite o seu **login** e a sua **senha** e clique em **Entrar**.
+3. Na primeira vez, o sistema pede para você criar uma senha nova. Escolha uma que só você saiba, com pelo menos 8 caracteres.
+4. Para sair, clique em **Sair**, no alto da tela. Em computador compartilhado, sempre saia e feche o navegador.
+
+Esqueceu a senha? Peça a uma pessoa administradora: ela define uma senha temporária e você cria uma nova ao entrar.
+
+### O que cada perfil pode fazer
+
+- **Operador(a):** inscrições, participantes, presença, entradas e saídas do caixa e relatórios.
+- **Administrador(a):** tudo isso e também cadastrar usuários (menu **Usuários**), ver o Histórico do sistema, organizar categorias, cancelar lançamentos e excluir cadastros.
+
+## Cadastrar uma pessoa da equipe (somente administração)
+
+1. No menu, abra **Usuários** e clique em **Cadastrar usuário**.
+2. Preencha nome, login (por exemplo, `isabelle`), perfil e uma senha temporária.
+3. Clique em **Cadastrar usuário** e passe o login e a senha temporária para a pessoa, de preferência pessoalmente.
+4. No primeiro acesso, ela vai criar a própria senha.
+
+Quando alguém sair da equipe, abra o usuário e clique em **Desativar usuário**. O histórico do que ela fez continua guardado.
+
 ## Como se orientar
 
 A Home mostra as tarefas principais em cartões grandes:

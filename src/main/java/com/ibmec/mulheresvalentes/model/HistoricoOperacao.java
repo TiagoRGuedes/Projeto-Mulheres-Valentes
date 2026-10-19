@@ -13,6 +13,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +34,7 @@ public class HistoricoOperacao {
 
     @NotNull
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false, length = 30)
     private ModuloHistorico modulo;
 
@@ -96,6 +99,13 @@ public class HistoricoOperacao {
         this.descricao = normalizar(descricao);
         this.valorAnteriorResumo = normalizarOpcional(valorAnteriorResumo);
         this.valorNovoResumo = normalizarOpcional(valorNovoResumo);
+    }
+
+    /** Guarda quem fez a alteração. Fica vazio para operações automáticas do sistema. */
+    public void atribuirUsuario(Long usuarioId, String usuarioNome) {
+        this.usuarioId = usuarioId;
+        this.usuarioNome = usuarioNome == null ? null
+                : (usuarioNome.length() > 150 ? usuarioNome.substring(0, 150) : usuarioNome);
     }
 
     @PrePersist

@@ -9,7 +9,7 @@ Projeto acadêmico da disciplina **IBM4024 — Projeto em Ciência de Dados II �
 
 Este repositório contém uma aplicação web independente para apoiar o controle de presença e o livro caixa da ONG Mulheres Valentes. Ele não compartilha banco de dados, configuração, dependências, código ou documentação com o projeto da ONG Remo Meu Rumo.
 
-> **Importante:** a entrevista com a ONG foi realizada e está registrada no documento de escopo (AC1). O protótipo foi ajustado ao que ela confirmou — ver **Requisitos do escopo** logo abaixo. O que a ONG não confirmou continua marcado como premissa em `docs/PREMISSAS_E_DUVIDAS.md`, e a autenticação (RNF04) ainda não foi implementada.
+> **Importante:** a entrevista com a ONG foi realizada e está registrada no documento de escopo (AC1). O protótipo foi ajustado ao que ela confirmou — ver **Requisitos do escopo** logo abaixo. O que a ONG não confirmou continua marcado como premissa em `docs/PREMISSAS_E_DUVIDAS.md`. O login com perfis Administrador(a) e Operador(a) (RNF04) foi implementado — ver **Login e usuários**.
 
 ## Requisitos do escopo (AC1)
 
@@ -27,7 +27,7 @@ Este repositório contém uma aplicação web independente para apoiar o control
 | RNF01 | Valores em decimal, nunca em ponto flutuante | `BigDecimal` no domínio, `DECIMAL(10,2)` no banco |
 | RNF02 | Interface simples para quem tem familiaridade digital média | textos de ajuda, fluxo Preencher → Revisar → Confirmar, Central de Ajuda |
 | RNF03 | Funcionar em celular | CSS próprio responsivo, tabelas adaptáveis |
-| RNF04 | Acesso com login | **não implementado** — ver "Limites antes do uso real" |
+| RNF04 | Acesso com login | `/login` · perfis ADMIN e OPERADOR · cadastro em `/usuarios` — ver "Login e usuários" |
 
 ### O que a entrevista mudou no protótipo
 
@@ -79,6 +79,7 @@ Os arquivos são servidos localmente: a operação do sistema não depende do si
 - Maven e Maven Wrapper;
 - Spring Boot 4.1.1;
 - Spring Web MVC;
+- Spring Security (login, perfis e proteção CSRF);
 - Spring Data JPA e Hibernate;
 - H2 persistente para desenvolvimento;
 - Thymeleaf, HTML semântico e CSS próprio;
@@ -241,7 +242,9 @@ Se o PowerShell perguntar se deseja finalizar o trabalho, confirme.
 |---|---|
 | Página pública da ONG | http://localhost:8080/ |
 | Inscrição pública | http://localhost:8080/inscricao |
+| Entrar (login da equipe) | http://localhost:8080/login |
 | Painel da equipe | http://localhost:8080/painel |
+| Usuários (somente administração) | http://localhost:8080/usuarios |
 | Inscrições recebidas | http://localhost:8080/inscricoes |
 | Participantes | http://localhost:8080/participantes |
 | Atividades | http://localhost:8080/atividades |
@@ -258,6 +261,84 @@ Se o PowerShell perguntar se deseja finalizar o trabalho, confirme.
 | Console H2 | http://localhost:8080/h2-console |
 
 Consulte docs/ENDPOINTS.md para o contrato preliminar completo das páginas e APIs.
+
+## Login e usuários
+
+O painel da equipe exige login. A página pública (`/`) e a inscrição (`/inscricao`)
+continuam abertas para qualquer pessoa.
+
+### Primeiro acesso
+
+Quando o banco ainda não tem nenhum usuário, o sistema cria a conta **admin**
+ao iniciar e mostra a senha no terminal:
+
+~~~text
+================================================================
+ Primeira conta de administração criada.
+   Login: admin
+   Senha: xxxxxxxxxxxx
+================================================================
+~~~
+
+1. Abra http://localhost:8080/login e entre com esse login e senha.
+2. O sistema pede uma senha nova antes de liberar o painel.
+3. Em **Usuários**, cadastre as outras pessoas da equipe.
+
+Para escolher a senha inicial em vez de gerar uma, preencha
+`app.admin-inicial.senha` em `application.properties` (ou em uma variável de
+ambiente `APP_ADMIN_INICIAL_SENHA`) antes da primeira execução.
+
+### Perdi a senha
+
+- **Outra pessoa administradora consegue entrar?** Ela abre **Usuários**, escolhe a
+  sua conta e usa **Definir senha temporária**.
+- **Ninguém da administração consegue entrar?** Pare o sistema (`Ctrl + C`) e
+  inicie uma vez com a opção de recuperação:
+
+  ~~~bash
+  ./mvnw spring-boot:run "-Dspring-boot.run.arguments=--app.admin-inicial.redefinir=true"
+  ~~~
+
+  O terminal mostra uma nova senha temporária para o login `admin` (a conta é
+  reativada e volta a ser administradora). Nenhum outro dado é apagado. Depois de
+  entrar, pare e inicie de novo **sem** a opção, do jeito normal.
+
+### Perfis
+
+| Perfil | Pode |
+|---|---|
+| **Operador(a)** | Painel, inscrições, participantes, atividades, encontros, presença, frequência, entradas e saídas do caixa, movimentações, relatórios, busca, ajuda e trocar a própria senha. |
+| **Administrador(a)** | Tudo do Operador, mais: **Usuários**, **Histórico do sistema**, **Categorias** do caixa, **cancelar lançamentos**, **excluir** participantes, atividades e encontros, `DELETE` na API e o console H2. |
+
+As regras ficam em `config/SegurancaConfig.java`. Links e botões que o perfil não
+pode usar são escondidos; se a pessoa digitar o endereço, vê uma página
+explicando que a área é da administração (erro 403).
+
+### Tela de usuários (somente administração)
+
+Em **Usuários** (`/usuarios`) a administração pode:
+
+- cadastrar uma pessoa com nome, login, perfil e uma **senha temporária**;
+- editar nome e perfil;
+- definir uma nova senha temporária quando alguém esquecer a senha;
+- desativar e reativar contas (quem é desativado perde o acesso na hora).
+
+Toda senha temporária obriga a pessoa a criar uma senha própria no próximo
+acesso. Senhas têm pelo menos 8 caracteres e são guardadas com BCrypt — nunca em
+texto. O sistema não deixa ninguém desativar a própria conta, tirar o próprio
+perfil de administração ou ficar sem nenhuma pessoa administradora ativa.
+
+O **Histórico do sistema** agora registra quem fez cada alteração, e as
+alterações de usuários aparecem no módulo **Usuários** (sem nenhuma senha).
+
+### API
+
+A API (`/api/...`) também exige login. Para usar por script, envie usuário e
+senha com HTTP Basic:
+
+~~~powershell
+Invoke-RestMethod -Uri "http://localhost:8080/api/caixa/saldo" -Authentication Basic -Credential (Get-Credential)
+~~~
 
 ## Página pública e inscrições
 
@@ -430,19 +511,15 @@ Leia o primeiro erro em target/surefire-reports/. Confirme que Java 25 está ati
 
 ## Limites antes do uso real
 
-**Antes de publicar a página pública na internet, o login (RNF04) é obrigatório.**
-A página pública e o painel da equipe estão na mesma aplicação, e o painel não
-pede senha: qualquer pessoa que descubra `/painel` ou `/inscricoes` vê os dados
-das mulheres inscritas — inclusive como e quando é seguro falar com elas. Com o
-formulário público, esse risco deixa de ser teórico.
+O login (RNF04) já protege o painel, mas ainda faltam itens antes de publicar
+na internet:
 
-**O RNF04 do escopo exige login e o protótipo ainda não tem autenticação.** Essa é a
-lacuna conhecida mais importante: a PR03 indica que pelo menos duas contas
-serão necessárias (Karine e Isabelle). Enquanto isso não existir, qualquer pessoa
-com acesso ao endereço pode alterar lançamentos financeiros, e o sistema não
-deve receber dados reais.
+- **HTTPS** obrigatório na hospedagem (sem ele, senhas trafegam abertas);
+- **desligar o console H2** (`spring.h2.console.enabled=false`);
+- limite de tentativas de login (hoje não há bloqueio após erros repetidos);
+- recuperação de senha é feita pela administração, não por e-mail.
 
-Perfis de acesso, identificação do responsável por cada ação, política organizacional de correção/estorno, backup, hospedagem, privacidade, volume de dados e regras de prestação de contas também ainda precisam ser discutidos. A trilha administrativa já existe no protótipo, mas não substitui uma política formal de auditoria. Este projeto não deve ser colocado em produção nem receber dados pessoais reais antes dessas definições e de uma avaliação de segurança.
+Política organizacional de correção/estorno, política organizacional de correção/estorno, backup, hospedagem, privacidade, volume de dados e regras de prestação de contas também ainda precisam ser discutidos. A trilha administrativa já existe no protótipo, mas não substitui uma política formal de auditoria. Este projeto não deve ser colocado em produção nem receber dados pessoais reais antes dessas definições e de uma avaliação de segurança.
 
 ## Licença e uso
 

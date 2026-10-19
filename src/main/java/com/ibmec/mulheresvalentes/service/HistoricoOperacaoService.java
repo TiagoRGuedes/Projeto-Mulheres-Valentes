@@ -6,6 +6,7 @@ import com.ibmec.mulheresvalentes.model.AcaoHistorico;
 import com.ibmec.mulheresvalentes.model.HistoricoOperacao;
 import com.ibmec.mulheresvalentes.model.ModuloHistorico;
 import com.ibmec.mulheresvalentes.repository.HistoricoOperacaoRepository;
+import com.ibmec.mulheresvalentes.security.UsuarioLogado;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -63,6 +64,7 @@ public class HistoricoOperacaoService {
                 limitar(descricao, 1000),
                 limitar(valorAnteriorResumo, 1000),
                 limitar(valorNovoResumo, 1000));
+        UsuarioLogado.atual().ifPresent(usuario -> operacao.atribuirUsuario(usuario.getId(), usuario.getNome()));
         return historicoRepository.save(operacao);
     }
 

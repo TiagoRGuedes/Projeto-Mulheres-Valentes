@@ -473,14 +473,34 @@ Invoke-RestMethod -Method Get -Uri "http://localhost:8080/api/financeiro/resumo?
 
 ## Segurança
 
-O protótipo não define autenticação final. Consequentemente:
+Todo endereço fora da página pública exige login (Spring Security):
 
-- a API não deve ser exposta à internet;
-- não devem ser usados dados pessoais ou financeiros reais;
-- CORS não deve ser aberto sem necessidade;
-- perfis ADMIN e OPERADOR são sugestões futuras;
-- a trilha administrativa existe, mas identificação de usuário, retenção, proteção e política formal de auditoria ainda precisam ser definidas;
-- rate limiting e política de tokens ainda precisam ser definidos.
+| Acesso | Endereços |
+|---|---|
+| Público | `/`, `/inscricao/**`, `/login`, `/css/**`, `/fonts/**`, `/img/**` |
+| ADMIN | `/usuarios/**`, `/historico/**`, `/caixa/categorias/**`, `/participantes/{id}/excluir`, `/atividades/{id}/excluir`, `/encontros/{id}/excluir`, `/caixa/movimentacoes/{id}/excluir`, `DELETE /api/**`, `/h2-console/**` |
+| ADMIN ou OPERADOR | todo o resto |
+
+Páginas novas:
+
+| Método | Endereço | Uso |
+|---|---|---|
+| GET/POST | `/login` | Tela de login (campos `login` e `senha`) |
+| POST | `/sair` | Encerrar a sessão |
+| GET/POST | `/minha-conta/senha` | Trocar a própria senha (obrigatório com senha temporária) |
+| GET | `/usuarios` | Lista de usuários (ADMIN) |
+| GET/POST | `/usuarios/novo`, `/usuarios` | Cadastrar usuário (ADMIN) |
+| GET | `/usuarios/{id}` | Detalhes (ADMIN) |
+| GET/POST | `/usuarios/{id}/editar` | Editar nome e perfil (ADMIN) |
+| POST | `/usuarios/{id}/senha` | Definir senha temporária (ADMIN) |
+| POST | `/usuarios/{id}/desativar`, `/usuarios/{id}/ativar` | Desativar/reativar (ADMIN) |
+
+Na API, sem login a resposta é `401`; com perfil insuficiente, `403`. Use HTTP
+Basic para scripts. Formulários das páginas levam token CSRF automaticamente; a
+API (`/api/**`) não usa CSRF porque recebe JSON.
+
+Ainda pendente: HTTPS na hospedagem, limite de tentativas de login, CORS e
+rate limiting.
 
 ## Console H2
 

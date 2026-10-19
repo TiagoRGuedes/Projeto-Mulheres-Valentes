@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Entrar')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<main id="conteudo" class="pagina-login" tabindex="-1">
+    <section class="painel cartao-login" aria-labelledby="titulo-login">
+        <div class="login-marca">
+            <img th:src="@{/img/brand/logo-mulheres-valentes.png}" alt="" width="292" height="368">
+            <div><strong>Mulheres Valentes</strong><small>Área da equipe</small></div>
+        </div>
+        <h1 id="titulo-login">Entrar no painel</h1>
+        <p class="texto-explicativo">Use o login e a senha que a administração passou para você.</p>
+
+        <div class="alerta alerta-erro" role="alert" th:if="${param.erro != null}">
+            <span class="alerta-icone" aria-hidden="true">!</span>
+            <div><strong>Não foi possível entrar</strong><p>Login ou senha incorretos, ou a conta está desativada. Confira e tente de novo.</p></div>
+        </div>
+        <div class="alerta alerta-sucesso" role="status" th:if="${param.saiu != null}">
+            <span class="alerta-icone" aria-hidden="true">✓</span>
+            <div><strong>Você saiu do painel</strong><p>Até a próxima! Em computador compartilhado, feche também o navegador.</p></div>
+        </div>
+        <div class="alerta alerta-aviso" role="status" th:if="${param.desativado != null}">
+            <span class="alerta-icone" aria-hidden="true">i</span>
+            <div><strong>Acesso encerrado</strong><p>Esta conta foi desativada pela administração.</p></div>
+        </div>
+
+        <form class="formulario" th:action="@{/login}" method="post">
+            <div class="campo">
+                <label for="login">Login</label>
+                <input id="login" name="login" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="40" required autofocus>
+            </div>
+            <div class="campo">
+                <label for="senha">Senha</label>
+                <input id="senha" name="senha" type="password" autocomplete="current-password" maxlength="72" required>
+            </div>
+            <div class="acoes-formulario">
+                <button class="botao botao-primario" type="submit">Entrar</button>
+            </div>
+        </form>
+        <p class="ajuda-campo">Esqueceu a senha? Peça a uma pessoa administradora para definir uma senha temporária.</p>
+        <a class="link-seta" th:href="@{/}"><span aria-hidden="true">←</span> Voltar para a página pública</a>
+    </section>
+</main>
+</body>
+</html>

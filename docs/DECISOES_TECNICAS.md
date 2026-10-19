@@ -287,17 +287,21 @@ Testes cobrem:
 
 **Consequência:** testes não usam o arquivo H2 de desenvolvimento e devem ser executados com Maven Wrapper antes da entrega.
 
-## DT22 — Preparação, não implementação, de autenticação
+## DT22 — Autenticação com Spring Security e dois perfis
 
-**Status:** futura.
+**Status:** implementada.
 
-A arquitetura evita depender de um usuário global e mantém services independentes de tela. Spring Security poderá ser adicionado depois.
+Spring Security com formulário de login próprio (`/login`), sessão HTTP e senhas em BCrypt (`DelegatingPasswordEncoder`). Dois perfis: **ADMIN** e **OPERADOR**. As regras de acesso ficam todas em `SegurancaConfig`, por endereço, para serem fáceis de revisar; os templates só escondem o que o perfil não pode usar.
 
-ADMIN e OPERADOR são apenas sugestões de nomes.
+- A primeira conta ADMIN é criada por `AdminInicialConfig` quando a tabela `usuarios` está vazia; sem senha configurada, uma senha aleatória é mostrada no terminal.
+- A administração cadastra contas em `/usuarios` com senha temporária; `TrocaSenhaInterceptor` obriga a troca no próximo acesso e encerra a sessão de contas desativadas.
+- `UsuarioService` impede ficar sem administração ativa e impede que alguém se desative ou se rebaixe.
+- `HistoricoOperacaoService` preenche `usuarioId` e `usuarioNome` com quem está logado.
+- CSRF ativo nos formulários (Thymeleaf injeta o token); desligado só em `/api/**` (JSON) e no console H2.
 
-**Motivo:** perfis, pessoas usuárias e permissões não foram confirmados.
+**Motivo:** RNF04 e PR03 (Karine e Isabelle precisam de contas próprias) e a página pública expõe o endereço do sistema.
 
-**Consequência:** o protótipo não é seguro para exposição pública ou dados reais.
+**Consequência:** ainda faltam HTTPS na hospedagem, limite de tentativas de login e recuperação de senha por e-mail.
 
 ## DT23 — Formatação brasileira na borda
 
@@ -336,7 +340,7 @@ Os services de domínio chamam `HistoricoOperacaoService` explicitamente. O regi
 
 **Motivo:** tornar o comportamento fácil de explicar, testar e manter, sem AOP complexo. A referência é textual e não possui chave estrangeira para continuar legível mesmo após uma exclusão segura.
 
-**Consequência:** `usuarioId` e `usuarioNome` permanecem vazios até existir autenticação. Retenção, perfis autorizados e conteúdo definitivo ainda precisam de validação.
+**Consequência:** `usuarioId` e `usuarioNome` são preenchidos com a pessoa logada (vazios em operações automáticas, como a carga de demonstração). Retenção, perfis autorizados e conteúdo definitivo ainda precisam de validação.
 
 ## DT26 — Cancelamento lógico de lançamentos financeiros
 

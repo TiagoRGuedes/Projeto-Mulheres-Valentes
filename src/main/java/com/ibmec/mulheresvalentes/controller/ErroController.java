@@ -15,6 +15,12 @@ public class ErroController implements ErrorController {
         int codigo = obterCodigo(request);
         boolean naoEncontrado = codigo == 404;
         model.addAttribute("codigo", codigo);
+        if (codigo == 403) {
+            model.addAttribute("tituloErro", "Esta área é só para a administração");
+            model.addAttribute("mensagemErro",
+                    "O seu perfil não tem permissão para abrir esta página. Se precisar fazer isto, fale com uma pessoa administradora.");
+            return "erros/erro";
+        }
         model.addAttribute("tituloErro", naoEncontrado ? "Página não encontrada" : "Algo não saiu como esperado");
         model.addAttribute("mensagemErro", naoEncontrado
                 ? "O endereço informado não existe ou pode ter mudado."

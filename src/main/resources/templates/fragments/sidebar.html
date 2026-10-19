@@ -45,7 +45,7 @@
             <li><a th:href="@{/caixa/movimentacoes}" th:classappend="${secao == 'movimentacoes'} ? 'ativo'" th:attr="aria-current=${secao == 'movimentacoes'} ? 'page' : null">
                 <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4"/></svg></span><span>Movimentações</span>
             </a></li>
-            <li><a th:href="@{/caixa/categorias}" th:classappend="${secao == 'categorias'} ? 'ativo'" th:attr="aria-current=${secao == 'categorias'} ? 'page' : null">
+            <li th:if="${usuarioLogado != null and usuarioLogado.admin}"><a th:href="@{/caixa/categorias}" th:classappend="${secao == 'categorias'} ? 'ativo'" th:attr="aria-current=${secao == 'categorias'} ? 'page' : null">
                 <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6l10 10-6 6L4 10zM8 8h.01"/></svg></span><span>Categorias</span>
             </a></li>
 
@@ -53,8 +53,17 @@
             <li><a th:href="@{/relatorios}" th:classappend="${secao == 'relatorios'} ? 'ativo'" th:attr="aria-current=${secao == 'relatorios'} ? 'page' : null">
                 <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 16v-3M12 16V8M16 16v-5"/></svg></span><span>Relatórios</span>
             </a></li>
-            <li><a th:href="@{/historico}" th:classappend="${secao == 'historico'} ? 'ativo'" th:attr="aria-current=${secao == 'historico'} ? 'page' : null">
+            <li th:if="${usuarioLogado != null and usuarioLogado.admin}"><a th:href="@{/historico}" th:classappend="${secao == 'historico'} ? 'ativo'" th:attr="aria-current=${secao == 'historico'} ? 'page' : null">
                 <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6M12 7v5l3 2"/></svg></span><span>Histórico do sistema</span>
+            </a></li>
+
+            <li th:if="${usuarioLogado != null and usuarioLogado.admin}"><a th:href="@{/usuarios}" th:classappend="${secao == 'usuarios'} ? 'ativo'" th:attr="aria-current=${secao == 'usuarios'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20v-1.5a7 7 0 0 1 14 0V20"/><path d="M17.5 4.5 19 6l2.5-2.5"/></svg></span><span>Usuários</span>
+            </a></li>
+
+            <li class="menu-separador"><span>Minha conta</span></li>
+            <li><a th:href="@{/minha-conta/senha}" th:classappend="${secao == 'minha-senha'} ? 'ativo'" th:attr="aria-current=${secao == 'minha-senha'} ? 'page' : null">
+                <span class="menu-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><span>Trocar minha senha</span>
             </a></li>
 
             <li class="menu-separador"><span>Suporte</span></li>

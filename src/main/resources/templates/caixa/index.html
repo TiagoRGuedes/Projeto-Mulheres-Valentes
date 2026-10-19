@@ -49,7 +49,7 @@
 
         <nav class="painel acoes-rapidas-caixa" aria-label="Ações rápidas do Livro Caixa">
             <strong>Outras ações do Livro Caixa</strong>
-            <div class="grupo-botoes"><a class="botao botao-secundario" th:href="@{/caixa/movimentacoes}">Ver movimentações</a><a class="botao botao-secundario" th:href="@{/caixa/categorias}">Categorias</a><a class="botao botao-secundario" th:href="@{/caixa/relatorio}">Abrir relatório</a></div>
+            <div class="grupo-botoes"><a class="botao botao-secundario" th:href="@{/caixa/movimentacoes}">Ver movimentações</a><a class="botao botao-secundario" th:if="${usuarioLogado != null and usuarioLogado.admin}" th:href="@{/caixa/categorias}">Categorias</a><a class="botao botao-secundario" th:href="@{/caixa/relatorio}">Abrir relatório</a></div>
         </nav>
 
         <form class="painel filtros" th:action="@{/caixa}" th:object="${filtro}" method="get">

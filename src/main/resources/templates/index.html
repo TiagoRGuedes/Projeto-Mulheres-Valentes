@@ -40,7 +40,7 @@
             <details class="painel mais-atalhos">
                 <summary>Ver todos os cadastros e consultas</summary>
                 <nav class="grade-links-dashboard" aria-label="Todos os atalhos da gestão">
-                    <a th:href="@{/participantes}"><strong>Participantes</strong><span>Consultar e organizar cadastros</span></a><a th:href="@{/atividades}"><strong>Atividades</strong><span>Organizar tipos de atividade</span></a><a th:href="@{/encontros}"><strong>Encontros</strong><span>Consultar datas cadastradas</span></a><a th:href="@{/caixa/categorias}"><strong>Categorias</strong><span>Organizar entradas e saídas</span></a><a th:href="@{/frequencia}"><strong>Frequência</strong><span>Acompanhar participação</span></a><a th:href="@{/caixa/movimentacoes}"><strong>Movimentações</strong><span>Conferir o Livro Caixa</span></a><a th:href="@{/relatorios}"><strong>Relatórios</strong><span>Consultar e imprimir</span></a><a th:href="@{/ajuda}"><strong>Primeiros passos</strong><span>Aprender a usar o sistema</span></a>
+                    <a th:href="@{/participantes}"><strong>Participantes</strong><span>Consultar e organizar cadastros</span></a><a th:href="@{/atividades}"><strong>Atividades</strong><span>Organizar tipos de atividade</span></a><a th:href="@{/encontros}"><strong>Encontros</strong><span>Consultar datas cadastradas</span></a><a th:if="${usuarioLogado != null and usuarioLogado.admin}" th:href="@{/caixa/categorias}"><strong>Categorias</strong><span>Organizar entradas e saídas</span></a><a th:href="@{/frequencia}"><strong>Frequência</strong><span>Acompanhar participação</span></a><a th:href="@{/caixa/movimentacoes}"><strong>Movimentações</strong><span>Conferir o Livro Caixa</span></a><a th:href="@{/relatorios}"><strong>Relatórios</strong><span>Consultar e imprimir</span></a><a th:href="@{/ajuda}"><strong>Primeiros passos</strong><span>Aprender a usar o sistema</span></a>
                 </nav>
             </details>
         </section>
@@ -73,7 +73,7 @@
         </section>
 
         <section class="secao-dashboard" aria-labelledby="atividade-recente">
-            <div class="cabecalho-secao"><div><p class="etiqueta">Histórico do sistema</p><h2 id="atividade-recente">Atividade recente</h2></div><a class="link-seta" th:href="@{/historico}">Ver histórico completo <span aria-hidden="true">→</span></a></div>
+            <div class="cabecalho-secao"><div><p class="etiqueta">Histórico do sistema</p><h2 id="atividade-recente">Atividade recente</h2></div><a class="link-seta" th:if="${usuarioLogado != null and usuarioLogado.admin}" th:href="@{/historico}">Ver histórico completo <span aria-hidden="true">→</span></a></div>
             <p class="texto-explicativo">Aqui aparecem cadastros, edições, correções, desativações e cancelamentos realizados no sistema.</p>
             <div th:replace="~{fragments/timeline-historico :: timeline(${dashboard.atividadeRecente}, 'Últimas alterações', true)}"></div>
         </section>

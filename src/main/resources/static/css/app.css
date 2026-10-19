@@ -6616,3 +6616,95 @@ body.pagina-publica {
         display: none;
     }
 }
+
+/* ===== Login e contas da equipe (RNF04) ===== */
+.usuario-topo {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding-left: .65rem;
+    border-left: 1px solid rgba(255, 255, 255, .22);
+    color: #fff;
+}
+
+.usuario-topo form {
+    margin: 0;
+}
+
+.usuario-topo-nome {
+    display: grid;
+    line-height: 1.15;
+}
+
+.usuario-topo-nome small {
+    color: rgba(255, 255, 255, .78);
+    font-size: .78rem;
+}
+
+.pagina-login {
+    display: grid;
+    min-height: 100vh;
+    padding: 1.5rem 1rem;
+    place-items: center;
+    background: var(--surface-page);
+}
+
+.cartao-login {
+    display: grid;
+    gap: 1rem;
+    width: min(100%, 440px);
+    padding: clamp(1.5rem, 5vw, 2.4rem);
+}
+
+.cartao-login h1 {
+    margin: 0;
+}
+
+.login-marca {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+}
+
+.login-marca img {
+    width: 46px;
+    height: auto;
+}
+
+.login-marca div {
+    display: grid;
+}
+
+.login-marca small {
+    color: var(--text-secondary);
+}
+
+.cartao-login input {
+    width: 100%;
+}
+
+.cartao-login .botao-primario {
+    width: 100%;
+    justify-content: center;
+}
+
+.timeline-autor {
+    color: var(--text-secondary);
+}
+
+.rotulo-leitura {
+    display: block;
+    color: var(--text-secondary);
+    font-size: .9rem;
+}
+
+@media (max-width: 720px) {
+    .usuario-topo-nome {
+        display: none;
+    }
+
+    .usuario-topo {
+        padding-left: 0;
+        border-left: 0;
+    }
+}

@@ -15,7 +15,7 @@
                     <span class="timeline-titulo"><span class="timeline-acao" th:text="${operacao.acao.descricao}">Ação realizada</span><strong th:text="${operacao.descricao}">Alteração realizada</strong></span>
                     <time th:datetime="${operacao.dataHora}" th:text="${@formatador.dataHora(operacao.dataHora)}">Data e hora</time>
                 </div>
-                <p><span class="selo-modulo" th:text="${operacao.modulo.descricao}">Módulo</span> <span th:text="${operacao.nomeEntidade}">Registro</span></p>
+                <p><span class="selo-modulo" th:text="${operacao.modulo.descricao}">Módulo</span> <span th:text="${operacao.nomeEntidade}">Registro</span><span class="timeline-autor" th:if="${operacao.usuarioNome != null}" th:text="| · por ${operacao.usuarioNome}|"> · por Pessoa</span></p>
                 <dl class="timeline-comparacao" th:if="${!compacta and (operacao.valorAnteriorResumo != null or operacao.valorNovoResumo != null)}">
                     <div th:if="${operacao.valorAnteriorResumo != null}"><dt>Antes</dt><dd th:text="${operacao.valorAnteriorResumo}">Valor anterior</dd></div>
                     <div th:if="${operacao.valorNovoResumo != null}"><dt>Depois</dt><dd th:text="${operacao.valorNovoResumo}">Valor novo</dd></div>

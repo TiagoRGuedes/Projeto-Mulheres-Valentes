@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${modoEdicao ? 'Editar usuário' : 'Cadastrar usuário'})}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('usuarios')}"></aside><main id="conteudo" class="conteudo-principal conteudo-estreito" tabindex="-1">
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><a th:href="@{/usuarios}">Usuários</a><span aria-hidden="true">›</span><span aria-current="page" th:text="${modoEdicao ? 'Editar' : 'Cadastrar'}">Cadastrar</span></nav>
+    <header class="cabecalho-pagina"><p class="sobretitulo">Gestão de acesso</p><h1 th:text="${modoEdicao ? 'Editar usuário' : 'Cadastrar usuário'}">Cadastrar usuário</h1><p th:text="${modoEdicao ? 'Altere o nome ou o perfil. O login não muda; para trocar a senha, use a página do usuário.' : 'Crie o acesso de uma pessoa da equipe. Você define uma senha temporária e ela cria a própria senha no primeiro acesso.'}">Explicação</p></header>
+    <form class="painel formulario" th:action="${modoEdicao} ? @{/usuarios/{id}/editar(id=${usuario.id})} : @{/usuarios}" th:object="${usuarioForm}" method="post" novalidate>
+        <div class="alerta alerta-erro" role="alert" th:if="${#fields.hasGlobalErrors()}"><span class="alerta-icone" aria-hidden="true">!</span><div><strong>Revise esta informação</strong><p th:each="e : ${#fields.globalErrors()}" th:text="${e}">Erro</p></div></div>
+        <fieldset><legend>Dados da pessoa</legend><p class="ajuda-campo">Todos os campos são obrigatórios.</p><div class="grade-formulario secao-espacada">
+            <div class="campo campo-largo"><label for="nome">Nome</label><input id="nome" type="text" th:field="*{nome}" maxlength="150" autocomplete="off" th:attr="aria-invalid=${#fields.hasErrors('nome')}"><p class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">Erro</p></div>
+            <div class="campo campo-largo" th:unless="${modoEdicao}"><label for="login">Login</label><input id="login" type="text" th:field="*{login}" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="ajuda-login"><small class="ajuda-campo" id="ajuda-login">É o que a pessoa digita para entrar. Ex.: karine ou isabelle.s — só letras sem acento, números, ponto, hífen ou sublinhado.</small><p class="erro-campo" th:if="${#fields.hasErrors('login')}" th:errors="*{login}">Erro</p></div>
+            <div class="campo campo-largo" th:if="${modoEdicao}"><span class="rotulo-leitura">Login</span><strong th:text="*{login}">login</strong></div>
+            <div class="campo campo-largo"><label for="perfil">Perfil de acesso</label><select id="perfil" th:field="*{perfil}" aria-describedby="ajuda-perfil"><option th:each="p : ${perfis}" th:value="${p}" th:text="${p.descricao}">Perfil</option></select><small class="ajuda-campo" id="ajuda-perfil"><span th:each="p : ${perfis}" th:text="|${p.descricao}: ${p.explicacao} |">Explicação</span></small><p class="erro-campo" th:if="${#fields.hasErrors('perfil')}" th:errors="*{perfil}">Erro</p></div>
+        </div></fieldset>
+        <fieldset th:unless="${modoEdicao}"><legend>Senha temporária</legend><div class="grade-formulario secao-espacada">
+            <div class="campo campo-largo"><label for="senha">Senha temporária</label><input id="senha" type="password" th:field="*{senha}" autocomplete="new-password" maxlength="72" aria-describedby="ajuda-senha"><small class="ajuda-campo" id="ajuda-senha" th:text="|Pelo menos ${tamanhoMinimo} caracteres. Passe para a pessoa pessoalmente ou por um canal seguro.|">Ajuda</small></div>
+            <div class="campo campo-largo"><label for="confirmacaoSenha">Repita a senha temporária</label><input id="confirmacaoSenha" type="password" th:field="*{confirmacaoSenha}" autocomplete="new-password" maxlength="72"><p class="erro-campo" th:if="${#fields.hasErrors('confirmacaoSenha')}" th:errors="*{confirmacaoSenha}">Erro</p></div>
+        </div></fieldset>
+        <div class="acoes-formulario"><button class="botao botao-primario" type="submit" th:text="${modoEdicao ? 'Salvar alterações' : 'Cadastrar usuário'}">Cadastrar usuário</button><a class="botao botao-secundario" th:href="${modoEdicao} ? @{/usuarios/{id}(id=${usuario.id})} : @{/usuarios}">Cancelar e voltar</a></div>
+    </form>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

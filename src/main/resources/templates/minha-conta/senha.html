@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Trocar minha senha')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('minha-senha')}"></aside><main id="conteudo" class="conteudo-principal conteudo-estreito" tabindex="-1">
+    <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+    <header class="cabecalho-pagina"><p class="sobretitulo">Minha conta</p><h1>Trocar minha senha</h1>
+        <p th:if="${obrigatoria}">Você está usando uma senha temporária. Para continuar, crie uma senha só sua.</p>
+        <p th:unless="${obrigatoria}">Escolha uma senha que só você saiba.</p></header>
+    <form class="painel formulario" th:action="@{/minha-conta/senha}" th:object="${senhaForm}" method="post" novalidate>
+        <div class="alerta alerta-erro" role="alert" th:if="${#fields.hasGlobalErrors()}"><span class="alerta-icone" aria-hidden="true">!</span><div><strong>Revise esta informação</strong><p th:each="e : ${#fields.globalErrors()}" th:text="${e}">Erro</p></div></div>
+        <fieldset><legend>Senha</legend><div class="grade-formulario secao-espacada">
+            <div class="campo campo-largo"><label for="senhaAtual" th:text="${obrigatoria ? 'Senha temporária (a que você recebeu)' : 'Senha atual'}">Senha atual</label><input id="senhaAtual" type="password" th:field="*{senhaAtual}" autocomplete="current-password" maxlength="72"></div>
+            <div class="campo campo-largo"><label for="novaSenha">Nova senha</label><input id="novaSenha" type="password" th:field="*{novaSenha}" autocomplete="new-password" maxlength="72" aria-describedby="ajuda-nova-senha"><small class="ajuda-campo" id="ajuda-nova-senha" th:text="|Pelo menos ${tamanhoMinimo} caracteres. Uma frase curta que você lembre é uma boa ideia.|">Pelo menos 8 caracteres.</small></div>
+            <div class="campo campo-largo"><label for="confirmacaoSenha">Repita a nova senha</label><input id="confirmacaoSenha" type="password" th:field="*{confirmacaoSenha}" autocomplete="new-password" maxlength="72"><p class="erro-campo" th:if="${#fields.hasErrors('confirmacaoSenha')}" th:errors="*{confirmacaoSenha}">Erro</p></div>
+        </div></fieldset>
+        <div class="acoes-formulario"><button class="botao botao-primario" type="submit">Salvar nova senha</button><a class="botao botao-secundario" th:unless="${obrigatoria}" th:href="@{/painel}">Cancelar</a></div>
+    </form>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

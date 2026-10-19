@@ -7,6 +7,7 @@ import com.ibmec.mulheresvalentes.repository.InscricaoRepository;
 import com.ibmec.mulheresvalentes.repository.LancamentoCaixaRepository;
 import com.ibmec.mulheresvalentes.repository.ParticipanteRepository;
 import com.ibmec.mulheresvalentes.repository.PresencaRepository;
+import com.ibmec.mulheresvalentes.repository.UsuarioRepository;
 import org.springframework.stereotype.Component;
 
 @Component("historicoLink")
@@ -18,6 +19,7 @@ public class HistoricoLinkService {
     private final PresencaRepository presencaRepository;
     private final LancamentoCaixaRepository lancamentoRepository;
     private final InscricaoRepository inscricaoRepository;
+    private final UsuarioRepository usuarioRepository;
 
     public HistoricoLinkService(
             ParticipanteRepository participanteRepository,
@@ -25,13 +27,15 @@ public class HistoricoLinkService {
             EncontroRepository encontroRepository,
             PresencaRepository presencaRepository,
             LancamentoCaixaRepository lancamentoRepository,
-            InscricaoRepository inscricaoRepository) {
+            InscricaoRepository inscricaoRepository,
+            UsuarioRepository usuarioRepository) {
         this.participanteRepository = participanteRepository;
         this.atividadeRepository = atividadeRepository;
         this.encontroRepository = encontroRepository;
         this.presencaRepository = presencaRepository;
         this.lancamentoRepository = lancamentoRepository;
         this.inscricaoRepository = inscricaoRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public String url(HistoricoOperacao operacao) {
@@ -47,6 +51,7 @@ public class HistoricoLinkService {
             case "LancamentoCaixa" -> lancamentoRepository.existsById(id)
                     ? "/caixa/movimentacoes/" + id : null;
             case "Inscricao" -> inscricaoRepository.existsById(id) ? "/inscricoes/" + id : null;
+            case "Usuario" -> usuarioRepository.existsById(id) ? "/usuarios/" + id : null;
             default -> null;
         };
     }
@@ -62,6 +67,7 @@ public class HistoricoLinkService {
             case "Presenca" -> "Ver presença";
             case "LancamentoCaixa" -> "Ver lançamento";
             case "Inscricao" -> "Ver inscrição";
+            case "Usuario" -> "Ver usuário";
             default -> "Ver registro";
         };
     }
