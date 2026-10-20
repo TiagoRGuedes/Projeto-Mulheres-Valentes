@@ -18,6 +18,7 @@ public class FormatadorService {
     private static final Locale BRASIL = Locale.of("pt", "BR");
     private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy", BRASIL);
     private static final DateTimeFormatter DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm", BRASIL);
+    private static final DateTimeFormatter DATA_EXTENSO = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM", BRASIL);
 
     public String moeda(BigDecimal valor) {
         BigDecimal seguro = valor == null ? BigDecimal.ZERO : valor;
@@ -53,6 +54,14 @@ public class FormatadorService {
 
     public String data(LocalDate valor) {
         return valor == null ? "—" : DATA.format(valor);
+    }
+
+    public String dataPorExtenso(LocalDate valor) {
+        return valor == null ? "—" : DATA_EXTENSO.format(valor);
+    }
+
+    public String hojePorExtenso() {
+        return dataPorExtenso(LocalDate.now());
     }
 
     public String dataHora(LocalDateTime valor) {
