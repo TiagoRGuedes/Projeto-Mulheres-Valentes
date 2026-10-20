@@ -18,6 +18,37 @@
         </dl>
     </section>
 
+    <section class="painel painel-conteudo secao-espacada" id="contatos" aria-labelledby="titulo-contatos">
+        <div class="cabecalho-secao compacto"><div><p class="etiqueta">Acompanhamento</p><h2 id="titulo-contatos">Contatos com ela</h2></div><span class="etiqueta" th:text="${#lists.isEmpty(contatos) ? 'Nenhum contato ainda' : #lists.size(contatos) + ' contato(s)'}">0</span></div>
+        <p class="texto-explicativo" th:if="${#lists.isEmpty(contatos) and inscricao.status.aberta}">Ainda ninguém falou com ela. Cada tentativa, mesmo sem resposta, deve ser registrada aqui.</p>
+
+        <ol class="lista-contatos" th:unless="${#lists.isEmpty(contatos)}">
+            <li th:each="contato : ${contatos}" th:classappend="${contato.resultado.conseguiuFalar} ? 'contato-conversou'">
+                <div class="contato-cabecalho">
+                    <strong th:text="${contato.resultado.descricao}">Resultado</strong>
+                    <time th:datetime="${contato.realizadoEm}" th:text="${@formatador.dataHora(contato.realizadoEm)}">Data</time>
+                </div>
+                <p class="contato-meta"><span class="selo-modulo" th:text="${contato.canal.descricao}">Canal</span><span th:if="${contato.registradoPorNome != null}" th:text="| registrado por ${contato.registradoPorNome}|"> registrado por</span></p>
+                <p class="texto-preservado" th:if="${contato.observacao != null}" th:text="${contato.observacao}">Observação</p>
+            </li>
+        </ol>
+
+        <details class="confirmacao-bloco registrar-contato" th:if="${inscricao.status.aberta}" th:open="${contatoComErro != null or #lists.isEmpty(contatos)}">
+            <summary>Registrar um contato</summary>
+            <form class="formulario" th:action="@{/inscricoes/{id}/contatos(id=${inscricao.id})}" th:object="${contatoForm}" method="post" novalidate>
+                <div class="alerta alerta-erro" role="alert" th:if="${#fields.hasGlobalErrors()}"><span class="alerta-icone" aria-hidden="true">!</span><div><strong>Revise esta informação</strong><p th:each="e : ${#fields.globalErrors()}" th:text="${e}">Erro</p></div></div>
+                <div class="grade-formulario">
+                    <div class="campo"><label for="realizadoEm">Quando foi</label><input id="realizadoEm" type="datetime-local" th:field="*{realizadoEm}" th:attr="max=${#temporals.format(agora, 'yyyy-MM-dd''T''HH:mm')}"><p class="erro-campo" th:if="${#fields.hasErrors('realizadoEm')}" th:errors="*{realizadoEm}">Erro</p></div>
+                    <div class="campo"><label for="canal">Por onde</label><select id="canal" th:field="*{canal}"><option th:each="c : ${canaisContato}" th:value="${c}" th:text="${c.descricao}">Canal</option></select><p class="erro-campo" th:if="${#fields.hasErrors('canal')}" th:errors="*{canal}">Erro</p></div>
+                    <div class="campo campo-largo"><label for="resultado">Como foi</label><select id="resultado" th:field="*{resultado}"><option value="">Escolha uma opção</option><option th:each="r : ${resultadosContato}" th:value="${r}" th:text="${r.descricao}">Resultado</option></select><p class="erro-campo" th:if="${#fields.hasErrors('resultado')}" th:errors="*{resultado}">Erro</p></div>
+                    <div class="campo campo-largo"><label for="observacao">Anotação <span class="opcional">opcional</span></label><textarea id="observacao" th:field="*{observacao}" maxlength="1000" rows="3" aria-describedby="ajuda-observacao"></textarea><small class="ajuda-campo" id="ajuda-observacao">Ex.: "pediu para ligar depois das 18h". Escreva só o necessário para o próximo contato.</small><p class="erro-campo" th:if="${#fields.hasErrors('observacao')}" th:errors="*{observacao}">Erro</p></div>
+                </div>
+                <div class="acoes-formulario"><button class="botao botao-primario" type="submit">Salvar contato</button></div>
+                <p class="ajuda-campo" th:if="${inscricao.status.name() == 'NOVA'}">Ao salvar o primeiro contato, a inscrição passa para "Em contato".</p>
+            </form>
+        </details>
+    </section>
+
     <section class="painel painel-conteudo secao-espacada" aria-labelledby="sobre-ela"><div class="cabecalho-secao compacto"><div><p class="etiqueta">O que ela contou</p><h2 id="sobre-ela">Inscrição</h2></div></div>
         <dl class="lista-detalhes">
             <div><dt>Bairro</dt><dd th:text="${inscricao.bairro != null ? inscricao.bairro : 'Não informado'}">Bairro</dd></div>

@@ -494,6 +494,11 @@ Páginas novas:
 | GET/POST | `/usuarios/{id}/editar` | Editar nome e perfil (ADMIN) |
 | POST | `/usuarios/{id}/senha` | Definir senha temporária (ADMIN) |
 | POST | `/usuarios/{id}/desativar`, `/usuarios/{id}/ativar` | Desativar/reativar (ADMIN) |
+| POST | `/inscricoes/{id}/contatos` | Registrar contato com a inscrita |
+| GET | `/notificacoes` | Avisos da equipe (marca como vistos para quem abriu) |
+| GET | `/caixa/movimentacoes/{id}/comprovante` | Abrir a foto/PDF do comprovante |
+| POST | `/caixa/movimentacoes/{id}/comprovante` | Anexar ou trocar o comprovante (multipart, campo `arquivo`) |
+| POST | `/caixa/movimentacoes/{id}/comprovante/remover` | Remover o comprovante (ADMIN) |
 
 Na API, sem login a resposta é `401`; com perfil insuficiente, `403`. Use HTTP
 Basic para scripts. Formulários das páginas levam token CSRF automaticamente; a

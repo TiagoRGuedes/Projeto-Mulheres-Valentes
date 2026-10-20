@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Notificações')}"></head>
+<body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="estrutura-app"><aside th:replace="~{fragments/sidebar :: sidebar('notificacoes')}"></aside><main id="conteudo" class="conteudo-principal" tabindex="-1">
+    <nav class="migalhas" aria-label="Caminho da página"><a th:href="@{/painel}">Início</a><span aria-hidden="true">›</span><span aria-current="page">Notificações</span></nav>
+
+    <header class="notif-cabecalho">
+        <div>
+            <p class="sobretitulo">Avisos para a equipe</p>
+            <h1>Notificações</h1>
+            <p class="notif-subtitulo">Inscrições que chegaram pelo site e as que estão esperando contato.</p>
+        </div>
+        <span class="notif-estado" th:classappend="${totalNovas > 0} ? 'tem-novas' : 'em-dia'">
+            <span class="notif-estado-ponto" aria-hidden="true"></span>
+            <span th:text="${totalNovas == 0 ? 'Tudo visto' : (totalNovas == 1 ? '1 aviso novo' : totalNovas + ' avisos novos')}">Tudo visto</span>
+        </span>
+    </header>
+
+    <nav class="notif-filtros" aria-label="Filtrar notificações">
+        <a th:href="@{/notificacoes}" th:classappend="${tipoSelecionado == null} ? 'ativo'" th:attr="aria-current=${tipoSelecionado == null} ? 'page' : null">Todas <span th:text="${totalGeral}">0</span></a>
+        <a th:each="t : ${tipos}" th:href="@{/notificacoes(tipo=${t})}" th:classappend="${tipoSelecionado == t} ? 'ativo'" th:attr="aria-current=${tipoSelecionado == t} ? 'page' : null"><th:block th:text="${t.name() == 'NOVA_INSCRICAO' ? 'Novas inscrições' : 'Esperando contato'}">Tipo</th:block> <span th:text="${totalPorTipo.get(t)}">0</span></a>
+    </nav>
+
+    <div class="notif-grade">
+        <section class="notif-lista" aria-label="Lista de notificações">
+            <div class="notif-vazio" th:if="${#maps.isEmpty(gruposPorDia)}">
+                <span class="notif-vazio-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9M10 20a2 2 0 0 0 4 0"/></svg></span>
+                <h2 th:text="${tipoSelecionado == null ? 'Nenhuma notificação ainda' : 'Nada por aqui neste filtro'}">Nenhuma notificação</h2>
+                <p th:text="${tipoSelecionado == null ? 'Quando uma mulher se inscrever pelo site, o aviso aparece aqui e no sino do topo.' : 'Escolha \"Todas\" para ver os outros avisos.'}">Explicação</p>
+            </div>
+
+            <section class="notif-dia" th:each="grupo : ${gruposPorDia}">
+                <h2 class="notif-dia-titulo" th:text="${@formatador.diaRelativo(grupo.key)}">Hoje</h2>
+                <ol>
+                    <li th:each="n : ${grupo.value}" class="notif-item" th:classappend="|${n.criadaEm.isAfter(vistoAte) ? 'nao-vista' : ''} tipo-${#strings.toLowerCase(n.tipo.name())}|">
+                        <span class="notif-icone" aria-hidden="true">
+                            <svg th:if="${n.tipo.name() == 'NOVA_INSCRICAO'}" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                            <svg th:unless="${n.tipo.name() == 'NOVA_INSCRICAO'}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                        </span>
+                        <div class="notif-corpo">
+                            <div class="notif-titulo">
+                                <strong th:text="${n.titulo}">Título</strong>
+                                <span class="notif-selo" th:if="${n.criadaEm.isAfter(vistoAte)}">Nova</span>
+                            </div>
+                            <p th:text="${n.mensagem}">Mensagem</p>
+                            <time th:datetime="${n.criadaEm}" th:title="${@formatador.dataHora(n.criadaEm)}" th:text="|${@formatador.tempoRelativo(n.criadaEm)} · ${@formatador.hora(n.criadaEm)}|">há 5 min</time>
+                        </div>
+                        <a class="botao botao-secundario botao-pequeno notif-acao" th:if="${n.link != null}" th:href="@{${n.link}}">Abrir inscrição <span aria-hidden="true">→</span></a>
+                    </li>
+                </ol>
+            </section>
+        </section>
+
+        <aside class="notif-lateral" aria-label="Resumo das inscrições">
+            <section class="painel notif-resumo">
+                <h2>Agora nas inscrições</h2>
+                <a class="notif-resumo-linha" th:href="@{/inscricoes(status='NOVA')}">
+                    <strong th:text="${inscricoesNovas}">0</strong>
+                    <span>aguardando o primeiro contato</span>
+                </a>
+                <a class="notif-resumo-linha alerta-linha" th:href="@{/inscricoes(status='NOVA')}" th:classappend="${inscricoesAtrasadas == 0} ? 'zerado'">
+                    <strong th:text="${inscricoesAtrasadas}">0</strong>
+                    <span th:text="|sem contato há mais de ${diasSemContato} dias|">atrasadas</span>
+                </a>
+                <a class="botao botao-primario notif-resumo-botao" th:href="@{/inscricoes}">Ver inscrições</a>
+            </section>
+            <section class="notif-legenda">
+                <h2>Como funcionam</h2>
+                <ul>
+                    <li><span class="notif-legenda-cor tipo-nova" aria-hidden="true"></span><span><strong>Nova inscrição:</strong> chega na hora em que ela envia o formulário.</span></li>
+                    <li><span class="notif-legenda-cor tipo-atraso" aria-hidden="true"></span><span><strong>Esperando contato:</strong> aparece quando passam <th:block th:text="${diasSemContato}">3</th:block> dias sem ninguém registrar contato.</span></li>
+                    <li><span class="notif-legenda-cor tipo-vista" aria-hidden="true"></span><span>Ao abrir esta página, os avisos contam como vistos <strong>só para você</strong>.</span></li>
+                </ul>
+            </section>
+        </aside>
+    </div>
+</main></div><footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

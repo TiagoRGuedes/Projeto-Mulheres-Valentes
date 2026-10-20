@@ -42,6 +42,27 @@ Esqueceu a senha? Peça a uma pessoa administradora: ela define uma senha tempor
 
 Quando alguém sair da equipe, abra o usuário e clique em **Desativar usuário**. O histórico do que ela fez continua guardado.
 
+## Registrar o contato com uma mulher que se inscreveu
+
+1. Abra **Inscrições** e clique em **Abrir** na inscrição.
+2. Leia **Como falar com ela**: respeite o horário e a forma que ela indicou.
+3. Depois de tentar o contato, em **Contatos com ela**, preencha quando foi, por onde e como foi.
+4. Se quiser, escreva uma anotação curta (por exemplo, "pediu para ligar depois das 18h") e clique em **Salvar contato**.
+
+Registre também as tentativas sem resposta. Inscrições sem nenhum contato há mais de 3 dias aparecem em destaque.
+
+## Notificações (o sino)
+
+O número no sino, no alto da tela, mostra avisos novos: inscrições que chegaram pelo site e inscrições esperando contato. Clique no sino para ver a lista e abrir cada inscrição.
+
+## Guardar a foto do comprovante (opcional)
+
+1. Abra o lançamento em **Movimentações** (ou continue na tela que aparece logo depois de registrar).
+2. Em **Foto do comprovante**, clique em **Escolher foto ou PDF**. No celular, dá para tirar a foto na hora.
+3. Clique em **Guardar comprovante**.
+
+Não é obrigatório. Aceita JPG, PNG, WEBP ou PDF de até 5 MB.
+
 ## Como se orientar
 
 A Home mostra as tarefas principais em cartões grandes:

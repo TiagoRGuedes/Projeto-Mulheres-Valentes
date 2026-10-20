@@ -12,6 +12,9 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -46,6 +49,7 @@ public class SegurancaConfig {
         "/atividades/*/excluir",
         "/encontros/*/excluir",
         "/caixa/movimentacoes/*/excluir",
+        "/caixa/movimentacoes/*/comprovante/remover",
         "/h2-console", "/h2-console/**"
     };
 
@@ -69,15 +73,19 @@ public class SegurancaConfig {
                 .permitAll())
             .logout(sair -> sair
                 .logoutRequestMatcher(caminho.matcher(HttpMethod.POST, "/sair"))
-                .logoutSuccessUrl("/login?saiu")
+                .logoutSuccessHandler(sairParaLogin())
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll())
             // A API pode ser usada por scripts com usuário e senha (HTTP Basic).
             .httpBasic(Customizer.withDefaults())
+            // Sem login: a API responde 401; as páginas levam para a tela de login.
             .exceptionHandling(erros -> erros
                 .defaultAuthenticationEntryPointFor(
-                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), caminho.matcher("/api/**")))
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), caminho.matcher("/api/**"))
+                .defaultAuthenticationEntryPointFor(
+                    new LoginUrlAuthenticationEntryPoint("/login"),
+                    new NegatedRequestMatcher(caminho.matcher("/api/**"))))
             // A API recebe JSON (exige preflight CORS) e o console H2 tem formulários próprios.
             .csrf(csrf -> csrf.ignoringRequestMatchers(matchers("/api/**", "/h2-console/**")))
             // O console H2 usa frames da própria aplicação.
@@ -90,6 +98,12 @@ public class SegurancaConfig {
     public PasswordEncoder passwordEncoder() {
         // BCrypt por padrão, com prefixo {bcrypt} para permitir trocar o algoritmo no futuro.
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    private static SimpleUrlLogoutSuccessHandler sairParaLogin() {
+        SimpleUrlLogoutSuccessHandler handler = new SimpleUrlLogoutSuccessHandler();
+        handler.setDefaultTargetUrl("/login?saiu");
+        return handler;
     }
 
     private static RequestMatcher[] matchers(String... padroes) {

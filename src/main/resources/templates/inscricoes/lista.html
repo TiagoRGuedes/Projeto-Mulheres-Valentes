@@ -24,13 +24,18 @@
     <section aria-labelledby="lista-inscricoes">
         <div class="cabecalho-secao compacto"><div><p class="etiqueta" th:text="|${#lists.size(inscricoes)} inscrição(ões)|">Inscrições</p><h2 id="lista-inscricoes" th:text="${statusSelecionado != null ? 'Inscrições: ' + statusSelecionado.descricao : 'Todas as inscrições'}">Todas as inscrições</h2></div></div>
         <div class="estado-vazio" th:if="${#lists.isEmpty(inscricoes)}"><span class="estado-vazio-icone" aria-hidden="true">✉</span><h2>Nenhuma inscrição aqui</h2><p th:text="${statusSelecionado != null ? 'Não há inscrições com esta situação.' : 'Quando alguém se inscrever pela página pública, a inscrição aparece aqui.'}">Quando alguém se inscrever, a inscrição aparece aqui.</p><a class="botao botao-secundario" th:if="${statusSelecionado != null}" th:href="@{/inscricoes}">Ver todas</a></div>
-        <div class="tabela-responsiva" th:unless="${#lists.isEmpty(inscricoes)}"><table class="tabela-adaptavel"><caption>Inscrições recebidas pela página pública, das mais recentes para as mais antigas</caption><thead><tr><th scope="col">Recebida em</th><th scope="col">Nome</th><th scope="col">Contato</th><th scope="col">Interesse</th><th scope="col">Situação</th><th scope="col">Ação</th></tr></thead><tbody>
+        <div class="tabela-responsiva" th:unless="${#lists.isEmpty(inscricoes)}"><table class="tabela-adaptavel"><caption>Inscrições recebidas pela página pública, das mais recentes para as mais antigas</caption><thead><tr><th scope="col">Recebida em</th><th scope="col">Nome</th><th scope="col">Contato</th><th scope="col">Interesse</th><th scope="col">Situação</th><th scope="col">Contatos</th><th scope="col">Ação</th></tr></thead><tbody>
             <tr th:each="inscricao : ${inscricoes}">
                 <td data-label="Recebida em" th:text="${@formatador.dataHora(inscricao.recebidaEm)}">Data</td>
                 <td data-label="Nome"><span class="nome-principal" th:text="${inscricao.nome}">Nome</span><small class="texto-secundario" th:if="${inscricao.bairro != null}" th:text="${inscricao.bairro}">Bairro</small></td>
                 <td data-label="Contato"><span th:text="${inscricao.contato}">Contato</span><small class="texto-secundario" th:text="${inscricao.preferenciaContato.descricao}">Preferência</small></td>
                 <td data-label="Interesse"><span th:if="${#sets.isEmpty(inscricao.areas)}" class="texto-secundario">Não informado</span><ul class="lista-etiquetas" th:unless="${#sets.isEmpty(inscricao.areas)}"><li th:each="area : ${inscricao.areas}" th:text="${area.descricao}">Área</li></ul></td>
                 <td data-label="Situação"><span class="selo-status" th:classappend="|selo-inscricao-${#strings.toLowerCase(inscricao.status.name())}|" th:text="${inscricao.status.descricao}">Nova</span></td>
+                <td data-label="Contatos" th:with="resumo=${resumoContatos.get(inscricao.id)}">
+                    <span th:if="${resumo != null}"><span th:text="|Último: ${@formatador.dataHora(resumo.ultimoContato)}|">Último</span><small class="texto-secundario" th:text="|${resumo.quantidade} contato(s)|">0</small></span>
+                    <span th:if="${resumo == null and inscricao.status.name() == 'NOVA' and inscricao.recebidaEm.isBefore(limiteSemContato)}" class="selo-status selo-atrasado" th:text="|Sem contato há mais de ${diasSemContato} dias|">Atrasada</span>
+                    <span th:if="${resumo == null and !(inscricao.status.name() == 'NOVA' and inscricao.recebidaEm.isBefore(limiteSemContato))}" class="texto-secundario">Nenhum ainda</span>
+                </td>
                 <td data-label="Ação"><a class="botao botao-secundario botao-pequeno" th:href="@{/inscricoes/{id}(id=${inscricao.id})}" th:aria-label="|Abrir inscrição de ${inscricao.nome}|">Abrir</a></td>
             </tr>
         </tbody></table></div>

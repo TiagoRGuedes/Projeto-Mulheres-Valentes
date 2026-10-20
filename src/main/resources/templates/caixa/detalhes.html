@@ -9,6 +9,31 @@
     <header class="cabecalho-pagina com-acoes" th:unless="${lancamentoNovo}"><div><p class="sobretitulo">Detalhes do Livro Caixa</p><h1 th:text="${lancamento.descricao}">Lançamento</h1><p th:text="${lancamento.cancelado ? 'Este lançamento está preservado somente para consulta e rastreabilidade.' : 'Confira os dados, edite uma informação ou cancele o lançamento.'}">Confira os dados do lançamento.</p></div><span class="selo-status" th:classappend="${lancamento.cancelado ? 'selo-inativo' : (lancamento.tipo.name() == 'ENTRADA' ? 'selo-entrada' : 'selo-saida')}" th:text="${lancamento.cancelado ? 'Cancelado' : lancamento.tipo.rotuloAcessivel}">Tipo</span></header>
     <div class="alerta alerta-aviso" th:if="${lancamento.cancelado}" role="status"><span class="alerta-icone" aria-hidden="true">i</span><div><strong>Lançamento cancelado</strong><p>Ele não participa do saldo nem dos relatórios ativos, mas seus dados foram mantidos para auditoria.</p></div></div>
     <section class="painel painel-conteudo" aria-label="Informações do lançamento"><dl class="lista-detalhes"><div><dt>Situação</dt><dd th:text="${lancamento.cancelado ? 'Cancelado' : 'Ativo'}">Ativo</dd></div><div><dt>Tipo</dt><dd th:text="${lancamento.tipo.rotuloAcessivel}">Tipo</dd></div><div><dt>Natureza</dt><dd th:text="${lancamento.natureza.descricao}">Natureza</dd></div><div><dt>Valor</dt><dd class="valor-detalhe" th:text="${@formatador.valorLancamento(lancamento)}">R$ 0,00</dd></div><div><dt>Data</dt><dd th:text="${@formatador.data(lancamento.data)}">Data</dd></div><div><dt>Categoria</dt><dd th:text="${lancamento.categoria.nome}">Categoria</dd></div><div><dt>Descrição</dt><dd th:text="${lancamento.descricao}">Descrição</dd></div><div th:unless="${lancamento.monetario}"><dt>Comprovante</dt><dd th:text="${lancamento.comprovante}">Comprovante</dd></div><div><dt>Observação</dt><dd th:text="${lancamento.observacoes != null ? lancamento.observacoes : 'Nenhuma observação registrada.'}">Observação</dd></div><div th:if="${lancamento.cancelado}"><dt>Cancelado em</dt><dd th:text="${@formatador.dataHora(lancamento.canceladoEm)}">Data do cancelamento</dd></div></dl></section>
+    <section class="painel painel-conteudo secao-espacada" id="comprovante" aria-labelledby="titulo-comprovante">
+        <div class="cabecalho-secao compacto"><div><p class="etiqueta">Opcional</p><h2 id="titulo-comprovante">Foto do comprovante</h2></div></div>
+        <div th:if="${comprovanteArquivo != null}" class="comprovante-anexo">
+            <a th:if="${comprovanteArquivo.imagem}" class="comprovante-miniatura" th:href="@{/caixa/movimentacoes/{id}/comprovante(id=${lancamento.id})}" target="_blank" rel="noopener">
+                <img th:src="@{/caixa/movimentacoes/{id}/comprovante(id=${lancamento.id},v=${comprovanteArquivo.tamanhoBytes})}" alt="Foto do comprovante deste lançamento" loading="lazy">
+            </a>
+            <div>
+                <p><strong th:text="${comprovanteArquivo.nomeOriginal}">arquivo.jpg</strong></p>
+                <p class="texto-secundario" th:text="|${comprovanteArquivo.tamanhoLegivel} · enviado em ${@formatador.dataHora(comprovanteArquivo.enviadoEm)}${comprovanteArquivo.enviadoPorNome != null ? ' por ' + comprovanteArquivo.enviadoPorNome : ''}|">Detalhes</p>
+                <div class="grupo-botoes">
+                    <a class="botao botao-secundario" th:href="@{/caixa/movimentacoes/{id}/comprovante(id=${lancamento.id})}" target="_blank" rel="noopener" th:text="${comprovanteArquivo.imagem ? 'Abrir foto' : 'Abrir PDF'}">Abrir</a>
+                    <form th:if="${usuarioLogado != null and usuarioLogado.admin}" th:action="@{/caixa/movimentacoes/{id}/comprovante/remover(id=${lancamento.id})}" method="post"><button class="botao botao-discreto acao-perigo" type="submit">Remover</button></form>
+                </div>
+            </div>
+        </div>
+        <p class="texto-explicativo" th:if="${comprovanteArquivo == null}">Se quiser, guarde aqui a foto do recibo, da nota ou do material doado. Não é obrigatório.</p>
+        <form th:unless="${lancamento.cancelado}" class="formulario formulario-comprovante" th:action="@{/caixa/movimentacoes/{id}/comprovante(id=${lancamento.id})}" method="post" enctype="multipart/form-data">
+            <div class="campo campo-largo">
+                <label for="arquivo-comprovante" th:text="${comprovanteArquivo == null ? 'Escolher foto ou PDF' : 'Trocar por outro arquivo'}">Escolher foto ou PDF</label>
+                <input id="arquivo-comprovante" type="file" name="arquivo" accept="image/jpeg,image/png,image/webp,application/pdf" required aria-describedby="ajuda-comprovante">
+                <small class="ajuda-campo" id="ajuda-comprovante">JPG, PNG, WEBP ou PDF, até 5 MB. No celular, dá para tirar a foto na hora.</small>
+            </div>
+            <div class="acoes-formulario"><button class="botao botao-primario" type="submit" th:text="${comprovanteArquivo == null ? 'Guardar comprovante' : 'Substituir comprovante'}">Guardar comprovante</button></div>
+        </form>
+    </section>
     <div class="acoes-formulario"><a class="botao botao-primario" th:unless="${lancamento.cancelado}" th:href="@{/caixa/movimentacoes/{id}/editar(id=${lancamento.id})}">Editar lançamento</a><a class="botao botao-secundario" th:href="@{/caixa/movimentacoes}">Voltar às movimentações</a><a class="botao botao-discreto acao-perigo" th:if="${!lancamento.cancelado and usuarioLogado != null and usuarioLogado.admin}" th:href="@{/caixa/movimentacoes/{id}/excluir(id=${lancamento.id})}">Cancelar lançamento</a></div>
     <section class="secao-espacada" aria-labelledby="historico-lancamento"><div class="cabecalho-secao compacto"><div><p class="etiqueta">Rastreabilidade</p><h2 id="historico-lancamento">Histórico deste lançamento</h2></div></div><div th:replace="~{fragments/timeline-historico :: timeline(${historicoEntidade}, null, false)}"></div></section>
     <aside class="dica-contextual secao-espacada"><strong>Precisa de ajuda?</strong><p>Na Central de Ajuda você encontra o passo a passo para corrigir e cancelar lançamentos.</p><a th:href="@{/ajuda#guia-caixa}">Abrir ajuda do Livro Caixa</a></aside>

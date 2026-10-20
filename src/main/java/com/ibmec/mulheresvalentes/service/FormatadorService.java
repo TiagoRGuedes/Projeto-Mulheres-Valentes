@@ -17,6 +17,7 @@ public class FormatadorService {
 
     private static final Locale BRASIL = Locale.of("pt", "BR");
     private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy", BRASIL);
+    private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("HH:mm", BRASIL);
     private static final DateTimeFormatter DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm", BRASIL);
 
     public String moeda(BigDecimal valor) {
@@ -57,6 +58,32 @@ public class FormatadorService {
 
     public String dataHora(LocalDateTime valor) {
         return valor == null ? "—" : DATA_HORA.format(valor);
+    }
+
+    /** "agora mesmo", "há 5 min", "há 3 h", "ontem às 14:20" ou a data completa. */
+    public String tempoRelativo(LocalDateTime valor) {
+        if (valor == null) {
+            return "—";
+        }
+        LocalDateTime agora = LocalDateTime.now();
+        long minutos = java.time.Duration.between(valor, agora).toMinutes();
+        if (minutos < 1) {
+            return "agora mesmo";
+        }
+        if (minutos < 60) {
+            return "há " + minutos + " min";
+        }
+        if (valor.toLocalDate().equals(agora.toLocalDate())) {
+            return "há " + (minutos / 60) + " h";
+        }
+        if (valor.toLocalDate().equals(agora.toLocalDate().minusDays(1))) {
+            return "ontem às " + HORA.format(valor);
+        }
+        return DATA_HORA.format(valor);
+    }
+
+    public String hora(LocalDateTime valor) {
+        return valor == null ? "—" : HORA.format(valor);
     }
 
     public String diaRelativo(LocalDate valor) {

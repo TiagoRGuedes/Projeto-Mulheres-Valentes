@@ -2,44 +2,82 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Entrar')}"></head>
 <body th:class="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
-<main id="conteudo" class="pagina-login" tabindex="-1">
-    <section class="painel cartao-login" aria-labelledby="titulo-login">
-        <div class="login-marca">
+<div class="login-tela">
+    <aside class="login-vitrine" aria-label="ONG Mulheres Valentes">
+        <a class="login-vitrine-marca" th:href="@{/}">
             <img th:src="@{/img/brand/logo-mulheres-valentes.png}" alt="" width="292" height="368">
-            <div><strong>Mulheres Valentes</strong><small>Área da equipe</small></div>
+            <strong>Mulheres Valentes</strong>
+        </a>
+        <div class="login-vitrine-texto">
+            <span class="etiqueta-clara">Área da equipe</span>
+            <p class="frase">Cada contato registrado é um passo no acolhimento.</p>
+            <p class="apoio">Inscrições, presença e Livro Caixa da ONG em um só lugar. Os dados aqui são sigilosos: entre só em um dispositivo de confiança.</p>
         </div>
-        <h1 id="titulo-login">Entrar no painel</h1>
-        <p class="texto-explicativo">Use o login e a senha que a administração passou para você.</p>
+    </aside>
 
-        <div class="alerta alerta-erro" role="alert" th:if="${param.erro != null}">
-            <span class="alerta-icone" aria-hidden="true">!</span>
-            <div><strong>Não foi possível entrar</strong><p>Login ou senha incorretos, ou a conta está desativada. Confira e tente de novo.</p></div>
-        </div>
-        <div class="alerta alerta-sucesso" role="status" th:if="${param.saiu != null}">
-            <span class="alerta-icone" aria-hidden="true">✓</span>
-            <div><strong>Você saiu do painel</strong><p>Até a próxima! Em computador compartilhado, feche também o navegador.</p></div>
-        </div>
-        <div class="alerta alerta-aviso" role="status" th:if="${param.desativado != null}">
-            <span class="alerta-icone" aria-hidden="true">i</span>
-            <div><strong>Acesso encerrado</strong><p>Esta conta foi desativada pela administração.</p></div>
-        </div>
+    <main id="conteudo" class="login-painel" tabindex="-1">
+        <div class="login-conteudo">
+            <header>
+                <p class="sobretitulo">Boas-vindas</p>
+                <h1>Entrar no painel</h1>
+                <p class="texto-explicativo">Use o login e a senha que a administração passou para você.</p>
+            </header>
 
-        <form class="formulario" th:action="@{/login}" method="post">
-            <div class="campo">
-                <label for="login">Login</label>
-                <input id="login" name="login" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="40" required autofocus>
+            <div class="alerta alerta-erro" role="alert" th:if="${param.erro != null}">
+                <span class="alerta-icone" aria-hidden="true">!</span>
+                <div><strong>Não foi possível entrar</strong><p>Login ou senha incorretos, ou a conta está desativada. Confira e tente de novo.</p></div>
             </div>
-            <div class="campo">
-                <label for="senha">Senha</label>
-                <input id="senha" name="senha" type="password" autocomplete="current-password" maxlength="72" required>
+            <div class="alerta alerta-sucesso" role="status" th:if="${param.saiu != null}">
+                <span class="alerta-icone" aria-hidden="true">✓</span>
+                <div><strong>Você saiu do painel</strong><p>Em computador compartilhado, feche também o navegador.</p></div>
             </div>
-            <div class="acoes-formulario">
-                <button class="botao botao-primario" type="submit">Entrar</button>
+            <div class="alerta alerta-aviso" role="status" th:if="${param.desativado != null}">
+                <span class="alerta-icone" aria-hidden="true">i</span>
+                <div><strong>Acesso encerrado</strong><p>Esta conta foi desativada pela administração.</p></div>
             </div>
-        </form>
-        <p class="ajuda-campo">Esqueceu a senha? Peça a uma pessoa administradora para definir uma senha temporária.</p>
-        <a class="link-seta" th:href="@{/}"><span aria-hidden="true">←</span> Voltar para a página pública</a>
-    </section>
-</main>
+
+            <form class="login-formulario" th:action="@{/login}" method="post">
+                <div class="campo">
+                    <label for="login">Login</label>
+                    <input id="login" name="login" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="Ex.: karine" required autofocus>
+                </div>
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <div class="campo-senha">
+                        <input id="senha" name="senha" type="password" autocomplete="current-password" maxlength="72" required>
+                        <button class="mostrar-senha" type="button" aria-controls="senha" aria-pressed="false" hidden>Mostrar</button>
+                    </div>
+                </div>
+                <button class="botao botao-primario botao-entrar" type="submit">Entrar</button>
+            </form>
+
+            <div class="login-ajuda">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                <p><strong>Esqueceu a senha?</strong> Peça a uma pessoa da administração para definir uma senha temporária. Você cria uma nova ao entrar.</p>
+            </div>
+
+            <footer class="login-rodape">
+                <a th:href="@{/}"><span aria-hidden="true">←</span> Página pública da ONG</a>
+                <span>Pirituba · São Paulo</span>
+            </footer>
+        </div>
+    </main>
+</div>
+<script>
+    (function () {
+        var botao = document.querySelector('.mostrar-senha');
+        var campo = document.getElementById('senha');
+        if (!botao || !campo) { return; }
+        botao.hidden = false;
+        botao.addEventListener('click', function () {
+            var mostrando = campo.type === 'text';
+            campo.type = mostrando ? 'password' : 'text';
+            botao.textContent = mostrando ? 'Mostrar' : 'Ocultar';
+            botao.setAttribute('aria-pressed', String(!mostrando));
+            botao.setAttribute('aria-label', mostrando ? 'Mostrar senha' : 'Ocultar senha');
+            campo.focus();
+        });
+    })();
+</script>
 </body>
 </html>

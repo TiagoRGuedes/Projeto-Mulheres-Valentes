@@ -14,6 +14,7 @@ import com.ibmec.mulheresvalentes.model.TipoLancamento;
 import com.ibmec.mulheresvalentes.model.TipoOperacaoRevisao;
 import com.ibmec.mulheresvalentes.service.CategoriaFinanceiraService;
 import com.ibmec.mulheresvalentes.service.LancamentoCaixaService;
+import com.ibmec.mulheresvalentes.service.ComprovanteArquivoService;
 import com.ibmec.mulheresvalentes.service.HistoricoOperacaoService;
 import com.ibmec.mulheresvalentes.service.RevisaoOperacaoService;
 import jakarta.validation.Valid;
@@ -45,11 +46,15 @@ public class CaixaController {
     private final HistoricoOperacaoService historicoService;
     private final RevisaoOperacaoService revisaoService;
 
+    private final ComprovanteArquivoService comprovanteService;
+
     public CaixaController(
             LancamentoCaixaService lancamentoService,
             CategoriaFinanceiraService categoriaService,
             HistoricoOperacaoService historicoService,
-            RevisaoOperacaoService revisaoService) {
+            RevisaoOperacaoService revisaoService,
+            ComprovanteArquivoService comprovanteService) {
+        this.comprovanteService = comprovanteService;
         this.lancamentoService = lancamentoService;
         this.categoriaService = categoriaService;
         this.historicoService = historicoService;
@@ -168,6 +173,7 @@ public class CaixaController {
         model.addAttribute("lancamento", lancamento);
         model.addAttribute(
                 "historicoEntidade", historicoService.listarPorEntidade("LancamentoCaixa", id));
+        model.addAttribute("comprovanteArquivo", comprovanteService.buscar(id).orElse(null));
         model.addAttribute("paginaAtual", "movimentacoes");
         return "caixa/detalhes";
     }

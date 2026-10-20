@@ -54,6 +54,9 @@ public class Usuario {
     @Column(name = "ultimo_acesso_em")
     private LocalDateTime ultimoAcessoEm;
 
+    @Column(name = "notificacoes_vistas_em")
+    private LocalDateTime notificacoesVistasEm;
+
     protected Usuario() {
     }
 
@@ -103,6 +106,14 @@ public class Usuario {
 
     public void registrarAcesso() {
         this.ultimoAcessoEm = LocalDateTime.now();
+    }
+
+    public void marcarNotificacoesVistas() {
+        this.notificacoesVistasEm = LocalDateTime.now();
+    }
+
+    public LocalDateTime getNotificacoesVistasEm() {
+        return notificacoesVistasEm;
     }
 
     public boolean isAdmin() {

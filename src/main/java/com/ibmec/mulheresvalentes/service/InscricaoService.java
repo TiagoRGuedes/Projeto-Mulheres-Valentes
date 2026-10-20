@@ -33,18 +33,21 @@ public class InscricaoService {
     private final ParticipanteService participanteService;
     private final HistoricoOperacaoService historicoService;
     private final FormatadorService formatador;
+    private final NotificacaoService notificacaoService;
 
     public InscricaoService(
             InscricaoRepository inscricaoRepository,
             ParticipanteRepository participanteRepository,
             ParticipanteService participanteService,
             HistoricoOperacaoService historicoService,
-            FormatadorService formatador) {
+            FormatadorService formatador,
+            NotificacaoService notificacaoService) {
         this.inscricaoRepository = inscricaoRepository;
         this.participanteRepository = participanteRepository;
         this.participanteService = participanteService;
         this.historicoService = historicoService;
         this.formatador = formatador;
+        this.notificacaoService = notificacaoService;
     }
 
     @Transactional
@@ -80,6 +83,7 @@ public class InscricaoService {
         historicoService.registrar(
                 ModuloHistorico.INSCRICOES, "Inscricao", salva.getId(), salva.getNome(),
                 AcaoHistorico.REGISTRO, "Inscrição recebida pela página pública.");
+        notificacaoService.notificarNovaInscricao(salva);
         return salva;
     }
 

@@ -24,7 +24,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -63,7 +62,7 @@ class SegurancaIntegrationTest {
     @Test
     void painelSemLoginLevaParaATelaDeLogin() throws Exception {
         for (String endereco : new String[] {"/painel", "/inscricoes", "/participantes", "/caixa", "/usuarios"}) {
-            mvc.perform(get(endereco)).andExpect(redirectedUrlPattern("**/login"));
+            mvc.perform(get(endereco)).andExpect(redirectedUrl("/login"));
         }
         mvc.perform(get("/api/caixa/saldo")).andExpect(status().isUnauthorized());
     }

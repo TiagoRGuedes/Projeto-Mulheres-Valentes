@@ -245,6 +245,7 @@ Se o PowerShell perguntar se deseja finalizar o trabalho, confirme.
 | Entrar (login da equipe) | http://localhost:8080/login |
 | Painel da equipe | http://localhost:8080/painel |
 | Usuários (somente administração) | http://localhost:8080/usuarios |
+| Notificações | http://localhost:8080/notificacoes |
 | Inscrições recebidas | http://localhost:8080/inscricoes |
 | Participantes | http://localhost:8080/participantes |
 | Atividades | http://localhost:8080/atividades |
@@ -339,6 +340,49 @@ senha com HTTP Basic:
 ~~~powershell
 Invoke-RestMethod -Uri "http://localhost:8080/api/caixa/saldo" -Authentication Basic -Credential (Get-Credential)
 ~~~
+
+## Acompanhamento das inscrições, notificações e comprovantes
+
+### Contatos com cada inscrita
+
+Na página de cada inscrição (`/inscricoes/{id}`) há a seção **Contatos com ela**.
+Cada tentativa de contato é registrada com data e hora, canal (WhatsApp, ligação,
+SMS, e-mail, pessoalmente), resultado ("Conseguimos conversar", "Não atendeu",
+"Pediu para falar depois", "Não era um bom momento ou não era seguro"...) e uma
+anotação opcional. O sistema guarda quem registrou.
+
+- O primeiro contato muda a inscrição de **Nova** para **Em contato**.
+- Os contatos não podem ser editados nem apagados: o acompanhamento fica fiel.
+- A anotação **não** vai para o Histórico do sistema (pode ter informação sensível).
+- A lista de inscrições mostra o último contato de cada uma e destaca as que estão
+  **sem contato há mais de 3 dias** (`app.inscricoes.dias-sem-contato`).
+
+### Notificações
+
+O **sino** no topo do painel mostra quantos avisos novos existem para você:
+
+- **Nova inscrição pelo site**: criado na hora em que a mulher envia a inscrição;
+- **Inscrição esperando contato**: criado automaticamente (verificação de hora em
+  hora) quando uma inscrição nova passa de 3 dias sem nenhum contato.
+
+Em `/notificacoes` ficam os últimos avisos; ao abrir a página, eles contam como
+vistos **para você** (cada pessoa da equipe tem o próprio controle). Por cuidado
+com a privacidade, o aviso mostra só o primeiro nome e o bairro. O painel também
+mostra um destaque quando há inscrições atrasadas.
+
+### Foto do comprovante (opcional)
+
+Na página de cada lançamento do Livro Caixa (`/caixa/movimentacoes/{id}`) há a
+seção **Foto do comprovante**. Anexar **não é obrigatório**.
+
+- Aceita JPG, PNG, WEBP ou PDF de até 5 MB. O tipo é conferido pelo conteúdo do
+  arquivo, não só pelo nome.
+- Logo depois de registrar uma entrada ou saída, a própria tela de confirmação já
+  mostra o campo para anexar a foto.
+- Qualquer pessoa da equipe pode anexar ou trocar; **remover** é só para a
+  administração. Tudo fica no Histórico.
+- Os arquivos ficam em `dados/comprovantes/` (fora do Git). Inclua essa pasta no
+  backup junto com o banco.
 
 ## Página pública e inscrições
 

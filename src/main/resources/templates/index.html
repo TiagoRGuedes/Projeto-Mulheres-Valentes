@@ -13,6 +13,11 @@
             <span><strong th:text="${inscricoesNovas == 1 ? 'Nova inscrição pelo site' : 'Novas inscrições pelo site'}">Novas inscrições pelo site</strong><small>Mulheres que pediram para entrar na ONG e aguardam o primeiro contato.</small></span>
             <span class="aviso-inscricoes-seta" aria-hidden="true">→</span>
         </a>
+        <a class="aviso-inscricoes aviso-inscricoes-atrasadas" th:if="${inscricoesAtrasadas > 0}" th:href="@{/inscricoes(status='NOVA')}">
+            <span class="aviso-inscricoes-numero" th:text="${inscricoesAtrasadas}">0</span>
+            <span><strong th:text="|${inscricoesAtrasadas == 1 ? 'Inscrição' : 'Inscrições'} sem contato há mais de ${diasSemContato} dias|">Inscrições sem contato</strong><small>Ninguém da equipe registrou contato com elas ainda. Priorize estas.</small></span>
+            <span class="aviso-inscricoes-seta" aria-hidden="true">→</span>
+        </a>
 
         <section class="boas-vindas dashboard-hero" aria-labelledby="titulo-home">
             <div class="hero-grade">
