@@ -39,7 +39,8 @@ class PainelRedesenhadoTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("O que você precisa fazer hoje?")))
                 .andExpect(content().string(containsString("Como está a ONG")))
-                .andExpect(content().string(containsString("Mais opções")));
+                .andExpect(content().string(containsString("Histórico do sistema")))
+                .andExpect(content().string(containsString("Preferências de exibição")));
     }
 
     @Test

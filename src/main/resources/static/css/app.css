@@ -6957,49 +6957,6 @@ body.pagina-publica {
     color: inherit;
 }
 
-.menu-mais {
-    margin-top: 1.25rem;
-    padding-top: .75rem;
-    border-top: 1px solid var(--border-soft);
-}
-
-.menu-mais > summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 40px;
-    padding: .4rem .75rem;
-    border-radius: .75rem;
-    color: var(--text-secondary);
-    font-size: .78rem;
-    font-weight: 800;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    list-style: none;
-}
-
-.menu-mais > summary::-webkit-details-marker {
-    display: none;
-}
-
-.menu-mais > summary::after {
-    content: "+";
-    font-size: 1.1rem;
-}
-
-.menu-mais[open] > summary::after {
-    content: "−";
-}
-
-.menu-mais > summary:hover {
-    background: var(--surface-page);
-}
-
-.menu-mais .menu-lista {
-    margin-top: .3rem;
-}
-
 .modo-escuro .topo {
     background: #0c2d33;
 }
