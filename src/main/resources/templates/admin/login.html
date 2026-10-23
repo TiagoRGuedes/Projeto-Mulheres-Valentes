@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/publico :: head('Área da equipe — ONG Mulheres Valentes', 'Acesso restrito à equipe da ONG Mulheres Valentes.')}"></head>
+<body class="pagina-publica pagina-login" th:classappend="|fonte-${preferencias.tamanhoFonte} ${preferencias.altoContraste ? 'alto-contraste' : ''} ${preferencias.modoEscuro ? 'modo-escuro' : ''} ${preferencias.reduzirAnimacoes ? 'reduzir-animacoes' : ''}|">
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo principal</a>
+
+<main id="conteudo" tabindex="-1" class="area-login">
+    <section class="cartao-login">
+        <div class="login-marca">
+            <img th:src="@{/img/brand/logo-mulheres-valentes.png}" alt="" width="292" height="368">
+            <span>Mulheres<br>Valentes</span>
+        </div>
+
+        <p class="sobretitulo-publico">Área da equipe</p>
+        <h1>Entrar no painel</h1>
+        <p class="login-apoio">Use o seu usuário e a sua senha para abrir a gestão de presença e do livro caixa.</p>
+
+        <div class="alerta-publico" role="alert" th:if="${erro}">
+            <strong th:text="${erro}">Usuário ou senha não conferem.</strong>
+        </div>
+        <p class="login-aviso" role="status" th:if="${aviso}" th:text="${aviso}">Você saiu do painel.</p>
+
+        <form class="formulario-publico" th:action="@{/admin}" method="post">
+            <div class="campo-publico">
+                <label for="usuario">Usuário</label>
+                <input id="usuario" name="usuario" type="text" th:value="${usuario}" maxlength="60" autocomplete="username" autofocus required>
+            </div>
+            <div class="campo-publico">
+                <label for="senha">Senha</label>
+                <input id="senha" name="senha" type="password" maxlength="60" autocomplete="current-password" required>
+            </div>
+            <button class="botao-publico botao-publico-destaque botao-publico-grande" type="submit">Entrar</button>
+        </form>
+
+        <a class="login-voltar" th:href="@{/}"><span aria-hidden="true">←</span> Voltar para o site da ONG</a>
+    </section>
+</main>
+</body>
+</html>

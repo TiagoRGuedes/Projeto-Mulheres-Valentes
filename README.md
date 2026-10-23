@@ -9,7 +9,7 @@ Projeto acadêmico da disciplina **IBM4024 — Projeto em Ciência de Dados II �
 
 Este repositório contém uma aplicação web independente para apoiar o controle de presença e o livro caixa da ONG Mulheres Valentes. Ele não compartilha banco de dados, configuração, dependências, código ou documentação com o projeto da ONG Remo Meu Rumo.
 
-> **Importante:** a entrevista com a ONG foi realizada e está registrada no documento de escopo (AC1). O protótipo foi ajustado ao que ela confirmou — ver **Requisitos do escopo** logo abaixo. O que a ONG não confirmou continua marcado como premissa em `docs/PREMISSAS_E_DUVIDAS.md`, e a autenticação (RNF04) ainda não foi implementada.
+> **Importante:** a entrevista com a ONG foi realizada e está registrada no documento de escopo (AC1). O protótipo foi ajustado ao que ela confirmou — ver **Requisitos do escopo** logo abaixo. O que a ONG não confirmou continua marcado como premissa em `docs/PREMISSAS_E_DUVIDAS.md`. A autenticação (RNF04) existe em versão simples: uma única conta de administrador, ainda sem perfis nem identificação de quem fez cada ação.
 
 ## Requisitos do escopo (AC1)
 
@@ -27,7 +27,7 @@ Este repositório contém uma aplicação web independente para apoiar o control
 | RNF01 | Valores em decimal, nunca em ponto flutuante | `BigDecimal` no domínio, `DECIMAL(10,2)` no banco |
 | RNF02 | Interface simples para quem tem familiaridade digital média | textos de ajuda, fluxo Preencher → Revisar → Confirmar, Central de Ajuda |
 | RNF03 | Funcionar em celular | CSS próprio responsivo, tabelas adaptáveis |
-| RNF04 | Acesso com login | **não implementado** — ver "Limites antes do uso real" |
+| RNF04 | Acesso com login | `/admin` · sessão única de administrador — ver "Acesso da equipe" |
 
 ### O que a entrevista mudou no protótipo
 
@@ -446,19 +446,45 @@ Leia o primeiro erro em target/surefire-reports/. Confirme que Java 25 está ati
 - docs/DECISOES_TECNICAS.md — escolhas de arquitetura e seus motivos.
 - docs/IDENTIDADE_VISUAL.md — origem dos assets, paleta, tipografia, componentes e validação do redesign.
 
+## Acesso da equipe
+
+O painel não aparece mais em nenhum link da página pública: para chegar nele é
+preciso digitar `/admin` no endereço. Essa tela pede usuário e senha e, só
+depois disso, libera `/painel` e as demais telas administrativas. Quem tentar
+abrir qualquer endereço interno sem ter entrado volta para `/admin`, e as rotas
+`/api/**` respondem `401`. O botão **Sair**, no alto do painel, encerra a sessão.
+
+O console do banco (`/h2-console`) também exige login. Ele roda fora do Spring
+MVC, então é protegido por um filtro próprio — sem isso, qualquer pessoa leria e
+apagaria o banco inteiro sem passar pela tela de entrada.
+
+As credenciais valem para uma única conta compartilhada e vêm das variáveis de
+ambiente `MV_ADMIN_USUARIO` e `MV_ADMIN_SENHA`. Não há valor padrão: sem as duas
+definidas a aplicação não sobe, e reclama de qual faltou. É proposital — assim
+nenhuma senha fica guardada no repositório.
+
+Para rodar na sua máquina, defina as duas antes de subir:
+
+```bash
+MV_ADMIN_USUARIO=equipe MV_ADMIN_SENHA=escolha-uma ./mvnw spring-boot:run
+```
+
+No IntelliJ, o mesmo vai em *Run > Edit Configurations > Environment variables*.
+
 ## Limites antes do uso real
 
-**Antes de publicar a página pública na internet, o login (RNF04) é obrigatório.**
-A página pública e o painel da equipe estão na mesma aplicação, e o painel não
-pede senha: qualquer pessoa que descubra `/painel` ou `/inscricoes` vê os dados
-das mulheres inscritas — inclusive como e quando é seguro falar com elas. Com o
-formulário público, esse risco deixa de ser teórico.
+**O login atual é um protótipo e não basta para dados reais.** A senha fica em
+texto no arquivo de configuração, existe uma conta só e o sistema não registra
+quem fez cada ação. A PR03 indica que pelo menos duas contas serão necessárias
+(Karine e Isabelle), com perfis diferentes — isso ainda não existe.
 
-**O RNF04 do escopo exige login e o protótipo ainda não tem autenticação.** Essa é a
-lacuna conhecida mais importante: a PR03 indica que pelo menos duas contas
-serão necessárias (Karine e Isabelle). Enquanto isso não existir, qualquer pessoa
-com acesso ao endereço pode alterar lançamentos financeiros, e o sistema não
-deve receber dados reais.
+O que já foi feito contra os riscos mais básicos: a sessão é trocada no login
+(evita fixação de sessão), o cookie é `HttpOnly` e `SameSite=Lax`, o
+identificador da sessão não aparece na URL, as telas do painel não ficam no
+cache do navegador e a comparação da senha não vaza tempo. Ainda faltam, antes
+de qualquer uso real: senhas com hash, contas individuais por pessoa, HTTPS
+com cookie `Secure`, token anti-CSRF nos formulários e limite de tentativas de
+senha.
 
 Perfis de acesso, identificação do responsável por cada ação, política organizacional de correção/estorno, backup, hospedagem, privacidade, volume de dados e regras de prestação de contas também ainda precisam ser discutidos. A trilha administrativa já existe no protótipo, mas não substitui uma política formal de auditoria. Este projeto não deve ser colocado em produção nem receber dados pessoais reais antes dessas definições e de uma avaliação de segurança.
 

@@ -259,6 +259,10 @@ h3 {
     gap: .55rem;
 }
 
+.topo-acoes .form-sair {
+    display: flex;
+}
+
 .topo .botao-discreto {
     border-color: rgba(255, 255, 255, .22);
     background: rgba(255, 255, 255, .09);
@@ -6155,6 +6159,88 @@ body.pagina-publica {
 
 .rodape-publico-base a {
     color: #c9dcde;
+}
+
+.area-login {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 3rem);
+    background: linear-gradient(160deg, var(--mv-primary-dark), var(--mv-primary) 55%, var(--mv-primary-deep));
+}
+
+.cartao-login {
+    width: min(100%, 27rem);
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    background: var(--surface-card);
+    box-shadow: var(--shadow-md);
+}
+
+.alto-contraste .cartao-login {
+    border-width: 2px;
+}
+
+.login-marca {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    margin-bottom: 1.75rem;
+    color: var(--mv-primary-dark);
+    font-weight: 800;
+    line-height: 1.05;
+}
+
+.modo-escuro .login-marca {
+    color: var(--text-primary);
+}
+
+.login-marca img {
+    width: 42px;
+    height: 52px;
+    object-fit: contain;
+}
+
+.cartao-login h1 {
+    margin: 0 0 .6rem;
+    color: var(--mv-primary);
+    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+    letter-spacing: -.02em;
+    line-height: 1.15;
+}
+
+.modo-escuro .cartao-login h1 {
+    color: var(--text-primary);
+}
+
+.login-apoio {
+    margin: 0 0 1.5rem;
+    color: var(--text-secondary);
+}
+
+.login-aviso {
+    margin: 0 0 1.25rem;
+    padding: .75rem 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--status-info-soft);
+    color: var(--status-info-text);
+    font-weight: 650;
+}
+
+.cartao-login .alerta-publico {
+    margin-bottom: 1.25rem;
+}
+
+.cartao-login .formulario-publico > .botao-publico-grande {
+    justify-self: stretch;
+}
+
+.login-voltar {
+    display: inline-block;
+    margin-top: 1.75rem;
+    color: var(--link-color);
+    font-weight: 700;
 }
 
 .pagina-inscricao {

@@ -1,10 +1,12 @@
 package com.ibmec.mulheresvalentes.controller;
 
 import com.ibmec.mulheresvalentes.dto.ResumoFinanceiroDTO;
+import com.ibmec.mulheresvalentes.security.SessaoAdministrador;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -22,15 +24,18 @@ class PainelRedesenhadoTest {
     private WebApplicationContext contexto;
 
     private MockMvc mvc;
+    private MockHttpSession sessao;
 
     @BeforeEach
     void preparar() {
         mvc = MockMvcBuilders.webAppContextSetup(contexto).build();
+        sessao = new MockHttpSession();
+        sessao.setAttribute(SessaoAdministrador.CHAVE_SESSAO, Boolean.TRUE);
     }
 
     @Test
     void visaoGeralMostraAsAcoesDoDiaEOResumoDaOng() throws Exception {
-        mvc.perform(get("/painel"))
+        mvc.perform(get("/painel").session(sessao))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("O que você precisa fazer hoje?")))
                 .andExpect(content().string(containsString("Como está a ONG")))
@@ -39,10 +44,10 @@ class PainelRedesenhadoTest {
 
     @Test
     void filtroDaTabelaDoCaixaNaoAlteraOsIndicadores() throws Exception {
-        ResumoFinanceiroDTO semFiltro = (ResumoFinanceiroDTO) mvc.perform(get("/caixa"))
+        ResumoFinanceiroDTO semFiltro = (ResumoFinanceiroDTO) mvc.perform(get("/caixa").session(sessao))
                 .andExpect(status().isOk())
                 .andReturn().getModelAndView().getModel().get("resumo");
-        ResumoFinanceiroDTO comFiltro = (ResumoFinanceiroDTO) mvc.perform(get("/caixa").param("tipo", "SAIDA"))
+        ResumoFinanceiroDTO comFiltro = (ResumoFinanceiroDTO) mvc.perform(get("/caixa").session(sessao).param("tipo", "SAIDA"))
                 .andExpect(status().isOk())
                 .andReturn().getModelAndView().getModel().get("resumo");
 
@@ -51,7 +56,7 @@ class PainelRedesenhadoTest {
 
     @Test
     void filtroDeDoacoesMarcaAPilulaCerta() throws Exception {
-        mvc.perform(get("/caixa").param("natureza", "DOACAO_MATERIAL"))
+        mvc.perform(get("/caixa").session(sessao).param("natureza", "DOACAO_MATERIAL"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("aria-current=\"true\" class=\"ativo\">Doações</a>")));
     }
